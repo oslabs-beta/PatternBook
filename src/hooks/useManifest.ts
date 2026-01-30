@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { ComponentManifest } from "../types/manifest";
+import { useRegistryStore } from "../stores/registryStore";
 
 /**
  * Hook to load and manage the component manifest
@@ -7,7 +8,7 @@ import type { ComponentManifest } from "../types/manifest";
  * In production, loads from generated manifest
  */
 export function useManifest() {
-  const [manifest, setManifest] = useState<ComponentManifest | null>(null);
+  const setManifest = useRegistryStore((state) => state.setManifest);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -16,14 +17,13 @@ export function useManifest() {
       try {
         setLoading(true);
         // Load from mock data for now
-        // Your teammates will replace this with the real generated manifest
         const response = await fetch("/mock-data/manifest.json");
 
         if (!response.ok) {
           throw new Error("Failed to load manifest");
         }
 
-        const data = await response.json();
+        const data = await response.json() as ComponentManifest;
         setManifest(data);
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Unknown error"));
@@ -33,7 +33,7 @@ export function useManifest() {
     }
 
     loadManifest();
-  }, []);
+  }, [setManifest]);
 
-  return { manifest, loading, error };
+  return { loading, error };
 }
