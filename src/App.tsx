@@ -1,12 +1,12 @@
 // import { useState } from "react";
 import "./main.css"; //update this when ready with css
-import DashboardContainer from "./dashboard-etc/DashboardContainer.tsx";
+import Dashboard from "./dashboard-etc/Dashboard.tsx";
 
 function App() {
   return (
     <>
       <h1>Pattern Book</h1>
-      <DashboardContainer />
+      <Dashboard />
     </>
   );
 }
