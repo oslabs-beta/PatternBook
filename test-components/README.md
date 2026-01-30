@@ -4,7 +4,7 @@ This folder contains sample React components for testing the PatternBook parser.
 
 ## Purpose
 
-These components are used by your teammates to test the ts-morph static analysis engine. The parser should:
+Use these components to test the ts-morph static analysis engine. The parser should:
 
 1. Scan these `.tsx` files
 2. Extract component metadata (props, types, JSDoc comments)
