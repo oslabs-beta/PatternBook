@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useRegistryStore } from "./stores/registryStore";
+import "./main.css";
+import Dashboard from "./dashboard-etc/Dashboard.tsx";
 
 function App() {
+  // Load manifest into store on mount
   const setManifest = useRegistryStore((state) => state.setManifest);
-  const components = useRegistryStore((state) => state.components);
-  const loading = useRegistryStore((state) => state.manifest === null);
 
   useEffect(() => {
     fetch("/mock-data/manifest.json")
@@ -13,20 +14,11 @@ function App() {
       .catch(console.error);
   }, [setManifest]);
 
-  if (loading) {
-    return <div>Loading manifest...</div>;
-  }
-
   return (
-    <div>
-      <h1>PatternBook Store Demo</h1>
-      <p>Components loaded: {components.length}</p>
-      <ul>
-        {components.map((c) => (
-          <li key={c.id}>{c.name}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <h1>Pattern Book</h1>
+      <Dashboard />
+    </>
   );
 }
 
