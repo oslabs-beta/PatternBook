@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2",
+    "enquirer": "^2.4.1",
+    "fast-glob": "^3.3.3",
+    "fs": "^0.0.1-security",
+    "ignore": "^7.0.5",
+    "ora": "^9.1.0",
+    "path": "^0.12.7"
+  }
+}
