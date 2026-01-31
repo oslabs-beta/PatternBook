@@ -1,283 +1,224 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-01-28T20:44:52-05:00",
+  "generatedAt": "2026-01-31T16:23:00-05:00",
   "projectName": "TestDesignSystem",
   "components": [
     {
       "id": "button-component",
       "name": "Button",
       "category": "forms",
-      "filePath": "test-components/Button.tsx",
-      "description": "A customizable button component with multiple variants and sizes",
+      "filePath": "test-components/button.tsx",
+      "description": "A button component built with Radix UI Slot and class-variance-authority for flexible styling variants",
       "type": "function",
       "props": [
         {
           "name": "variant",
-          "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\"",
+          "type": "\"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | \"link\"",
           "required": false,
-          "defaultValue": "\"primary\"",
+          "defaultValue": "\"default\"",
           "description": "Visual style variant of the button"
         },
         {
           "name": "size",
-          "type": "\"sm\" | \"md\" | \"lg\"",
+          "type": "\"default\" | \"sm\" | \"lg\" | \"icon\"",
           "required": false,
-          "defaultValue": "\"md\"",
+          "defaultValue": "\"default\"",
           "description": "Size of the button"
         },
         {
-          "name": "disabled",
+          "name": "asChild",
           "type": "boolean",
           "required": false,
           "defaultValue": "false",
-          "description": "Whether the button is disabled"
-        },
-        {
-          "name": "onClick",
-          "type": "() => void",
-          "required": false,
-          "description": "Click handler function"
-        },
-        {
-          "name": "children",
-          "type": "React.ReactNode",
-          "required": true,
-          "description": "Button content"
+          "description": "Render as a child component using Radix UI Slot"
         }
       ],
       "examples": [
         {
-          "title": "Primary Button",
-          "code": "<Button variant=\"primary\">Click me</Button>"
+          "title": "Default Button",
+          "code": "<Button>Click me</Button>"
         },
         {
-          "title": "Danger Button",
-          "code": "<Button variant=\"danger\" size=\"lg\">Delete</Button>"
+          "title": "Destructive Button",
+          "code": "<Button variant=\"destructive\">Delete</Button>"
         },
         {
-          "title": "Disabled Button",
-          "code": "<Button disabled>Can't click</Button>"
+          "title": "Outline Button",
+          "code": "<Button variant=\"outline\" size=\"lg\">Outline</Button>"
         }
       ],
-      "sourceCode": "export interface ButtonProps {\n  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';\n  size?: 'sm' | 'md' | 'lg';\n  disabled?: boolean;\n  onClick?: () => void;\n  children: React.ReactNode;\n}\n\nexport function Button({ \n  variant = 'primary', \n  size = 'md', \n  disabled = false,\n  onClick,\n  children \n}: ButtonProps) {\n  return (\n    <button \n      className={`btn btn-${variant} btn-${size}`}\n      disabled={disabled}\n      onClick={onClick}\n    >\n      {children}\n    </button>\n  );\n}",
-      "tags": ["interactive", "form"],
-      "exports": ["Button", "ButtonProps"]
+      "sourceCode": "import * as React from \"react\"\nimport { Slot } from \"@radix-ui/react-slot\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\nimport { cn } from \"@/lib/utils\"\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-primary text-primary-foreground shadow hover:bg-primary/90\",\n        destructive: \"bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90\",\n        outline: \"border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground\",\n        secondary: \"bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80\",\n        ghost: \"hover:bg-accent hover:text-accent-foreground\",\n        link: \"text-primary underline-offset-4 hover:underline\",\n      },\n      size: {\n        default: \"h-9 px-4 py-2\",\n        sm: \"h-8 rounded-md px-3 text-xs\",\n        lg: \"h-10 rounded-md px-8\",\n        icon: \"h-9 w-9\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n      size: \"default\",\n    },\n  }\n)\n\nexport interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {\n  asChild?: boolean\n}\n\nconst Button = React.forwardRef<HTMLButtonElement, ButtonProps>(\n  ({ className, variant, size, asChild = false, ...props }, ref) => {\n    const Comp = asChild ? Slot : \"button\"\n    return (\n      <Comp\n        className={cn(buttonVariants({ variant, size, className }))}\n        ref={ref}\n        {...props}\n      />\n    )\n  }\n)\nButton.displayName = \"Button\"\n\nexport { Button, buttonVariants }",
+      "tags": ["interactive", "form", "shadcn"],
+      "exports": ["Button", "ButtonProps", "buttonVariants"]
     },
     {
       "id": "input-component",
       "name": "Input",
       "category": "forms",
-      "filePath": "test-components/Input.tsx",
-      "description": "A flexible input field with label, error states, and validation support",
+      "filePath": "test-components/input.tsx",
+      "description": "A flexible input field with comprehensive styling and forwardRef support",
       "type": "function",
       "props": [
         {
-          "name": "label",
-          "type": "string",
-          "required": false,
-          "description": "Label text displayed above the input"
-        },
-        {
-          "name": "placeholder",
-          "type": "string",
-          "required": false,
-          "description": "Placeholder text"
-        },
-        {
-          "name": "error",
-          "type": "string",
-          "required": false,
-          "description": "Error message to display"
-        },
-        {
           "name": "type",
-          "type": "\"text\" | \"email\" | \"password\" | \"number\"",
-          "required": false,
-          "defaultValue": "\"text\"",
-          "description": "Input type"
-        },
-        {
-          "name": "value",
           "type": "string",
           "required": false,
-          "description": "Controlled input value"
+          "description": "HTML input type attribute"
         },
         {
-          "name": "onChange",
-          "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+          "name": "className",
+          "type": "string",
           "required": false,
-          "description": "Change handler"
+          "description": "Additional CSS classes"
         }
       ],
       "examples": [
         {
           "title": "Basic Input",
-          "code": "<Input label=\"Email\" placeholder=\"Enter your email\" />"
+          "code": "<Input type=\"text\" placeholder=\"Enter text...\" />"
         },
         {
-          "title": "Input with Error",
-          "code": "<Input label=\"Password\" type=\"password\" error=\"Password is required\" />"
+          "title": "Email Input",
+          "code": "<Input type=\"email\" placeholder=\"your@email.com\" />"
         }
       ],
-      "sourceCode": "export interface InputProps {\n  label?: string;\n  placeholder?: string;\n  error?: string;\n  type?: 'text' | 'email' | 'password' | 'number';\n  value?: string;\n  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;\n}\n\nexport function Input({ label, placeholder, error, type = 'text', value, onChange }: InputProps) {\n  return (\n    <div className=\"input-wrapper\">\n      {label && <label>{label}</label>}\n      <input type={type} placeholder={placeholder} value={value} onChange={onChange} />\n      {error && <span className=\"error\">{error}</span>}\n    </div>\n  );\n}",
-      "tags": ["form", "input"],
-      "exports": ["Input", "InputProps"]
+      "sourceCode": "import * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nconst Input = React.forwardRef<HTMLInputElement, React.ComponentProps<\"input\">>(\n  ({ className, type, ...props }, ref) => {\n    return (\n      <input\n        type={type}\n        className={cn(\n          \"flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm\",\n          className\n        )}\n        ref={ref}\n        {...props}\n      />\n    )\n  }\n)\nInput.displayName = \"Input\"\n\nexport { Input }",
+      "tags": ["form", "input", "shadcn"],
+      "exports": ["Input"]
     },
     {
       "id": "card-component",
       "name": "Card",
       "category": "layout",
-      "filePath": "test-components/Card.tsx",
-      "description": "A container component for grouping related content with optional header and footer",
+      "filePath": "test-components/card.tsx",
+      "description": "A versatile card container with multiple sub-components for headers, titles, descriptions, content, and footers",
       "type": "function",
       "props": [
         {
-          "name": "title",
+          "name": "className",
           "type": "string",
           "required": false,
-          "description": "Card title displayed in header"
-        },
-        {
-          "name": "footer",
-          "type": "React.ReactNode",
-          "required": false,
-          "description": "Content for card footer"
-        },
-        {
-          "name": "children",
-          "type": "React.ReactNode",
-          "required": true,
-          "description": "Main card content"
-        },
-        {
-          "name": "variant",
-          "type": "\"default\" | \"bordered\" | \"elevated\"",
-          "required": false,
-          "defaultValue": "\"default\"",
-          "description": "Visual style variant"
+          "description": "Additional CSS classes for the card"
         }
       ],
       "examples": [
         {
           "title": "Simple Card",
-          "code": "<Card title=\"Welcome\">\n  <p>This is a card</p>\n</Card>"
+          "code": "<Card>\n  <CardHeader>\n    <CardTitle>Card Title</CardTitle>\n    <CardDescription>Card description</CardDescription>\n  </CardHeader>\n  <CardContent>\n    <p>Card content goes here</p>\n  </CardContent>\n</Card>"
         },
         {
-          "title": "Elevated Card with Footer",
-          "code": "<Card title=\"Profile\" variant=\"elevated\" footer={<button>Save</button>}>\n  <p>User information</p>\n</Card>"
+          "title": "Card with Footer",
+          "code": "<Card>\n  <CardHeader>\n    <CardTitle>Profile</CardTitle>\n  </CardHeader>\n  <CardContent>\n    <p>User information</p>\n  </CardContent>\n  <CardFooter>\n    <button>Save</button>\n  </CardFooter>\n</Card>"
         }
       ],
-      "sourceCode": "export interface CardProps {\n  title?: string;\n  footer?: React.ReactNode;\n  children: React.ReactNode;\n  variant?: 'default' | 'bordered' | 'elevated';\n}\n\nexport function Card({ title, footer, children, variant = 'default' }: CardProps) {\n  return (\n    <div className={`card card-${variant}`}>\n      {title && <div className=\"card-header\">{title}</div>}\n      <div className=\"card-body\">{children}</div>\n      {footer && <div className=\"card-footer\">{footer}</div>}\n    </div>\n  );\n}",
-      "tags": ["container", "layout"],
-      "exports": ["Card", "CardProps"]
+      "sourceCode": "import * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nconst Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div\n      ref={ref}\n      className={cn(\n        \"rounded-xl border bg-card text-card-foreground shadow\",\n        className\n      )}\n      {...props}\n    />\n  )\n)\nCard.displayName = \"Card\"\n\nconst CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div\n      ref={ref}\n      className={cn(\"flex flex-col space-y-1.5 p-6\", className)}\n      {...props}\n    />\n  )\n)\nCardHeader.displayName = \"CardHeader\"\n\nconst CardTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div\n      ref={ref}\n      className={cn(\"font-semibold leading-none tracking-tight\", className)}\n      {...props}\n    />\n  )\n)\nCardTitle.displayName = \"CardTitle\"\n\nconst CardDescription = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div\n      ref={ref}\n      className={cn(\"text-sm text-muted-foreground\", className)}\n      {...props}\n    />\n  )\n)\nCardDescription.displayName = \"CardDescription\"\n\nconst CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div ref={ref} className={cn(\"p-6 pt-0\", className)} {...props} />\n  )\n)\nCardContent.displayName = \"CardContent\"\n\nconst CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(\n  ({ className, ...props }, ref) => (\n    <div\n      ref={ref}\n      className={cn(\"flex items-center p-6 pt-0\", className)}\n      {...props}\n    />\n  )\n)\nCardFooter.displayName = \"CardFooter\"\n\nexport { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }",
+      "tags": ["container", "layout", "shadcn"],
+      "exports": [
+        "Card",
+        "CardHeader",
+        "CardFooter",
+        "CardTitle",
+        "CardDescription",
+        "CardContent"
+      ]
     },
     {
-      "id": "modal-component",
-      "name": "Modal",
+      "id": "dialog-component",
+      "name": "Dialog",
       "category": "overlay",
-      "filePath": "test-components/Modal.tsx",
-      "description": "A modal dialog component with backdrop and close functionality",
+      "filePath": "test-components/dialog.tsx",
+      "description": "A modal dialog component built with Radix UI primitives, featuring overlay, content, header, footer, and close functionality",
       "type": "function",
       "props": [
         {
-          "name": "isOpen",
+          "name": "open",
           "type": "boolean",
-          "required": true,
-          "description": "Controls modal visibility"
-        },
-        {
-          "name": "onClose",
-          "type": "() => void",
-          "required": true,
-          "description": "Callback when modal should close"
-        },
-        {
-          "name": "title",
-          "type": "string",
           "required": false,
-          "description": "Modal title"
+          "description": "Controls dialog visibility (Radix UI Root prop)"
         },
         {
-          "name": "children",
-          "type": "React.ReactNode",
-          "required": true,
-          "description": "Modal content"
-        },
-        {
-          "name": "size",
-          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "name": "onOpenChange",
+          "type": "(open: boolean) => void",
           "required": false,
-          "defaultValue": "\"md\"",
-          "description": "Modal size"
+          "description": "Callback when dialog open state changes"
         }
       ],
       "examples": [
         {
-          "title": "Basic Modal",
-          "code": "<Modal isOpen={true} onClose={() => {}} title=\"Confirm\">\n  <p>Are you sure?</p>\n</Modal>"
+          "title": "Basic Dialog",
+          "code": "<Dialog>\n  <DialogTrigger asChild>\n    <button>Open Dialog</button>\n  </DialogTrigger>\n  <DialogContent>\n    <DialogHeader>\n      <DialogTitle>Are you sure?</DialogTitle>\n      <DialogDescription>\n        This action cannot be undone.\n      </DialogDescription>\n    </DialogHeader>\n  </DialogContent>\n</Dialog>"
         }
       ],
-      "sourceCode": "export interface ModalProps {\n  isOpen: boolean;\n  onClose: () => void;\n  title?: string;\n  children: React.ReactNode;\n  size?: 'sm' | 'md' | 'lg' | 'xl';\n}\n\nexport function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-backdrop\" onClick={onClose}>\n      <div className={`modal modal-${size}`} onClick={(e) => e.stopPropagation()}>\n        {title && <div className=\"modal-header\">{title}</div>}\n        <div className=\"modal-body\">{children}</div>\n      </div>\n    </div>\n  );\n}",
-      "tags": ["overlay", "dialog"],
-      "exports": ["Modal", "ModalProps"]
+      "sourceCode": "import * as React from \"react\"\nimport * as DialogPrimitive from \"@radix-ui/react-dialog\"\nimport { X } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\nconst Dialog = DialogPrimitive.Root\nconst DialogTrigger = DialogPrimitive.Trigger\nconst DialogPortal = DialogPrimitive.Portal\nconst DialogClose = DialogPrimitive.Close\n\nconst DialogOverlay = React.forwardRef<\n  React.ElementRef<typeof DialogPrimitive.Overlay>,\n  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>\n>(({ className, ...props }, ref) => (\n  <DialogPrimitive.Overlay\n    ref={ref}\n    className={cn(\n      \"fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0\",\n      className\n    )}\n    {...props}\n  />\n))\nDialogOverlay.displayName = DialogPrimitive.Overlay.displayName\n\nconst DialogContent = React.forwardRef<\n  React.ElementRef<typeof DialogPrimitive.Content>,\n  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>\n>(({ className, children, ...props }, ref) => (\n  <DialogPortal>\n    <DialogOverlay />\n    <DialogPrimitive.Content\n      ref={ref}\n      className={cn(\n        \"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg\",\n        className\n      )}\n      {...props}\n    >\n      {children}\n      <DialogPrimitive.Close className=\"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground\">\n        <X className=\"h-4 w-4\" />\n        <span className=\"sr-only\">Close</span>\n      </DialogPrimitive.Close>\n    </DialogPrimitive.Content>\n  </DialogPortal>\n))\nDialogContent.displayName = DialogPrimitive.Content.displayName\n\nexport {\n  Dialog,\n  DialogPortal,\n  DialogOverlay,\n  DialogTrigger,\n  DialogClose,\n  DialogContent,\n  DialogHeader,\n  DialogFooter,\n  DialogTitle,\n  DialogDescription,\n}",
+      "tags": ["overlay", "dialog", "modal", "shadcn"],
+      "exports": [
+        "Dialog",
+        "DialogPortal",
+        "DialogOverlay",
+        "DialogTrigger",
+        "DialogClose",
+        "DialogContent",
+        "DialogHeader",
+        "DialogFooter",
+        "DialogTitle",
+        "DialogDescription"
+      ]
     },
     {
-      "id": "dropdown-component",
-      "name": "Dropdown",
+      "id": "select-component",
+      "name": "Select",
       "category": "forms",
-      "filePath": "test-components/Dropdown.tsx",
-      "description": "A dropdown select component with customizable options",
+      "filePath": "test-components/select.tsx",
+      "description": "A comprehensive dropdown select component built with Radix UI primitives, featuring scroll buttons, groups, and customizable styling",
       "type": "function",
       "props": [
-        {
-          "name": "options",
-          "type": "Array<{ value: string; label: string }>",
-          "required": true,
-          "description": "Array of dropdown options"
-        },
         {
           "name": "value",
           "type": "string",
           "required": false,
-          "description": "Currently selected value"
+          "description": "Currently selected value (Radix UI Root prop)"
         },
         {
-          "name": "onChange",
+          "name": "onValueChange",
           "type": "(value: string) => void",
           "required": false,
           "description": "Callback when selection changes"
-        },
-        {
-          "name": "placeholder",
-          "type": "string",
-          "required": false,
-          "defaultValue": "\"Select...\"",
-          "description": "Placeholder text"
         },
         {
           "name": "disabled",
           "type": "boolean",
           "required": false,
           "defaultValue": "false",
-          "description": "Whether dropdown is disabled"
+          "description": "Whether select is disabled"
         }
       ],
       "examples": [
         {
-          "title": "Basic Dropdown",
-          "code": "<Dropdown options={[{value: '1', label: 'Option 1'}, {value: '2', label: 'Option 2'}]} />"
+          "title": "Basic Select",
+          "code": "<Select>\n  <SelectTrigger>\n    <SelectValue placeholder=\"Select an option\" />\n  </SelectTrigger>\n  <SelectContent>\n    <SelectItem value=\"option1\">Option 1</SelectItem>\n    <SelectItem value=\"option2\">Option 2</SelectItem>\n    <SelectItem value=\"option3\">Option 3</SelectItem>\n  </SelectContent>\n</Select>"
         }
       ],
-      "sourceCode": "export interface DropdownProps {\n  options: Array<{ value: string; label: string }>;\n  value?: string;\n  onChange?: (value: string) => void;\n  placeholder?: string;\n  disabled?: boolean;\n}\n\nexport function Dropdown({ options, value, onChange, placeholder = 'Select...', disabled = false }: DropdownProps) {\n  return (\n    <select value={value} onChange={(e) => onChange?.(e.target.value)} disabled={disabled}>\n      <option value=\"\">{placeholder}</option>\n      {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}\n    </select>\n  );\n}",
-      "tags": ["form", "select"],
-      "exports": ["Dropdown", "DropdownProps"]
+      "sourceCode": "\"use client\"\n\nimport * as React from \"react\"\nimport * as SelectPrimitive from \"@radix-ui/react-select\"\nimport { Check, ChevronDown, ChevronUp } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\nconst Select = SelectPrimitive.Root\nconst SelectGroup = SelectPrimitive.Group\nconst SelectValue = SelectPrimitive.Value\n\nconst SelectTrigger = React.forwardRef<\n  React.ElementRef<typeof SelectPrimitive.Trigger>,\n  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>\n>(({ className, children, ...props }, ref) => (\n  <SelectPrimitive.Trigger\n    ref={ref}\n    className={cn(\n      \"flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1\",\n      className\n    )}\n    {...props}\n  >\n    {children}\n    <SelectPrimitive.Icon asChild>\n      <ChevronDown className=\"h-4 w-4 opacity-50\" />\n    </SelectPrimitive.Icon>\n  </SelectPrimitive.Trigger>\n))\nSelectTrigger.displayName = SelectPrimitive.Trigger.displayName\n\nexport {\n  Select,\n  SelectGroup,\n  SelectValue,\n  SelectTrigger,\n  SelectContent,\n  SelectLabel,\n  SelectItem,\n  SelectSeparator,\n  SelectScrollUpButton,\n  SelectScrollDownButton,\n}",
+      "tags": ["form", "select", "dropdown", "shadcn"],
+      "exports": [
+        "Select",
+        "SelectGroup",
+        "SelectValue",
+        "SelectTrigger",
+        "SelectContent",
+        "SelectLabel",
+        "SelectItem",
+        "SelectSeparator",
+        "SelectScrollUpButton",
+        "SelectScrollDownButton"
+      ]
     }
   ],
   "categories": [
     {
       "name": "forms",
       "displayName": "Form Components",
-      "description": "Interactive form elements like buttons, inputs, and dropdowns",
+      "description": "Interactive form elements like buttons, inputs, and selects",
       "componentCount": 3
     },
     {
@@ -289,13 +230,13 @@
     {
       "name": "overlay",
       "displayName": "Overlay Components",
-      "description": "Modals, tooltips, and other overlay elements",
+      "description": "Modals, dialogs, and other overlay elements",
       "componentCount": 1
     }
   ],
   "stats": {
     "totalComponents": 5,
     "totalCategories": 3,
-    "lastUpdated": "2026-01-28T20:44:52-05:00"
+    "lastUpdated": "2026-01-31T16:23:00-05:00"
   }
 }
