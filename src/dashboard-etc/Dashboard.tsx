@@ -7,7 +7,7 @@ import { Search } from "lucide-react";
 function Dashboard() {
   return (
     <>
-      <div className=" ">
+      <div className="flex-wrap justify-center">
         <SideBar />
         <PlayGround />
         <Search />
