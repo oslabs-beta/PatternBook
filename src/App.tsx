@@ -5,8 +5,10 @@ import Dashboard from "./dashboard-etc/Dashboard.tsx";
 function App() {
   return (
     <>
-      <h1>Pattern Book</h1>
-      <Dashboard />
+      <div className="flex-wrap max-width-500 items-center justify-center min-h-screen bg-black">
+        <h1 className="justify-center text-xl text-white">Pattern Book</h1>
+        <Dashboard />
+      </div>
     </>
   );
 }

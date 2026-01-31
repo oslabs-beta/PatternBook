@@ -1,6 +1,6 @@
 function SideBar() {
   return (
-    <div className="flex-row justify-self-start text-red-500 border border-red-500">
+    <div className="flex-wrap justify-self-start text-red-500 border border-red-500">
       <h4>
         {" "}
         this is a sidebar.<br></br> it should be on the left side with options
@@ -8,6 +8,8 @@ function SideBar() {
       </h4>
       <div>
         <ul>
+          {" "}
+          <p> actions: </p>
           <li>
             {" "}
             <p> option 1 </p>
