@@ -8,7 +8,7 @@ import { useRegistryStore } from "../stores/registryStore";
  * In production, loads from generated manifest
  */
 export function useManifest() {
-  const setManifest = useRegistryStore((state) => state.setManifest);
+  const setManifest = useRegistryStore((state: any) => state.setManifest);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -23,7 +23,7 @@ export function useManifest() {
           throw new Error("Failed to load manifest");
         }
 
-        const data = await response.json() as ComponentManifest;
+        const data = (await response.json()) as ComponentManifest;
         setManifest(data);
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Unknown error"));
