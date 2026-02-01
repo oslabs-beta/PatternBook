@@ -24,11 +24,10 @@ export function getInternalDependencies(file: SourceFile): string[] {
     const imports : ImportDeclaration[] = file.getImportDeclarations();
 
     //Filtering for internal components
-    const internalPaths : string[] = imports
+    return imports
         .map(dec  => dec.getModuleSpecifierValue())
-        .filter(path => path.startsWith('.'));
+        .filter(path => path.startsWith('.') || path.startsWith('@/'));
 
-    return internalPaths;
 }
 
 export function getAffectedParents(targetFile: string, graph: ComponentGraph): string[] {

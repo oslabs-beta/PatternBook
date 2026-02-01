@@ -38,4 +38,16 @@ it('should return an empty array if no internal imports are found', () => {
 
 });
 
+    it('should handle path aliases like "@/" if configured', () => {
+        const file: SourceFile = project.createSourceFile('alias-test.tsx', `
+    import { Header } from '@/components/Header';
+    import { Footer } from '../Footer';
+  `);
+
+        const result = getInternalDependencies(file);
+
+        expect(result).toContain('@/components/Header');
+        expect(result).toContain('../Footer');
+    });
+
 });
