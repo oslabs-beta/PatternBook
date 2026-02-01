@@ -10,7 +10,7 @@ function Dashboard() {
       <div className="flex-wrap justify-center">
         <SideBar />
         <PlayGround />
-        <Search />
+        <p> hello</p>
         <SearchBar />
       </div>
     </>

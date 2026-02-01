@@ -4,8 +4,8 @@ import "../main.css";
 function PlayGround() {
   return (
     <>
-      <div className="flex justify-center text-white width-400px border border-color-blue-400">
-        <p> playground / view documentaion </p>
+      <div className="flex justify-center width-400px border border-blue-400">
+        <p className="flex text-blue-400"> playground / view documentaion </p>
       </div>
     </>
   );

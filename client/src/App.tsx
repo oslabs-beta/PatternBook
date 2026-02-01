@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <h1>Pattern Book</h1>
+      <h1 className="flex justify-center text-xl text-white">Pattern Book</h1>
       <Dashboard />
     </>
   );
