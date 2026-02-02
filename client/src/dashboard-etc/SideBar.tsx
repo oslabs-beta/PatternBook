@@ -1,20 +1,29 @@
+import { Menu } from "lucide-react";
+
 function SideBar() {
   return (
     <div className="flex-wrap row justify-self-start text-red-500">
+        <Menu size="100"/>
       <h4>
         {" "}
-        this is a sidebar.<br></br> it should be on the left side with options
-        <br></br>
+    
       </h4>
       <div>
         <ul>
           <li>
             {" "}
-            <p> option 1 </p>
+             <button type="button" className="flex justify-center bg-gray-600 rounded p-1 m-4"> <p> Home</p>{" "}
+              </button>
           </li>
           <li>
             {" "}
-            <p> option 2</p>{" "}
+           <button  className="flex justify-center bg-gray-600 rounded p-1 m-4"> <p> Log</p>{" "}
+              </button>
+          </li>
+           <li>
+            {" "}
+            <button  className="flex justify-center bg-gray-600 rounded p-1 m-4"> <p> Documentation/ user guide</p>{" "}
+              </button>
           </li>
         </ul>
       </div>

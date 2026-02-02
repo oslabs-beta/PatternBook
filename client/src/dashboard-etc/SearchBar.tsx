@@ -1,5 +1,4 @@
 import { Search } from "lucide-react";
-import { useManifest } from "../hooks/useManifest";
 import { useRegistryStore } from "../stores/registryStore";
 
 function SearchBar() {
@@ -24,7 +23,7 @@ function SearchBar() {
           }
           placeholder="type component name"
         />
-        <button type="submit"><Search/></button>
+        <button type="submit"><Search size='100'/></button>
         <p>Found {filteredCoomponents.length} component(s)</p>
       </form>
     </div>
