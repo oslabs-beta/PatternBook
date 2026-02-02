@@ -15,7 +15,7 @@ const [showManifest, setShowManifest ] = useState(false)
 
   return (
     <>
-      <div className="flex-column justify-center">
+      <div className="flex-column justify-center max-w-400">
 
         <SideBar />
         <div className="flex justify-center bg-black text-white border-pink-400">

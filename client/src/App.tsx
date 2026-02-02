@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-    <div className="flex-wrap justify-center">
+    <div className="flex-wrap justify-center bg-black min-w-200">
       <h1 className="flex justify-center text-white">Pattern Book</h1>
       <Dashboard />
     </div>

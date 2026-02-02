@@ -1,22 +1,34 @@
 import { Search } from "lucide-react";
+import { useManifest } from "../hooks/useManifest";
+import { useRegistryStore } from "../stores/registryStore";
 
 function SearchBar() {
+  const searchQuery = useRegistryStore((state) => state.searchQuery);
+  const setSearchQuery = useRegistryStore ((state) => state.setSearchQuery)
+  const filteredCoomponents = useRegistryStore((state) => state.filteredComponents)
+
   return (
-    <div className="flex align-center text-green-500">
-      <Search />
+    <>
+    
+  
+    <div className="flex justify-center text-green-500">
       <form action="/search" method="get" role="search">
-        <label>Search your repo</label>
+
         <p></p>
         <input
-          type="search"
-          id="site-search"
-          name="q"
-          placeholder="Enter search terms..."
-          aria-label="Search through repo"
+          type="text"
+          className="border border-pink-500"
+          value ={searchQuery}
+          onChange={(e)=> {
+            setSearchQuery(e.target.value) }
+          }
+          placeholder="type component name"
         />
-        <button type="submit">Search</button>
+        <button type="submit"><Search/></button>
+        <p>Found {filteredCoomponents.length} component(s)</p>
       </form>
     </div>
+ </>
   );
 }
 
