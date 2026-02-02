@@ -16,8 +16,11 @@ function App() {
 
   return (
     <>
-      <h1>Pattern Book</h1>
+    <div className="flex-wrap justify-center">
+      <h1 className="flex justify-center text-white">Pattern Book</h1>
       <Dashboard />
+    </div>
+
     </>
   );
 }

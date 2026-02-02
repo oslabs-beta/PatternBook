@@ -17,7 +17,7 @@ export function useManifest() {
       try {
         setLoading(true);
         // Load from mock data for now
-        const response = await fetch("/mock-data/manifest.json");
+        const response = await fetch("../mock-data/manifest.json");
 
         if (!response.ok) {
           throw new Error("Failed to load manifest");
