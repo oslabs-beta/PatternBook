@@ -17,14 +17,16 @@ function SearchBar() {
         <input
           type="text"
           className="border border-pink-500"
-          value ={searchQuery}
+          value={searchQuery}
           onChange={(e)=> {
             setSearchQuery(e.target.value) }
           }
           placeholder="type component name"
         />
         <button type="submit"><Search size='100'/></button>
+
         <p>Found {filteredCoomponents.length} component(s)</p>
+        
       </form>
     </div>
  </>
