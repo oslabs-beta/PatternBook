@@ -8,6 +8,14 @@
     "fs": "^0.0.1-security",
     "ignore": "^7.0.5",
     "ora": "^9.1.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.9",
+    "vitest": "^4.0.18"
+  },
+  "scripts": {
+    "test": "vitest"
   }
 }
