@@ -1,0 +1,310 @@
+[
+  {
+    "name": "Gallery",
+    "path": "src/App.tsx",
+    "props": []
+  },
+  {
+    "name": "TestButton",
+    "path": "src/TestButton.tsx",
+    "props": [
+      {
+        "name": "label",
+        "type": "string",
+        "isOptional": false
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "isOptional": true
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "isOptional": false
+      }
+    ]
+  },
+  {
+    "name": "parseComponent",
+    "path": "src/assets/Parser.tsx",
+    "props": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "isOptional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "isOptional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "isOptional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number) => number",
+        "isOptional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number) => number",
+        "isOptional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }",
+        "isOptional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray; (matcher: { [Symbol.match](string: string): RegExpMatchArray; }): RegExpMatchArray; }",
+        "isOptional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "isOptional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "isOptional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number, end?: number) => string",
+        "isOptional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }",
+        "isOptional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number) => string",
+        "isOptional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }",
+        "isOptional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }",
+        "isOptional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "isOptional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number) => string",
+        "isOptional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number",
+        "isOptional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number) => boolean",
+        "isOptional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number) => boolean",
+        "isOptional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }",
+        "isOptional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "isOptional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number) => boolean",
+        "isOptional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "isOptional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "isOptional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "isOptional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "isOptional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string) => string",
+        "isOptional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string) => string",
+        "isOptional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "isOptional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "isOptional": false
+      },
+      {
+        "name": "__@iterator@43340",
+        "type": "() => StringIterator<string>",
+        "isOptional": false
+      }
+    ]
+  },
+  {
+    "name": "SuperButton",
+    "path": "src/assets/TestComponent.tsx",
+    "props": []
+  },
+  {
+    "name": "CoolSlider",
+    "path": "src/components/CoolSlider.tsx",
+    "props": [
+      {
+        "name": "value",
+        "type": "number",
+        "isOptional": false
+      },
+      {
+        "name": "min",
+        "type": "number",
+        "isOptional": false
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "isOptional": false
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "isOptional": false
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "isOptional": true
+      }
+    ]
+  }
+]

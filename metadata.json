@@ -1,0 +1,20 @@
+{
+  "name": "TestButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "isOptional": false
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "isOptional": true
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "isOptional": false
+    }
+  ]
+}
