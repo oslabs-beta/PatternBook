@@ -1,9 +1,10 @@
 
 ### Back-end file structure
 
+```bash
 ../
 ├── services/
-│   ├── cli.ts                 # Entry point
+│   ├── cli.ts                # Entry point
 │   ├── commands/
 │   │   └── scan.ts           # Main scan command
 │   ├── core/
@@ -21,8 +22,6 @@
 ├── package_lock.json
 └── tsconfig.json
 
-
-```
 {
   "dependencies": {
     "commander": "^11.1.0",
