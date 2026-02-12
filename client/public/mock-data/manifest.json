@@ -1,0 +1,301 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-01-28T20:44:52-05:00",
+  "projectName": "TestDesignSystem",
+  "components": [
+    {
+      "id": "button-component",
+      "name": "Button",
+      "category": "forms",
+      "filePath": "test-components/Button.tsx",
+      "description": "A customizable button component with multiple variants and sizes",
+      "type": "function",
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\"",
+          "required": false,
+          "defaultValue": "\"primary\"",
+          "description": "Visual style variant of the button"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "required": false,
+          "defaultValue": "\"md\"",
+          "description": "Size of the button"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": "false",
+          "description": "Whether the button is disabled"
+        },
+        {
+          "name": "onClick",
+          "type": "() => void",
+          "required": false,
+          "description": "Click handler function"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Button content"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Primary Button",
+          "code": "<Button variant=\"primary\">Click me</Button>"
+        },
+        {
+          "title": "Danger Button",
+          "code": "<Button variant=\"danger\" size=\"lg\">Delete</Button>"
+        },
+        {
+          "title": "Disabled Button",
+          "code": "<Button disabled>Can't click</Button>"
+        }
+      ],
+      "sourceCode": "export interface ButtonProps {\n  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';\n  size?: 'sm' | 'md' | 'lg';\n  disabled?: boolean;\n  onClick?: () => void;\n  children: React.ReactNode;\n}\n\nexport function Button({ \n  variant = 'primary', \n  size = 'md', \n  disabled = false,\n  onClick,\n  children \n}: ButtonProps) {\n  return (\n    <button \n      className={`btn btn-${variant} btn-${size}`}\n      disabled={disabled}\n      onClick={onClick}\n    >\n      {children}\n    </button>\n  );\n}",
+      "tags": ["interactive", "form"],
+      "exports": ["Button", "ButtonProps"]
+    },
+    {
+      "id": "input-component",
+      "name": "Input",
+      "category": "forms",
+      "filePath": "test-components/Input.tsx",
+      "description": "A flexible input field with label, error states, and validation support",
+      "type": "function",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": false,
+          "description": "Label text displayed above the input"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "required": false,
+          "description": "Placeholder text"
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "required": false,
+          "description": "Error message to display"
+        },
+        {
+          "name": "type",
+          "type": "\"text\" | \"email\" | \"password\" | \"number\"",
+          "required": false,
+          "defaultValue": "\"text\"",
+          "description": "Input type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "required": false,
+          "description": "Controlled input value"
+        },
+        {
+          "name": "onChange",
+          "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+          "required": false,
+          "description": "Change handler"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Input",
+          "code": "<Input label=\"Email\" placeholder=\"Enter your email\" />"
+        },
+        {
+          "title": "Input with Error",
+          "code": "<Input label=\"Password\" type=\"password\" error=\"Password is required\" />"
+        }
+      ],
+      "sourceCode": "export interface InputProps {\n  label?: string;\n  placeholder?: string;\n  error?: string;\n  type?: 'text' | 'email' | 'password' | 'number';\n  value?: string;\n  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;\n}\n\nexport function Input({ label, placeholder, error, type = 'text', value, onChange }: InputProps) {\n  return (\n    <div className=\"input-wrapper\">\n      {label && <label>{label}</label>}\n      <input type={type} placeholder={placeholder} value={value} onChange={onChange} />\n      {error && <span className=\"error\">{error}</span>}\n    </div>\n  );\n}",
+      "tags": ["form", "input"],
+      "exports": ["Input", "InputProps"]
+    },
+    {
+      "id": "card-component",
+      "name": "Card",
+      "category": "layout",
+      "filePath": "test-components/Card.tsx",
+      "description": "A container component for grouping related content with optional header and footer",
+      "type": "function",
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "Card title displayed in header"
+        },
+        {
+          "name": "footer",
+          "type": "React.ReactNode",
+          "required": false,
+          "description": "Content for card footer"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Main card content"
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"bordered\" | \"elevated\"",
+          "required": false,
+          "defaultValue": "\"default\"",
+          "description": "Visual style variant"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Simple Card",
+          "code": "<Card title=\"Welcome\">\n  <p>This is a card</p>\n</Card>"
+        },
+        {
+          "title": "Elevated Card with Footer",
+          "code": "<Card title=\"Profile\" variant=\"elevated\" footer={<button>Save</button>}>\n  <p>User information</p>\n</Card>"
+        }
+      ],
+      "sourceCode": "export interface CardProps {\n  title?: string;\n  footer?: React.ReactNode;\n  children: React.ReactNode;\n  variant?: 'default' | 'bordered' | 'elevated';\n}\n\nexport function Card({ title, footer, children, variant = 'default' }: CardProps) {\n  return (\n    <div className={`card card-${variant}`}>\n      {title && <div className=\"card-header\">{title}</div>}\n      <div className=\"card-body\">{children}</div>\n      {footer && <div className=\"card-footer\">{footer}</div>}\n    </div>\n  );\n}",
+      "tags": ["container", "layout"],
+      "exports": ["Card", "CardProps"]
+    },
+    {
+      "id": "modal-component",
+      "name": "Modal",
+      "category": "overlay",
+      "filePath": "test-components/Modal.tsx",
+      "description": "A modal dialog component with backdrop and close functionality",
+      "type": "function",
+      "props": [
+        {
+          "name": "isOpen",
+          "type": "boolean",
+          "required": true,
+          "description": "Controls modal visibility"
+        },
+        {
+          "name": "onClose",
+          "type": "() => void",
+          "required": true,
+          "description": "Callback when modal should close"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "Modal title"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Modal content"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "required": false,
+          "defaultValue": "\"md\"",
+          "description": "Modal size"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Modal",
+          "code": "<Modal isOpen={true} onClose={() => {}} title=\"Confirm\">\n  <p>Are you sure?</p>\n</Modal>"
+        }
+      ],
+      "sourceCode": "export interface ModalProps {\n  isOpen: boolean;\n  onClose: () => void;\n  title?: string;\n  children: React.ReactNode;\n  size?: 'sm' | 'md' | 'lg' | 'xl';\n}\n\nexport function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-backdrop\" onClick={onClose}>\n      <div className={`modal modal-${size}`} onClick={(e) => e.stopPropagation()}>\n        {title && <div className=\"modal-header\">{title}</div>}\n        <div className=\"modal-body\">{children}</div>\n      </div>\n    </div>\n  );\n}",
+      "tags": ["overlay", "dialog"],
+      "exports": ["Modal", "ModalProps"]
+    },
+    {
+      "id": "dropdown-component",
+      "name": "Dropdown",
+      "category": "forms",
+      "filePath": "test-components/Dropdown.tsx",
+      "description": "A dropdown select component with customizable options",
+      "type": "function",
+      "props": [
+        {
+          "name": "options",
+          "type": "Array<{ value: string; label: string }>",
+          "required": true,
+          "description": "Array of dropdown options"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "required": false,
+          "description": "Currently selected value"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "required": false,
+          "description": "Callback when selection changes"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "required": false,
+          "defaultValue": "\"Select...\"",
+          "description": "Placeholder text"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": "false",
+          "description": "Whether dropdown is disabled"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Dropdown",
+          "code": "<Dropdown options={[{value: '1', label: 'Option 1'}, {value: '2', label: 'Option 2'}]} />"
+        }
+      ],
+      "sourceCode": "export interface DropdownProps {\n  options: Array<{ value: string; label: string }>;\n  value?: string;\n  onChange?: (value: string) => void;\n  placeholder?: string;\n  disabled?: boolean;\n}\n\nexport function Dropdown({ options, value, onChange, placeholder = 'Select...', disabled = false }: DropdownProps) {\n  return (\n    <select value={value} onChange={(e) => onChange?.(e.target.value)} disabled={disabled}>\n      <option value=\"\">{placeholder}</option>\n      {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}\n    </select>\n  );\n}",
+      "tags": ["form", "select"],
+      "exports": ["Dropdown", "DropdownProps"]
+    }
+  ],
+  "categories": [
+    {
+      "name": "forms",
+      "displayName": "Form Components",
+      "description": "Interactive form elements like buttons, inputs, and dropdowns",
+      "componentCount": 3
+    },
+    {
+      "name": "layout",
+      "displayName": "Layout Components",
+      "description": "Page structure and container components",
+      "componentCount": 1
+    },
+    {
+      "name": "overlay",
+      "displayName": "Overlay Components",
+      "description": "Modals, tooltips, and other overlay elements",
+      "componentCount": 1
+    }
+  ],
+  "stats": {
+    "totalComponents": 5,
+    "totalCategories": 3,
+    "lastUpdated": "2026-01-28T20:44:52-05:00"
+  }
+}
