@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "chokidar": "^5.0.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "ts-morph": "^27.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
