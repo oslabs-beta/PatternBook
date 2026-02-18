@@ -21,7 +21,11 @@
 ├── package.json
 ├── package_lock.json
 └── tsconfig.json
+```
 
+
+### CLI core:
+```bash
 {
   "dependencies": {
     "commander": "^11.1.0",
@@ -30,8 +34,10 @@
     "ora": "^8.0.1"
   }
 }
+```
 
-
+### File scanning
+```bash
 {
   "dependencies": {
     "fast-glob": "^3.3.2",      // Faster than globby, better for large projects
