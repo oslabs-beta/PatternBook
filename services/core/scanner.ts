@@ -1,9 +1,9 @@
 import fg from 'fast-glob';
 import { statSync } from 'fs';
 import { resolve, relative, basename, dirname, extname } from 'path';
-import { IgnoreHandler, IgnoreHandler, IgnoreHandler } from '../utils/ignore';
-import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns';
-import type { ScanOptions, ScanResult, ComponentFile } from '../types';
+import { IgnoreHandler } from '../utils/ignore';
+import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.ts';
+import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.ts';
 
 export class ComponentScanner {
     private options: Required<ScanOptions>;
@@ -55,7 +55,7 @@ export class ComponentScanner {
 
         // filter using gitignore if enabled
         const filteredFiles = this.options.respectGitignore
-        ? IgnoreHandler.filter(foundFiles)
+        ? ignoreHandler.filter(foundFiles)
         : foundFiles;
 
         // convert to ComponentFile objects
@@ -90,8 +90,7 @@ export class ComponentScanner {
 };
 
 // convenience function for quick scanning
-
-export async function scanForComponents(options: ScanOoptions): Promise<ScanResult> {
+export async function scanForComponents(options: ScanOptions): Promise<ScanResult> {
     const scanner = new ComponentScanner(options);
     return scanner.scan();
 };
