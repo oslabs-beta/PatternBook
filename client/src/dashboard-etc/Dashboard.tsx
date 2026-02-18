@@ -1,28 +1,26 @@
 import "../main.css";
-import SearchBar from "./SearchBar";
 import PlayGround from "./PlayGround";
 import SideBar from "./SideBar";
-import { useState } from "react";
-import { Search } from "lucide-react";
+
+
 
 function Dashboard() {
-  const [isVisible, setIsVisible] = useState(false);
+  //   const setManifest = useRegistryStore((state) => state.setManifest);
+
+  // useEffect(() => {
+  //   fetch("/mock-data/manifest.json")
+  //     .then((res) => res.json())
+  //     .then((data) => setManifest(data))
+  //     .catch(console.error);
+  // }, [setManifest]);
+  
   return (
     <>
-      <div className="flex-column align-start">
+      <div>
         <SideBar />
+      
+
         <PlayGround />
-        <Search
-          onClick={() => setIsVisible(isVisible)}
-          className="cursor-pointer hover:text-blue-100 transition"
-          size={24}
-        />
-        {isVisible && (
-          <div>
-            <SearchBar />
-          </div>
-        )}
-        {/* <Search onClick={() => setShowComponent(true)} /> */}
       </div>
     </>
   );
