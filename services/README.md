@@ -2,7 +2,7 @@
 ### Back-end file structure
 
 ```bash
-your-project/
+services/
 ├── cli/
 │   ├── index.ts                    # Main CLI entry point
 │   ├── commands/
