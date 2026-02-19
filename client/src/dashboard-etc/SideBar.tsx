@@ -1,29 +1,25 @@
 import SearchBar from "./SearchBar.tsx";
-import { Search, GalleryThumbnails, Bell, Rewind } from "lucide-react";
+import { Play, Search, GalleryThumbnails, Bell, Rewind } from "lucide-react";
 
 import { useState } from "react";
 import "../main.css";
 
-function SideBar() {
-
-  
+function SideBar() { 
   const [isVisible, setIsVisible] = useState(false);
-
-
-
   return (
   <div className="flex-row justify-self-start text-blue-500 border border-blue-500 w-[15%]">
       <h6> {"Sidebar"} </h6>
-          <Search
+        <Play 
           onClick={() => setIsVisible(!isVisible) }
           className="cursor-pointer hover:text-red-500 transition"
           size={24}
         />
         {isVisible && (
           <div className="flex-row justify-center text-purple-400 border border-purple-500 w-[90%]">
-            <SearchBar />
+            {"Display Playground/ Documentation"}
           </div>
         )}
+      
 
       <Rewind 
       onClick={ () => setIsVisible(!isVisible)}
@@ -37,9 +33,18 @@ function SideBar() {
       onClick={ () => setIsVisible(!isVisible)}
       className="cursor-pointer hover:text-red-500 transition"
       />
-
-
+    <Search
+      onClick={() => setIsVisible(!isVisible) }
+      className="cursor-pointer hover:text-red-500 transition"
+      size={24}
+    />
+    {isVisible && (
+      <div className="flex-row justify-center text-purple-400 border border-purple-500 w-[90%]">
+        <SearchBar />
       </div>
+    )}
+
+    </div>
   );
 }
 
