@@ -5,21 +5,12 @@ import SideBar from "./SideBar";
 
 
 function Dashboard() {
-  //   const setManifest = useRegistryStore((state) => state.setManifest);
 
-  // useEffect(() => {
-  //   fetch("/mock-data/manifest.json")
-  //     .then((res) => res.json())
-  //     .then((data) => setManifest(data))
-  //     .catch(console.error);
-  // }, [setManifest]);
   
   return (
     <>
-      <div>
+      <div className="flex column">
         <SideBar />
-      
-
         <PlayGround />
       </div>
     </>
