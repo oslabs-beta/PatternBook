@@ -11,8 +11,8 @@ const PlayGround = () => {
 
   return (
     <>
-      <div className="flex-wrap row align-items-center bg-blue-50 text-blue-500 w-[80%]">
-        <p >view documentaion</p>
+      <div className="flex-wrap row m-3 p-2 align-items-center border rounded bg-blue-100 border-blue-500 text-xs text-blue-500 w-[80%]">
+        <p>view documentaion</p>
         <hr/>
         <div className="flex-column justify-center text-red border-pink-400">
           <button 
@@ -20,12 +20,12 @@ const PlayGround = () => {
             console.log('Button clicked!');
             setShowManifest(!showManifest);
              }} 
-            className="flex justify-center border border-blue-800 rounded p-1 m-4"
+            className="flex justify-center border border-blue-800 bg-purple-100 rounded p-1 m-4"
           >
           {showManifest ? 'Hide' : 'Show'} Manifest
           </button>
           <hr />
-          <h6>
+          <h6 className="text-sm">
           <p>Loading: {loading ? 'Yes' : 'No'}</p>
           <p>Error: {error ? error.message : 'None'}</p>
           <p>Manifest exists: {manifest ? 'Yes' : 'No'}</p>
@@ -37,7 +37,7 @@ const PlayGround = () => {
         
             <div>
               {showManifest && (
-                <div className="flex max-w-400 p-4 bg-gray-100 text-black rounded">
+                <div className="flex max-w-400 p-4 bg-purple-100 text-black rounded">
                   {loading && <p>Loading manifest...</p>}
                   {error && <p className="text-red-500">Error: {error.message}</p>}
                   { manifest ? (

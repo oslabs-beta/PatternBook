@@ -6,10 +6,12 @@ function App() {
 
   return (
     <>
-    <div className="bg-blue-100">
+    <div className="flex-row items-center text-2xl text-blue-800 p-3 m-5 bg-blue-200 rounded border-4 border-purple-400">
 
     
-    <h1 className="text-3xl">Pattern Book</h1>
+    <h1 className="flex justify-center items-center border m-2 rounded blue-500 w-[20%]">
+    Pattern Book
+    </h1>
     <Dashboard />
     </div>
     </>
