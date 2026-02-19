@@ -25,7 +25,7 @@ export class ReactParser implements Parser {
         try {
             const sourceFile = this.project.addSourceFileAtPath(resolve(filePath));
             // find the main exported component/hook
-            const exportedFunction = this.findExportedFunction(SourceFile);
+            const exportedFunction = this.findExportedFunction(sourceFile);
     
             if (!exportedFunction) {
                 return {
@@ -42,15 +42,11 @@ export class ReactParser implements Parser {
                 exports: this.extractExports(sourceFile),
                 imports: this.extractImports(sourceFile),
             };
-    
-            if (options.extractProps !== false) {
-                metadata.props = this.extractProps(exportedFunction);
-            };
-    
+
             // extract props if requested
             if (options.extractProps !== false) {
                 metadata.props = this.extractProps(exportedFunction);
-            }
+            };
             
             // extract hooks if requested
             if (options.extractHooks !== false) {
@@ -111,7 +107,7 @@ export class ReactParser implements Parser {
     };
 
     private extractImports(sourceFile: SourceFile): ImportInfo[] {
-        const imports = sourceFile.getImportDeclaration();
+        const imports = sourceFile.getImportDeclarations();
 
         return imports.map(imp => {
             const source = imp.getModuleSpecifierValue();
