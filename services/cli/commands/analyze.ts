@@ -1,0 +1,133 @@
+import ora from 'ora';
+import chalk from 'chalk';
+import { writeFileSync } from 'fs';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
+import { DependencyGraphBuilder } from '../../core/dependency-graph.ts';
+import type { DependencyGraph } from '../../types/graph.ts';
+
+interface AnalyzeOptions {
+  target?: string;
+  verbose?: boolean;
+  output?: string;
+  format?: 'json' | 'mermaid';
+}
+
+export async function analyzeCommand(directory: string, options: AnalyzeOptions): Promise<void> {
+  const spinner = ora('Scanning and analyzing project...').start();
+
+  try {
+    // Step 1: Scan for files
+    const scanner = new ComponentScanner({
+      directory,
+      framework: 'react',
+      respectGitignore: true,
+      includeNodeModules: false,
+      verbose: options.verbose || false,
+    });
+
+    const scanResult = await scanner.scan();
+    spinner.text = `Found ${scanResult.files.length} files. Parsing...`;
+
+    // Step 2: Parse all files
+    const parseResults = await parserFactory.parseFiles(
+      scanResult.files.map(f => f.path),
+      { extractDocs: true, extractHooks: true, extractProps: true }
+    );
+
+    const components = parseResults
+      .filter(r => r.success && r.metadata)
+      .map(r => r.metadata!);
+
+    spinner.text = `Parsed ${components.length} components. Building dependency graph...`;
+
+    // Step 3: Build dependency graph
+    const graphBuilder = new DependencyGraphBuilder();
+    const graph = graphBuilder.buildGraph(components);
+
+    spinner.succeed(
+      chalk.green(
+        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`
+      )
+    );
+
+    // Display statistics
+    console.log(chalk.cyan('\n📊 Project Statistics:'));
+    console.log(`   Components: ${graph.metadata.componentsCount}`);
+    console.log(`   Hooks: ${graph.metadata.hooksCount}`);
+    console.log(`   Dependencies: ${graph.metadata.totalEdges}`);
+
+    // Step 4: Impact analysis (if target specified)
+    if (options.target) {
+      console.log(chalk.yellow(`\n⚠️  Impact Analysis for: ${options.target}`));
+      
+      const targetNode = graph.nodes.find(n => 
+        n.filePath.includes(options.target!) || n.name === options.target
+      );
+
+      if (targetNode) {
+        const impact = graphBuilder.analyzeImpact(targetNode.filePath);
+        
+        console.log(`   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`);
+        console.log(`   Direct Dependents: ${impact.directDependents.length}`);
+        console.log(`   Indirect Dependents: ${impact.indirectDependents.length}`);
+        
+        if (impact.affectedComponents.length > 0) {
+          console.log(`\n   Affected Components:`);
+          impact.affectedComponents.forEach(comp => {
+            console.log(`   - ${comp}`);
+          });
+        } else {
+          console.log(`   ✓ No components depend on this file (safe to modify)`);
+        }
+      } else {
+        console.log(chalk.red(`   ✗ Target not found in project`));
+      }
+    }
+
+    // Step 5: Save output
+    const outputPath = options.output || 'dependency-graph.json';
+    
+    if (options.format === 'mermaid') {
+      const mermaid = generateMermaidDiagram(graph);
+      writeFileSync(outputPath.replace('.json', '.mmd'), mermaid);
+      console.log(chalk.green(`\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`));
+    } else {
+      writeFileSync(outputPath, graphBuilder.toJSON());
+      console.log(chalk.green(`\n💾 Dependency graph saved to: ${outputPath}`));
+    }
+
+    // Step 6: Warnings
+    if (graph.metadata.circularDependencies.length > 0) {
+      console.log(chalk.red(`\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`));
+    }
+
+  } catch (error) {
+    spinner.fail(chalk.red('Analysis failed'));
+    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    process.exit(1);
+  }
+}
+
+function generateMermaidDiagram(graph: DependencyGraph): string {
+  let mermaid = 'graph TD\n';
+  
+  // Add nodes
+  graph.nodes.forEach((node) => {
+    const shape = node.type === 'hook' ? '([' : '[';
+    const shapeEnd = node.type === 'hook' ? '])' : ']';
+    mermaid += `  ${sanitizeId(node.id)}${shape}${node.name}${shapeEnd}\n`;
+  });
+  
+  // Add edges
+  graph.edges.forEach((edge) => {
+    const arrow = edge.type === 'uses-hook' ? '-.uses.->' : '-->';
+    mermaid += `  ${sanitizeId(edge.from)} ${arrow} ${sanitizeId(edge.to)}\n`;
+  });
+  
+  return mermaid;
+}
+
+function sanitizeId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9]/g, '_');
+}
