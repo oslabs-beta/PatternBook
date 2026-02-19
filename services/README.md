@@ -2,25 +2,62 @@
 ### Back-end file structure
 
 ```bash
-../
-├── services/
-│   ├── cli.ts                # Entry point
+your-project/
+├── cli/
+│   ├── index.ts                    # Main CLI entry point
 │   ├── commands/
-│   │   └── scan.ts           # Main scan command
-│   ├── core/
-│   │   ├── scanner.ts        # File discovery engine
-│   │   ├── config.ts         # Config management
-│   │   └── patterns.ts       # Framework-specific patterns
-│   ├── utils/
-│   │   ├── ignore.ts         # .gitignore handling
-│   │   └── output.ts         # JSON formatting
-│   └── types/
-│       └── index.ts          # TypeScript types
-├── tests/
-│   └── fixtures/             # Dummy component files for testing
-├── package.json
-├── package_lock.json
-└── tsconfig.json
+│   │   ├── scan.ts                # Scan command
+│   │   ├── watch.ts               # Watch mode command  
+│   │   ├── analyze.ts             # Dependency analysis command
+│   │   └── generate.ts            # Generate manifest command
+│   └── config.ts                  # CLI config loader
+│
+├── core/
+│   ├── scanner.ts                 # ✅ File discovery (needs bug fixes)
+│   ├── patterns.ts                # ✅ Framework patterns
+│   ├── parser.ts                  # NEW: Unified parser interface
+│   ├── parsers/
+│   │   ├── react-parser.ts       # Refactored from jumbo-parser
+│   │   ├── vue-parser.ts         # Future
+│   │   └── svelte-parser.ts      # Future
+│   ├── dependency-graph.ts        # Refactored from dependency-mapper
+│   ├── watcher.ts                 # Refactored from watch-parser
+│   └── cache.ts                   # NEW: Parse result caching
+│
+├── services/
+│   ├── manifest-generator.ts      # Generate output manifest
+│   ├── impact-analyzer.ts         # "What breaks if I change X?"
+│   └── relationship-mapper.ts     # Component-to-hook relationships
+│
+├── utils/
+│   ├── ignore.ts                  # ⚠️ Needs bug fix
+│   ├── output.ts                  # JSON formatting
+│   ├── logger.ts                  # Structured logging
+│   └── file-hash.ts               # For caching
+│
+├── types/
+│   ├── index.ts                   # ✅ Core types
+│   ├── parser.ts                  # Parser-specific types
+│   ├── graph.ts                   # Dependency graph types
+│   └── manifest.ts                # Output manifest schema
+│
+├── test/
+│   ├── unit/
+│   │   ├── scanner.test.ts
+│   │   ├── parser.test.ts
+│   │   ├── dependency-mapper.test.ts  # ✅ Already exists
+│   │   └── graph-builder.test.ts
+│   ├── integration/
+│   │   ├── full-scan.test.ts
+│   │   └── watch-mode.test.ts
+│   └── fixtures/                   # ✅ Already have good test components
+│       ├── Button.tsx
+│       ├── Card.tsx
+│       └── ...
+│
+└── output/
+    ├── library-metadata.json       # Generated manifest
+    └── dependency-graph.json       # Generated graph
 ```
 
 
@@ -46,3 +83,8 @@
   }
 }
 ```
+
+
+
+
+
