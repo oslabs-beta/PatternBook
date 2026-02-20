@@ -5,11 +5,12 @@ export interface ComponentMetadata {
   name: string;
   path: string;
   relativePath: string;
-  type: 'component' | 'hook' | 'utility';
+  type: 'component' | 'hook' | 'utility'| 'other ';
+  tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];
   props?: PropMetadata[];
-  hooks?: HookUsage[];
+  hooks?:{name: string; source?: string}[];
   documentation?: string;
 }
 

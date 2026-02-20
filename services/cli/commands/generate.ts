@@ -51,6 +51,7 @@ export async function generateCommand(
         name: c.name,
         path: c.relativePath,
         type: c.type,
+        tags: c.tags || [],
         ...(options.includeProps !== false && { props: c.props }),
         ...(options.includeHooks !== false && { hooks: c.hooks }),
         ...(options.includeDocs !== false && { documentation: c.documentation }),
