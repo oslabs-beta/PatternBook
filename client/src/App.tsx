@@ -1,7 +1,6 @@
-import { useEffect } from "react";
-import { useRegistryStore } from "./stores/registryStore";
 import "./main.css";
 import Dashboard from "./dashboard-etc/Dashboard.tsx";
+import { useRegistryStore } from "./stores/registryStore";
 
 function App() {
   // Load manifest into store on mount
@@ -10,13 +9,6 @@ function App() {
   const setSelectedComponent = useRegistryStore(
     (state) => state.setSelectedComponent,
   );
-
-  useEffect(() => {
-    fetch("/mock-data/manifest.json")
-      .then((res) => res.json())
-      .then((data) => setManifest(data))
-      .catch(console.error);
-  }, [setManifest]);
 
   return (
     <>
