@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import type { Example } from "../types/manifest";
+import { ComponentLivePreview } from "./ComponentLivePreview";
+import { getScopeForComponent } from "./componentRegistry";
 
 interface CodeExamplesProps {
   examples: Example[];
+  /** The component name from the manifest — used to resolve the live preview scope */
+  componentName?: string;
 }
 
-export function CodeExamples({ examples }: CodeExamplesProps) {
+export function CodeExamples({ examples, componentName }: CodeExamplesProps) {
+  const scope = getScopeForComponent(componentName ?? "");
   const [activeTab, setActiveTab] = useState(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -77,13 +82,12 @@ export function CodeExamples({ examples }: CodeExamplesProps) {
             </button>
           </div>
 
-          {/* Live Preview Placeholder */}
-          {/* TODO: Integrate react-live for interactive preview */}
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              💡 <strong>Live Preview:</strong> Coming soon with react-live
-              integration
+          {/* Live Preview */}
+          <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Preview
             </p>
+            <ComponentLivePreview code={example.code} scope={scope} />
           </div>
         </div>
       ))}

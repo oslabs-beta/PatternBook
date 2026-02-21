@@ -36,7 +36,10 @@ function PlayGround() {
       <PropsTable props={selectedComponent.props} />
 
       {/* Code Examples */}
-      <CodeExamples examples={selectedComponent.examples} />
+      <CodeExamples
+        examples={selectedComponent.examples}
+        componentName={selectedComponent.name}
+      />
 
       {/* Source Code Viewer */}
       <SourceCodeViewer
