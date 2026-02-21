@@ -23,11 +23,12 @@ export class ReactParser implements Parser {
 
     async parse(filePath: string, options: ParseOptions = {}): Promise<ParseResult> {
         try {
-            const sourceFile = this.project.addSourceFileAtPath(resolve(filePath));
+            const sourceFile = this.project.addSourceFileAtPath(filePath);
             // find the main exported component/hook
             const exportedFunction = this.findExportedFunction(sourceFile);
     
             if (!exportedFunction) {
+                if (options.verbose)console.log(`⚠️ No exported function in ${filePath}`);
                 return {
                     success: false,
                     error: 'No exported function found'
@@ -38,9 +39,9 @@ export class ReactParser implements Parser {
                 name: exportedFunction.getName() || 'Anonymous',
                 path: sourceFile.getFilePath(),
                 relativePath: filePath,
-                type: this.inferType(exportedFunction.getName()),
-                exports: this.extractExports(sourceFile),
-                imports: this.extractImports(sourceFile),
+                type: exportedFunction.getName()?.startsWith('use') ? 'hook': 'component',
+                exports: { named: [exportedFunction.getName()!]},
+                imports: [],
             };
 
             // extract props if requested
@@ -65,7 +66,7 @@ export class ReactParser implements Parser {
         } catch (error) {
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
+                error: String(error)
             };
         };
     };
