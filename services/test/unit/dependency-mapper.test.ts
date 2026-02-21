@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Project, SourceFile } from 'ts-morph';
-import { getInternalDependencies } from '../../../scripts/dependency-mapper';
+import { getInternalDependencies } from '../../scripts/dependency-mapper.ts';
 
 describe('Dependency Mapper Logic', () => {
     let project: Project;

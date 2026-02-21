@@ -1,25 +1,32 @@
-import { buildProjectGraph, type ComponentGraph, getAffectedParents } from './dependency-mapper.ts';
+import { CodeParser, ParsedFile } from '../core/parser.ts';
+import { generateMermaid, convertParsedFilesToGraph } from './visualizer.ts';
 import * as path from "node:path";
+import * as fs from "node:fs";
 import { fileURLToPath } from 'node:url';
+import fg from 'fast-glob';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const testFolder: string = path.resolve(__dirname, '../../test-components');
+const testFolder = path.resolve(__dirname, '../test/fixtures');
 
 console.log('Starting Dependency Scan ---');
 
-//Generate the Graph
-const graph: ComponentGraph = buildProjectGraph(testFolder);
+// 1. Find files
+const files = fg.sync(`${testFolder}/**/*.tsx`.replace(/\\/g, '/'));
 
+// 2. Parse files
+const parser = new CodeParser();
+const parsedFiles: ParsedFile[] = files.map(file => parser.parseFile(file));
 
-// 3. Print the results in a pretty format
-console.log('Project Dependency Graph:');
-console.dir(graph, { depth: null });
+// 3. Convert to Graph Data
+const graphData = convertParsedFilesToGraph(parsedFiles);
 
-const target: string = 'Button';
-const affected = getAffectedParents(target, graph);
+// 4. Generate Mermaid Diagram
+const mermaidGraph = generateMermaid(graphData);
+const outputPath = path.resolve(__dirname, '../dependency-graph.mmd');
 
-console.log(`\n--- ⚠️ Change Intelligence Report ---`);
-console.log(`If you modify "${target}", these components might be affected:`);
-console.log(affected.length > 0 ? affected : 'None (this is a root component)');
+fs.writeFileSync(outputPath, mermaidGraph);
+console.log(`\n--- 📊 Mermaid Diagram Generated ---`);
+console.log(`Saved to: ${outputPath}`);
+console.log(mermaidGraph);
