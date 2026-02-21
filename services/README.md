@@ -21,7 +21,7 @@ services/
 │   │   ├── vue-parser.ts         # Future
 │   │   └── svelte-parser.ts      # Future
 │   ├── dependency-graph.ts        # Refactored from dependency-mapper
-│   ├── watcher.ts                 # Refactored from watch-parser
+│   ├── watcher_temp.ts                 # Refactored from watch-parser
 │   └── cache.ts                   # NEW: Parse result caching
 │
 ├── services/
@@ -83,8 +83,6 @@ services/
   }
 }
 ```
+### Mermaid Visual
 
-
-
-
-
+![Dependency Graph](./dependency-graph.png)
