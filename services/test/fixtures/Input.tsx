@@ -27,15 +27,29 @@ export function Input({
   onChange,
 }: InputProps) {
   return (
-    <div className="input-wrapper">
-      {label && <label>{label}</label>}
+    <div className="flex flex-col gap-1.5 w-full max-w-sm">
+      {label && (
+        <label className="text-sm font-medium text-gray-700">{label}</label>
+      )}
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        className={[
+          "w-full px-3 py-2 text-sm rounded-md border bg-white shadow-sm transition-colors duration-150",
+          "placeholder:text-gray-400",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          error
+            ? "border-red-400 focus:ring-red-400"
+            : "border-gray-300 hover:border-gray-400",
+        ].join(" ")}
       />
-      {error && <span className="error">{error}</span>}
+      {error && (
+        <p className="text-xs text-red-600 flex items-center gap-1">
+          <span>⚠</span> {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -16,6 +16,12 @@ export interface CardProps {
   variant?: "default" | "bordered" | "elevated";
 }
 
+const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
+  default: "bg-white border border-gray-200",
+  bordered: "bg-white border-2 border-gray-300",
+  elevated: "bg-white border border-gray-100 shadow-lg",
+};
+
 export function Card({
   title,
   footer,
@@ -23,10 +29,23 @@ export function Card({
   variant = "default",
 }: CardProps) {
   return (
-    <div className={`card card-${variant}`}>
-      {title && <div className="card-header">{title}</div>}
-      <div className="card-body">{children}</div>
-      {footer && <div className="card-footer">{footer}</div>}
+    <div
+      className={[
+        "rounded-xl overflow-hidden w-full max-w-sm",
+        variantClasses[variant],
+      ].join(" ")}
+    >
+      {title && (
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
+        </div>
+      )}
+      <div className="px-5 py-4 text-sm text-gray-600">{children}</div>
+      {footer && (
+        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
+          {footer}
+        </div>
+      )}
     </div>
   );
 }
