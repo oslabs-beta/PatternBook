@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2",
+    "enquirer": "^2.4.1",
+    "fast-glob": "^3.3.3",
+    "ignore": "^7.0.5",
+    "ora": "^9.1.0",
+    "repomix": "^1.11.1",
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@types/node": "^24.10.9",
+    "husky": "^9.1.7",
+    "tsx": "^4.19.2",
+    "vitest": "^4.0.18"
+  },
+  "scripts": {
+    "test": "vitest",
+    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png",
+    "watch:graph": "tsx scripts/watcher_temp.ts",
+    "prepare": "husky"
+  }
+}
