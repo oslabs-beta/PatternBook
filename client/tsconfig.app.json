@@ -26,7 +26,6 @@
   },
   "include": [
     "src",
-    "../test-components",
     "node_modules/@types/node/module.d.ts"
   ]
 }
