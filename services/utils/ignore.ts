@@ -6,6 +6,8 @@ export class IgnoreHandler {
     private ig: ReturnType<typeof ignore>;
 
     constructor(baseDir: string, respectGitignore: boolean = true) {
+        this.ig = ignore();
+        
         if (respectGitignore) {
             this.loadGitignore(baseDir);
         };
