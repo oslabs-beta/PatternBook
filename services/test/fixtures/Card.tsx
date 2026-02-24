@@ -1,6 +1,4 @@
 import React from "react";
-import Button from "./Button"
-import Dropdown from "./Dropdown"
 
 /**
  * A container component for grouping related content with optional header and footer

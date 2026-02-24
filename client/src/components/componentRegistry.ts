@@ -13,11 +13,11 @@
 
 import React from "react";
 import type { ComponentType } from "react";
-import { Button } from "../../../test-components/Button";
-import { Card } from "../../../test-components/Card";
-import { Dropdown } from "../../../test-components/Dropdown";
-import { Input } from "../../../test-components/Input";
-import { Modal } from "../../../test-components/Modal";
+import { Button } from "../../../services/test/fixtures/Button";
+import { Card } from "../../../services/test/fixtures/Card";
+import { Dropdown } from "../../../services/test/fixtures/Dropdown";
+import { Input } from "../../../services/test/fixtures/Input";
+import { Modal } from "../../../services/test/fixtures/Modal";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const COMPONENT_REGISTRY: Record<string, ComponentType<any>> = {
