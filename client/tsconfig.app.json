@@ -26,7 +26,7 @@
   },
   "include": [
     "src",
-    "../test-components",
+    "../services/test/fixtures",
     "node_modules/@types/node/module.d.ts"
   ]
 }
