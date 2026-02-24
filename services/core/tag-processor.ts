@@ -1,4 +1,4 @@
-import { ComponentMetadata } from '../types/parser.ts';
+import { ComponentMetadata } from '../types/parser.js';
 
 export class TagProcessor {
   public process(metadata: ComponentMetadata): string[] {

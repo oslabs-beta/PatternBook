@@ -1,6 +1,6 @@
 import { Project, SourceFile, FunctionDeclaration } from 'ts-morph';
 import { resolve } from 'path';
-import type { Parser, ParseResult, ComponentMetadata, ParseOptions, PropMetadata, ImportInfo } from '../../types/parser.ts';
+import type { Parser, ParseResult, ComponentMetadata, ParseOptions, PropMetadata, ImportInfo } from '../../types/parser.js';
 
 // react-specific parser using ts-morph
 // refactored from jumbo-parser.ts with better structure

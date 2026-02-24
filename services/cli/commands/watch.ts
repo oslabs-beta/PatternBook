@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
-import { watch } from '../../core/watcher.ts';
-import type { ComponentMetadata } from '../../types/parser.ts';
+import { watch } from '../../core/watcher.js';
+import type { ComponentMetadata } from '../../types/parser.js';
 
 interface WatchCommandOptions {
   framework?: 'react' | 'vue' | 'svelte' | 'auto';

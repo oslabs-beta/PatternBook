@@ -2,8 +2,8 @@ import fg from 'fast-glob';
 import { statSync } from 'fs';
 import { resolve, relative, basename, dirname, extname } from 'path';
 import { IgnoreHandler } from '../utils/ignore';
-import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.ts';
-import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.ts';
+import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
+import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
 
 export class ComponentScanner {
     private options: Required<ScanOptions>;
