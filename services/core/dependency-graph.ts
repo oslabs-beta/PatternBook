@@ -3,7 +3,6 @@ import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalys
 
 /**
  * Builds and analyzes dependency graphs from parsed component metadata
- * Refactored from scripts/dependency-mapper.ts
  */
 export class DependencyGraphBuilder {
   private nodes: Map<string, GraphNode> = new Map();

@@ -1,20 +1,4 @@
 {
-  "name": "patternbook-services",
-  "version": "0.2.0",
-  "type": "module",
-  "bin": {
-    "patternbook": "./dist/cli/index.js"
-  },
-  "scripts": {
-    "test": "vitest",
-    "build": "tsc",
-    "cli": "node --loader tsx cli/index.ts",
-    "cli:dev": "tsx cli/index.ts",
-    "cli:build": "tsc && chmod +x dist/cli/index.js",
-    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png",
-    "watch:graph": "tsx scripts/watcher_temp.ts",
-    "prepare": "husky"
-  },
   "dependencies": {
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
@@ -23,6 +7,7 @@
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "ora": "^9.1.0",
+    "path": "^0.12.7",
     "repomix": "^1.11.1",
     "ts-morph": "^27.0.2"
   },
@@ -31,7 +16,16 @@
     "@types/node": "^24.10.9",
     "husky": "^9.1.7",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
     "vitest": "^4.0.18"
+  },
+  "scripts": {
+    "test": "vitest",
+    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png -s 3 && mmdc -i call-graph.mmd -o call-graph.png -s 3",
+    "watch:graph": "tsx scripts/watcher_temp.ts",
+    "prepare": "husky",
+    "pack-repo": "repomix"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
