@@ -1,6 +1,6 @@
 import type { Parser, ParseResult, ParseOptions } from '../../types/parser.js';
 import { ReactParser } from './react-parser.js';
-import { TagProcessor } from '../tag-processor.ts';
+import { TagProcessor } from '../tag-processor.js';
 
 /**
  * Parser factory that routes to the appropriate parser based on file extension

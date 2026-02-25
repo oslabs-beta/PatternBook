@@ -1,0 +1,4931 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: **/*-lock.json, node_modules/
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+client/
+  .vscode/
+    extensions.json
+    settings.json
+  public/
+    mock-data/
+      manifest.json
+    vite.svg
+  src/
+    assets/
+      mini-parser.ts
+      Parser.tsx
+      react.svg
+      TestComponent.tsx
+    components/
+      CodeExamples.tsx
+      ComponentHeader.tsx
+      ComponentLivePreview.tsx
+      componentRegistry.ts
+      CoolSlider.tsx
+      PropsTable.tsx
+      SourceCodeViewer.tsx
+    dashboard-etc/
+      Dashboard.tsx
+      PlayGround.tsx
+      SearchBar.tsx
+      SideBar.tsx
+    hooks/
+      useManifest.ts
+    stores/
+      registryStore.ts
+    types/
+      manifest.ts
+    App.css
+    App.tsx
+    index.css
+    main.css
+    main.tsx
+    TestButton.tsx
+  eslint.config.js
+  index.html
+  package.json
+  postcss.config.js
+  README.md
+  tailwind.config.js
+  tsconfig.app.json
+  tsconfig.json
+  tsconfig.node.json
+  vite.config.ts
+services/
+  cli/
+    commands/
+      analyze.ts
+      generate.ts
+      scan.ts
+      watch.ts
+    index.ts
+  core/
+    parsers/
+      index.ts
+      react-parser.ts
+    dependency-graph.ts
+    parser.ts
+    patterns.ts
+    scanner.ts
+    tag-processor.ts
+    watcher.ts
+  scripts/
+    dependency-mapper.ts
+    test-run.ts
+    visualizer.ts
+    watcher_temp.ts
+  test/
+    fixtures/
+      Button.tsx
+      Card.tsx
+      Dropdown.tsx
+      Input.tsx
+      Modal.tsx
+      README.md
+      tsconfig.json
+      UserProfile.tsx
+    unit/
+      dependency-mapper.test.ts
+      parser.test.ts
+      visualizer.test.ts
+  types/
+    graph.ts
+    index.ts
+    parser.ts
+  utils/
+    ignore.ts
+  dependency-graph.mmd
+  dependency-graph.png
+  library-manifest.json
+  package.json
+  README.md
+  tsconfig.json
+.gitignore
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="client/src/stores/registryStore.ts">
+import { create } from "zustand";
+import type { Component, ComponentManifest } from "../types/manifest";
+
+interface RegistryState {
+  // State
+  manifest: ComponentManifest | null;
+  components: Component[];
+  selectedComponent: Component | null;
+  filteredComponents: Component[];
+  activeTagFilter: string | null;
+  searchQuery: string;
+
+  // Actions
+  setManifest: (manifest: ComponentManifest) => void;
+  setSelectedComponent: (componentId: string | null) => void;
+  filterByTag: (tag: string | null) => void;
+  setSearchQuery: (query: string) => void;
+  updateRegistry: (manifest: ComponentManifest) => void;
+}
+
+export const useRegistryStore = create<RegistryState>((set, get) => ({
+  // Initial State
+  manifest: null,
+  components: [],
+  selectedComponent: null,
+  filteredComponents: [],
+  activeTagFilter: null,
+  searchQuery: "",
+
+  // Actions
+  setManifest: (manifest) => {
+    set({
+      manifest,
+      components: manifest.components,
+      filteredComponents: manifest.components,
+    });
+  },
+
+  updateRegistry: (manifest) => {
+    // Alias for setManifest, but could handle merging logic if needed later
+    get().setManifest(manifest);
+  },
+
+  setSelectedComponent: (componentId) => {
+    const { components } = get();
+    if (!componentId) {
+      set({ selectedComponent: null });
+      return;
+    }
+    const component = components.find((c) => c.id === componentId) || null;
+    set({ selectedComponent: component });
+  },
+
+  filterByTag: (tag) => {
+    const { components, searchQuery } = get();
+    const normalizedQuery = searchQuery.toLowerCase();
+
+    let filtered = components;
+
+    // Apply Tag Filter
+    if (tag) {
+      filtered = filtered.filter((c) => c.tags?.includes(tag));
+    }
+
+    // Re-apply Search Query if exists
+    if (normalizedQuery) {
+      filtered = filtered.filter(
+        (c) =>
+          c.name.toLowerCase().includes(normalizedQuery) ||
+          c.description?.toLowerCase().includes(normalizedQuery),
+      );
+    }
+
+    set({
+      activeTagFilter: tag,
+      filteredComponents: filtered,
+    });
+  },
+
+  setSearchQuery: (query) => {
+    const { components, activeTagFilter } = get();
+    const normalizedQuery = query.toLowerCase();
+
+    let filtered = components;
+
+    // Apply Search
+    if (normalizedQuery) {
+      filtered = filtered.filter(
+        (c) =>
+          c.name.toLowerCase().includes(normalizedQuery) ||
+          c.description?.toLowerCase().includes(normalizedQuery),
+      );
+    }
+
+    // Re-apply Tag Filter if exists
+    if (activeTagFilter) {
+      filtered = filtered.filter((c) => c.tags?.includes(activeTagFilter));
+    }
+
+    set({
+      searchQuery: query,
+      filteredComponents: filtered,
+    });
+  },
+}));
+</file>
+
+<file path="client/src/types/manifest.ts">
+/**
+ * TypeScript types for PatternBook component manifest
+ * This is the contract between frontend and backend teams
+ */
+
+export interface ComponentManifest {
+  version: string;
+  generatedAt: string;
+  projectName: string;
+  components: Component[];
+  categories: Category[];
+  stats: Stats;
+}
+
+export interface Component {
+  id: string;
+  name: string;
+  category: string;
+  filePath: string;
+  description?: string;
+  type: "function" | "class";
+  props: Prop[];
+  examples: Example[];
+  sourceCode: string;
+  tags?: string[];
+  exports: string[];
+}
+
+export interface Prop {
+  name: string;
+  type: string;
+  required: boolean;
+  defaultValue?: string;
+  description?: string;
+}
+
+export interface Example {
+  title: string;
+  code: string;
+}
+
+export interface Category {
+  name: string;
+  displayName: string;
+  description?: string;
+  componentCount: number;
+}
+
+export interface Stats {
+  totalComponents: number;
+  totalCategories: number;
+  lastUpdated: string;
+}
+</file>
+
+<file path="client/.vscode/extensions.json">
+{
+  "recommendations": ["esbenp.prettier-vscode"]
+}
+</file>
+
+<file path="client/.vscode/settings.json">
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+</file>
+
+<file path="client/public/mock-data/manifest.json">
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-01-28T20:44:52-05:00",
+  "projectName": "TestDesignSystem",
+  "components": [
+    {
+      "id": "button-component",
+      "name": "Button",
+      "category": "forms",
+      "filePath": "test-components/Button.tsx",
+      "description": "A customizable button component with multiple variants and sizes",
+      "type": "function",
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\"",
+          "required": false,
+          "defaultValue": "\"primary\"",
+          "description": "Visual style variant of the button"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "required": false,
+          "defaultValue": "\"md\"",
+          "description": "Size of the button"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": "false",
+          "description": "Whether the button is disabled"
+        },
+        {
+          "name": "onClick",
+          "type": "() => void",
+          "required": false,
+          "description": "Click handler function"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Button content"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Primary Button",
+          "code": "<Button variant=\"primary\">Click me</Button>"
+        },
+        {
+          "title": "Danger Button",
+          "code": "<Button variant=\"danger\" size=\"lg\">Delete</Button>"
+        },
+        {
+          "title": "Disabled Button",
+          "code": "<Button disabled>Can't click</Button>"
+        }
+      ],
+      "sourceCode": "export interface ButtonProps {\n  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';\n  size?: 'sm' | 'md' | 'lg';\n  disabled?: boolean;\n  onClick?: () => void;\n  children: React.ReactNode;\n}\n\nexport function Button({ \n  variant = 'primary', \n  size = 'md', \n  disabled = false,\n  onClick,\n  children \n}: ButtonProps) {\n  return (\n    <button \n      className={`btn btn-${variant} btn-${size}`}\n      disabled={disabled}\n      onClick={onClick}\n    >\n      {children}\n    </button>\n  );\n}",
+      "tags": ["interactive", "form"],
+      "exports": ["Button", "ButtonProps"]
+    },
+    {
+      "id": "input-component",
+      "name": "Input",
+      "category": "forms",
+      "filePath": "test-components/Input.tsx",
+      "description": "A flexible input field with label, error states, and validation support",
+      "type": "function",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "required": false,
+          "description": "Label text displayed above the input"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "required": false,
+          "description": "Placeholder text"
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "required": false,
+          "description": "Error message to display"
+        },
+        {
+          "name": "type",
+          "type": "\"text\" | \"email\" | \"password\" | \"number\"",
+          "required": false,
+          "defaultValue": "\"text\"",
+          "description": "Input type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "required": false,
+          "description": "Controlled input value"
+        },
+        {
+          "name": "onChange",
+          "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+          "required": false,
+          "description": "Change handler"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Input",
+          "code": "<Input label=\"Email\" placeholder=\"Enter your email\" />"
+        },
+        {
+          "title": "Input with Error",
+          "code": "<Input label=\"Password\" type=\"password\" error=\"Password is required\" />"
+        }
+      ],
+      "sourceCode": "export interface InputProps {\n  label?: string;\n  placeholder?: string;\n  error?: string;\n  type?: 'text' | 'email' | 'password' | 'number';\n  value?: string;\n  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;\n}\n\nexport function Input({ label, placeholder, error, type = 'text', value, onChange }: InputProps) {\n  return (\n    <div className=\"input-wrapper\">\n      {label && <label>{label}</label>}\n      <input type={type} placeholder={placeholder} value={value} onChange={onChange} />\n      {error && <span className=\"error\">{error}</span>}\n    </div>\n  );\n}",
+      "tags": ["form", "input"],
+      "exports": ["Input", "InputProps"]
+    },
+    {
+      "id": "card-component",
+      "name": "Card",
+      "category": "layout",
+      "filePath": "test-components/Card.tsx",
+      "description": "A container component for grouping related content with optional header and footer",
+      "type": "function",
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "Card title displayed in header"
+        },
+        {
+          "name": "footer",
+          "type": "React.ReactNode",
+          "required": false,
+          "description": "Content for card footer"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Main card content"
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"bordered\" | \"elevated\"",
+          "required": false,
+          "defaultValue": "\"default\"",
+          "description": "Visual style variant"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Simple Card",
+          "code": "<Card title=\"Welcome\">\n  <p>This is a card</p>\n</Card>"
+        },
+        {
+          "title": "Elevated Card with Footer",
+          "code": "<Card title=\"Profile\" variant=\"elevated\" footer={<button>Save</button>}>\n  <p>User information</p>\n</Card>"
+        }
+      ],
+      "sourceCode": "export interface CardProps {\n  title?: string;\n  footer?: React.ReactNode;\n  children: React.ReactNode;\n  variant?: 'default' | 'bordered' | 'elevated';\n}\n\nexport function Card({ title, footer, children, variant = 'default' }: CardProps) {\n  return (\n    <div className={`card card-${variant}`}>\n      {title && <div className=\"card-header\">{title}</div>}\n      <div className=\"card-body\">{children}</div>\n      {footer && <div className=\"card-footer\">{footer}</div>}\n    </div>\n  );\n}",
+      "tags": ["container", "layout"],
+      "exports": ["Card", "CardProps"]
+    },
+    {
+      "id": "modal-component",
+      "name": "Modal",
+      "category": "overlay",
+      "filePath": "test-components/Modal.tsx",
+      "description": "A modal dialog component with backdrop and close functionality",
+      "type": "function",
+      "props": [
+        {
+          "name": "isOpen",
+          "type": "boolean",
+          "required": true,
+          "description": "Controls modal visibility"
+        },
+        {
+          "name": "onClose",
+          "type": "() => void",
+          "required": true,
+          "description": "Callback when modal should close"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "Modal title"
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "required": true,
+          "description": "Modal content"
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "required": false,
+          "defaultValue": "\"md\"",
+          "description": "Modal size"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Modal",
+          "code": "<Modal isOpen={true} onClose={() => {}} title=\"Confirm\">\n  <p>Are you sure?</p>\n</Modal>"
+        }
+      ],
+      "sourceCode": "export interface ModalProps {\n  isOpen: boolean;\n  onClose: () => void;\n  title?: string;\n  children: React.ReactNode;\n  size?: 'sm' | 'md' | 'lg' | 'xl';\n}\n\nexport function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-backdrop\" onClick={onClose}>\n      <div className={`modal modal-${size}`} onClick={(e) => e.stopPropagation()}>\n        {title && <div className=\"modal-header\">{title}</div>}\n        <div className=\"modal-body\">{children}</div>\n      </div>\n    </div>\n  );\n}",
+      "tags": ["overlay", "dialog"],
+      "exports": ["Modal", "ModalProps"]
+    },
+    {
+      "id": "dropdown-component",
+      "name": "Dropdown",
+      "category": "forms",
+      "filePath": "test-components/Dropdown.tsx",
+      "description": "A dropdown select component with customizable options",
+      "type": "function",
+      "props": [
+        {
+          "name": "options",
+          "type": "Array<{ value: string; label: string }>",
+          "required": true,
+          "description": "Array of dropdown options"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "required": false,
+          "description": "Currently selected value"
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "required": false,
+          "description": "Callback when selection changes"
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "required": false,
+          "defaultValue": "\"Select...\"",
+          "description": "Placeholder text"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "required": false,
+          "defaultValue": "false",
+          "description": "Whether dropdown is disabled"
+        }
+      ],
+      "examples": [
+        {
+          "title": "Basic Dropdown",
+          "code": "<Dropdown options={[{value: '1', label: 'Option 1'}, {value: '2', label: 'Option 2'}]} />"
+        }
+      ],
+      "sourceCode": "export interface DropdownProps {\n  options: Array<{ value: string; label: string }>;\n  value?: string;\n  onChange?: (value: string) => void;\n  placeholder?: string;\n  disabled?: boolean;\n}\n\nexport function Dropdown({ options, value, onChange, placeholder = 'Select...', disabled = false }: DropdownProps) {\n  return (\n    <select value={value} onChange={(e) => onChange?.(e.target.value)} disabled={disabled}>\n      <option value=\"\">{placeholder}</option>\n      {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}\n    </select>\n  );\n}",
+      "tags": ["form", "select"],
+      "exports": ["Dropdown", "DropdownProps"]
+    }
+  ],
+  "categories": [
+    {
+      "name": "forms",
+      "displayName": "Form Components",
+      "description": "Interactive form elements like buttons, inputs, and dropdowns",
+      "componentCount": 3
+    },
+    {
+      "name": "layout",
+      "displayName": "Layout Components",
+      "description": "Page structure and container components",
+      "componentCount": 1
+    },
+    {
+      "name": "overlay",
+      "displayName": "Overlay Components",
+      "description": "Modals, tooltips, and other overlay elements",
+      "componentCount": 1
+    }
+  ],
+  "stats": {
+    "totalComponents": 5,
+    "totalCategories": 3,
+    "lastUpdated": "2026-01-28T20:44:52-05:00"
+  }
+}
+</file>
+
+<file path="client/public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="client/src/assets/mini-parser.ts">
+import {Project } from "ts-morph";
+
+function getComponentName(filePath: string){
+    // creating a new ts-morph project robot
+    const project = new Project();
+    // give the robot the file to work on
+    const sourceFile = project.addSourceFileAtPath(filePath);
+    // try to find the first exported function in the file
+    const firstFunction = sourceFile.getFunctions().find(f=>f.isExported());
+    // if we found it, return its name!
+    if (firstFunction){
+        console.log('Found a component named:", firstFunction.getName());
+        }else{
+            console.log("I couldn't find a standard exported funstion in this file.");
+        }
+    }
+    //Run it ! (replace 'Button.tsx' with your actual file path)
+    getComponentName("./TestComponent.tsx");
+</file>
+
+<file path="client/src/assets/Parser.tsx">
+import { Project, SyntaxKind } from "ts-morph";
+
+/**
+ * The structure of our extracted data
+ */
+interface ComponentMetadata {
+  name: string;
+  description: string;
+  props: Array<{
+    name: string;
+    type: string;
+    isOptional: boolean;
+  }>;
+}
+
+export function parseComponent(filePath: string): ComponentMetadata | null {
+  // 1. Initialize the project
+  const project = new Project();
+  const sourceFile = project.addSourceFileAtPath(filePath);
+
+  // 2. Find the First Exported Function (Assuming Functional Component)
+  const functionDeclaration = sourceFile.getFunctions().find(f => f.isExported());
+  
+  if (!functionDeclaration) return null;
+
+  const name = functionDeclaration.getName() || "UnknownComponent";
+  
+  // 3. Extract JSDoc (The comments above the function)
+  const jsDocs = functionDeclaration.getJsDocs();
+  const description = jsDocs.map(doc => doc.getDescription()).join("\n");
+
+  // 4. Extract Props from the first parameter
+  const props: ComponentMetadata['props'] = [];
+  const firstParam = functionDeclaration.getParameters()[0];
+
+  if (firstParam) {
+    const typeNode = firstParam.getType();
+    const properties = typeNode.getProperties();
+
+    properties.forEach(prop => {
+      props.push({
+        name: prop.getName(),
+        type: prop.getTypeAtLocation(firstParam).getText(),
+        isOptional: prop.isOptional(),
+      });
+    });
+  }
+
+  return {
+    name,
+    description,
+    props,
+  };
+}
+</file>
+
+<file path="client/src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="client/src/assets/TestComponent.tsx">
+export function SuperButton(){
+    return <button>Click </button>
+}
+</file>
+
+<file path="client/src/components/CoolSlider.tsx">
+import React from 'react';
+
+/**
+ * A highly customizable slider component for selecting ranges.
+ * This was detected automatically by the Jumbo Parser!
+ */
+interface CoolSliderProps {
+  /** The current value of the slider */
+  value: number;
+  /** The minimum allowed value */
+  min: number;
+  /** The maximum allowed value */
+  max: number;
+  
+  /** The label displayed above the slider */
+  label: string;
+  
+  /** If true, the slider cannot be moved */
+  disabled?: boolean;
+}
+
+export function CoolSlider(props: CoolSliderProps) {
+  return (
+    <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}>
+      <label style={{ display: 'block', fontWeight: 'bold' }}>{props.label}</label>
+      <input 
+        type="range" 
+        min={props.min} 
+        max={props.max} 
+        value={props.value} 
+        disabled={props.disabled}
+        style={{ width: '100%' }}
+        readOnly
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <span>{props.min}</span>
+        <span>{props.max}</span>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/dashboard-etc/SearchBar.tsx">
+import "../main.css"
+import { useManifest } from "../hooks/useManifest";
+
+function SearchBar() {
+
+  const manifest = useManifest();
+  const handleOnClick = (e:React.MouseEvent) => {
+    e.preventDefault();
+    console.log(manifest);
+
+  }
+
+  return (
+    <div>
+
+    <div className="flex align-center text-green-500 border border-green-500 w-[95%]">
+      <form onSubmit={(e) => {
+        e.preventDefault()
+        console.log(manifest)
+      }}> 
+        <input 
+          className="align-center w-[90%]"
+          type="search"
+          id="site-search"
+          name="q"
+          aria-label='form search misc'
+          placeholder="Enter search terms..."
+        />
+      </form>      
+    </div>
+        </div>
+
+  );
+}
+
+export default SearchBar;
+</file>
+
+<file path="client/src/hooks/useManifest.ts">
+import { useState, useEffect } from "react";
+import type { ComponentManifest } from "../types/manifest";
+import { useRegistryStore } from "../stores/registryStore";
+
+/**
+ * Hook to load and manage the component manifest
+ * In development, loads from mock data
+ * In production, loads from generated manifest
+ */
+export function useManifest() {
+  const setManifest = useRegistryStore((state) => state.setManifest);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function loadManifest() {
+      try {
+        setLoading(true);
+        // Load from mock data for now
+        const response = await fetch("../public/mock-data/manifest.json");
+
+        if (!response.ok) {
+          throw new Error("Failed to load manifest");
+        }
+
+        const data = await response.json() as ComponentManifest;
+        setManifest(data);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Unknown error"));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadManifest();
+  }, [setManifest]);
+
+  return { loading, error };
+}
+</file>
+
+<file path="client/src/App.css">
+/* #root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+} */
+</file>
+
+<file path="client/src/index.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #64ffcb;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* @media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #ff74ba;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
+</file>
+
+<file path="client/src/TestButton.tsx">
+interface ButtonProps {
+    /** the text to display inside the button */
+     label: string;
+     disabled?: boolean;
+     /** the number of times the button was clicked */
+      count: number;
+}
+
+
+
+
+/** * a high-performance button used for primary actionss. 
+ * it supports various themes and sizes .*/
+export function TestButton(props: ButtonProps) {
+  return <button>{props.label}</button>;
+}
+</file>
+
+<file path="client/eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+  },
+])
+</file>
+
+<file path="client/postcss.config.js">
+export default {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+</file>
+
+<file path="client/tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+</file>
+
+<file path="client/tsconfig.json">
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+</file>
+
+<file path="client/tsconfig.node.json">
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="client/vite.config.ts">
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+</file>
+
+<file path="services/cli/commands/analyze.ts">
+import ora from 'ora';
+import chalk from 'chalk';
+import { writeFileSync } from 'fs';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
+import { DependencyGraphBuilder } from '../../core/dependency-graph.ts';
+import type { DependencyGraph } from '../../types/graph.ts';
+
+interface AnalyzeOptions {
+  target?: string;
+  verbose?: boolean;
+  output?: string;
+  format?: 'json' | 'mermaid';
+}
+
+export async function analyzeCommand(directory: string, options: AnalyzeOptions): Promise<void> {
+  const spinner = ora('Scanning and analyzing project...').start();
+
+  try {
+    // Step 1: Scan for files
+    const scanner = new ComponentScanner({
+      directory,
+      framework: 'react',
+      respectGitignore: true,
+      includeNodeModules: false,
+      verbose: options.verbose || false,
+    });
+
+    const scanResult = await scanner.scan();
+    spinner.text = `Found ${scanResult.files.length} files. Parsing...`;
+
+    // Step 2: Parse all files
+    const parseResults = await parserFactory.parseFiles(
+      scanResult.files.map(f => f.path),
+      { extractDocs: true, extractHooks: true, extractProps: true }
+    );
+
+    const components = parseResults
+      .filter(r => r.success && r.metadata)
+      .map(r => r.metadata!);
+
+    spinner.text = `Parsed ${components.length} components. Building dependency graph...`;
+
+    // Step 3: Build dependency graph
+    const graphBuilder = new DependencyGraphBuilder();
+    const graph = graphBuilder.buildGraph(components);
+
+    spinner.succeed(
+      chalk.green(
+        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`
+      )
+    );
+
+    // Display statistics
+    console.log(chalk.cyan('\n📊 Project Statistics:'));
+    console.log(`   Components: ${graph.metadata.componentsCount}`);
+    console.log(`   Hooks: ${graph.metadata.hooksCount}`);
+    console.log(`   Dependencies: ${graph.metadata.totalEdges}`);
+
+    // Step 4: Impact analysis (if target specified)
+    if (options.target) {
+      console.log(chalk.yellow(`\n⚠️  Impact Analysis for: ${options.target}`));
+      
+      const targetNode = graph.nodes.find(n => 
+        n.filePath.includes(options.target!) || n.name === options.target
+      );
+
+      if (targetNode) {
+        const impact = graphBuilder.analyzeImpact(targetNode.filePath);
+        
+        console.log(`   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`);
+        console.log(`   Direct Dependents: ${impact.directDependents.length}`);
+        console.log(`   Indirect Dependents: ${impact.indirectDependents.length}`);
+        
+        if (impact.affectedComponents.length > 0) {
+          console.log(`\n   Affected Components:`);
+          impact.affectedComponents.forEach(comp => {
+            console.log(`   - ${comp}`);
+          });
+        } else {
+          console.log(`   ✓ No components depend on this file (safe to modify)`);
+        }
+      } else {
+        console.log(chalk.red(`   ✗ Target not found in project`));
+      }
+    }
+
+    // Step 5: Save output
+    const outputPath = options.output || 'dependency-graph.json';
+    
+    if (options.format === 'mermaid') {
+      const mermaid = generateMermaidDiagram(graph);
+      writeFileSync(outputPath.replace('.json', '.mmd'), mermaid);
+      console.log(chalk.green(`\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`));
+    } else {
+      writeFileSync(outputPath, graphBuilder.toJSON());
+      console.log(chalk.green(`\n💾 Dependency graph saved to: ${outputPath}`));
+    }
+
+    // Step 6: Warnings
+    if (graph.metadata.circularDependencies.length > 0) {
+      console.log(chalk.red(`\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`));
+    }
+
+  } catch (error) {
+    spinner.fail(chalk.red('Analysis failed'));
+    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    process.exit(1);
+  }
+}
+
+function generateMermaidDiagram(graph: DependencyGraph): string {
+  let mermaid = 'graph TD\n';
+  
+  // Add nodes
+  graph.nodes.forEach((node) => {
+    const shape = node.type === 'hook' ? '([' : '[';
+    const shapeEnd = node.type === 'hook' ? '])' : ']';
+    mermaid += `  ${sanitizeId(node.id)}${shape}${node.name}${shapeEnd}\n`;
+  });
+  
+  // Add edges
+  graph.edges.forEach((edge) => {
+    const arrow = edge.type === 'uses-hook' ? '-.uses.->' : '-->';
+    mermaid += `  ${sanitizeId(edge.from)} ${arrow} ${sanitizeId(edge.to)}\n`;
+  });
+  
+  return mermaid;
+}
+
+function sanitizeId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9]/g, '_');
+}
+</file>
+
+<file path="services/cli/commands/scan.ts">
+import ora from 'ora';
+import chalk from 'chalk';
+import { writeFileSync } from 'fs';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
+
+interface ScanCommandOptions {
+  framework?: 'react' | 'vue' | 'svelte' | 'auto';
+  pattern?: string;
+  exclude?: string;
+  includeNodeModules?: boolean;
+  respectGitignore?: boolean;
+  verbose?: boolean;
+  output?: string;
+}
+
+export async function scanCommand(
+  directory: string,
+  options: ScanCommandOptions
+): Promise<void> {
+  const spinner = ora('Scanning for components...').start();
+
+  try {
+    // Step 1: Scan files
+    const scanner = new ComponentScanner({
+      directory,
+      framework: options.framework || 'auto',
+      pattern: options.pattern ? [options.pattern] : undefined,
+      exclude: options.exclude ? [options.exclude] : undefined,
+      includeNodeModules: options.includeNodeModules || false,
+      respectGitignore: options.respectGitignore !== false,
+      verbose: options.verbose || false,
+    });
+
+    const scanResult = await scanner.scan();
+    spinner.text = `Found ${scanResult.files.length} files. Parsing...`;
+
+    // Step 2: Parse components
+    const parseResults = await parserFactory.parseFiles(
+      scanResult.files.map(f => f.path),
+      {
+        extractDocs: true,
+        extractHooks: true,
+        extractProps: true,
+      }
+    );
+
+    const components = parseResults
+      .filter(r => r.success)
+      .map(r => r.metadata);
+
+    spinner.succeed(
+      chalk.green(`✓ Scanned ${components.length} components`)
+    );
+
+    // Step 3: Save results
+    const outputPath = options.output || 'scan-results.json';
+    const output = {
+      components: components.map(c => ({
+        name: c!.name,
+        path: c!.relativePath,
+        type: c!.type,
+        props: c!.props?.length || 0,
+        hooks: c!.hooks?.map(h => h.name) || [],
+      })),
+      stats: {
+        total: components.length,
+        components: components.filter(c => c!.type === 'component').length,
+        hooks: components.filter(c => c!.type === 'hook').length,
+      },
+    };
+
+    writeFileSync(outputPath, JSON.stringify(output, null, 2));
+    console.log(chalk.green(`💾 Results saved to ${outputPath}`));
+
+  } catch (error) {
+    spinner.fail(chalk.red('Scan failed'));
+    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    process.exit(1);
+  }
+}
+</file>
+
+<file path="services/cli/commands/watch.ts">
+import chalk from 'chalk';
+import { writeFileSync } from 'fs';
+import { watch } from '../../core/watcher.ts';
+import type { ComponentMetadata } from '../../types/parser.ts';
+
+interface WatchCommandOptions {
+  framework?: 'react' | 'vue' | 'svelte' | 'auto';
+  verbose?: boolean;
+  output?: string;
+}
+
+export async function watchCommand(directory: string, options: WatchCommandOptions): Promise<void> {
+  console.log(chalk.blue.bold('🚀 Starting PatternBook Watcher...\n'));
+  console.log(chalk.gray(`Directory: ${directory}`));
+  console.log(chalk.gray(`Framework: ${options.framework || 'auto'}`));
+  console.log(chalk.gray(`Output: ${options.output || 'library-metadata.json'}\n`));
+
+  const allMetadata: ComponentMetadata[] = [];
+
+  try {
+    const watcher = await watch({
+      directory,
+      patterns: getPatternsByFramework(options.framework || 'auto'),
+      verbose: options.verbose || false,
+      
+      onParse: (metadata) => {
+        // Update or add metadata
+        const existingIndex = allMetadata.findIndex(m => m.path === metadata.path);
+        
+        if (existingIndex >= 0) {
+          allMetadata[existingIndex] = metadata;
+        } else {
+          allMetadata.push(metadata);
+        }
+
+        // Save to file
+        saveMetadata(allMetadata, options.output || 'library-metadata.json');
+        
+        // Log summary
+        console.log(chalk.green(`✓ ${metadata.name} parsed (${allMetadata.length} total components)`));
+      },
+
+      onError: (error, filePath) => {
+        console.error(chalk.red(`✗ Error parsing ${filePath}:`), error.message);
+      },
+
+      onReady: () => {
+        console.log(chalk.green('✅ Watcher ready. Monitoring for changes...\n'));
+      }
+    });
+
+    // Keep process running
+    process.on('SIGINT', async () => {
+      console.log(chalk.yellow('\n\n⏹  Stopping watcher...'));
+      await watcher.stop();
+      console.log(chalk.green('✓ Watcher stopped'));
+      process.exit(0);
+    });
+
+  } catch (error) {
+    console.error(chalk.red('Failed to start watcher:'), error);
+    process.exit(1);
+  }
+}
+
+function getPatternsByFramework(framework: string): string[] {
+  switch (framework) {
+    case 'react':
+      return ['**/*.{tsx,jsx}'];
+    case 'vue':
+      return ['**/*.vue'];
+    case 'svelte':
+      return ['**/*.svelte'];
+    default:
+      return ['**/*.{tsx,jsx,vue,svelte}'];
+  }
+}
+
+function saveMetadata(metadata: ComponentMetadata[], outputPath: string): void {
+  const output = metadata.map(m => ({
+    name: m.name,
+    path: m.relativePath,
+    type: m.type,
+    props: m.props || [],
+    hooks: m.hooks?.map(h => h.name) || [],
+    imports: m.imports.filter(i => i.isInternal).map(i => i.source),
+  }));
+
+  writeFileSync(outputPath, JSON.stringify(output, null, 2));
+}
+</file>
+
+<file path="services/cli/index.ts">
+#!/usr/bin/env node
+
+import { Command } from 'commander';
+import { scanCommand } from './commands/scan.ts';
+import { watchCommand } from './commands/watch.ts';
+import { analyzeCommand } from './commands/analyze.ts';
+import { generateCommand } from './commands/generate.ts';
+
+const program = new Command();
+
+program
+  .name('patternbook')
+  .description('Lightweight component scanner and dependency analyzer')
+  .version('0.2.0');
+
+// Scan command - Find all components
+program
+  .command('scan')
+  .description('Scan project for components and hooks')
+  .argument('[directory]', 'Directory to scan', '.')
+  .option('-f, --framework <framework>', 'Target framework (react|vue|svelte|auto)', 'auto')
+  .option('-p, --pattern <pattern>', 'File pattern to match')
+  .option('-e, --exclude <pattern>', 'Pattern to exclude')
+  .option('--include-node-modules', 'Include node_modules in scan', false)
+  .option('--no-respect-gitignore', 'Ignore .gitignore files')
+  .option('-v, --verbose', 'Verbose output', false)
+  .option('-o, --output <file>', 'Output file for results', 'scan-results.json')
+  .action(scanCommand);
+
+// Watch command - Watch for changes and re-scan
+program
+  .command('watch')
+  .description('Watch for file changes and re-scan')
+  .argument('[directory]', 'Directory to watch', '.')
+  .option('-f, --framework <framework>', 'Target framework (react|vue|svelte|auto)', 'auto')
+  .option('-v, --verbose', 'Verbose output', false)
+  .option('-o, --output <file>', 'Output file for results', 'library-metadata.json')
+  .action(watchCommand);
+
+// Analyze command - Dependency analysis and impact reports
+program
+  .command('analyze')
+  .description('Analyze component dependencies and relationships')
+  .argument('[directory]', 'Directory to analyze', '.')
+  .option('-t, --target <file>', 'Target file to analyze impact for')
+  .option('-v, --verbose', 'Verbose output', false)
+  .option('-o, --output <file>', 'Output file for graph', 'dependency-graph.json')
+  .option('--format <format>', 'Output format (json|mermaid)', 'json')
+  .action(analyzeCommand);
+
+// Generate command - Generate component library manifest
+program
+  .command('generate')
+  .description('Generate complete component library manifest')
+  .argument('[directory]', 'Directory to scan', '.')
+  .option('-o, --output <file>', 'Output manifest file', 'library-manifest.json')
+  .option('--include-docs', 'Include JSDoc documentation', true)
+  .option('--include-props', 'Include prop definitions', true)
+  .option('--include-hooks', 'Include hook usage', true)
+  .option('--include-graph', 'Include dependency graph', true)
+  .option('-v, --verbose', 'Verbose output', false)
+  .action(generateCommand);
+
+program.parse();
+</file>
+
+<file path="services/core/dependency-graph.ts">
+import type { ComponentMetadata } from '../types/parser.ts';
+import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.ts';
+
+/**
+ * Builds and analyzes dependency graphs from parsed component metadata
+ * Refactored from scripts/dependency-mapper.ts
+ */
+export class DependencyGraphBuilder {
+  private nodes: Map<string, GraphNode> = new Map();
+  private edges: GraphEdge[] = [];
+
+  /**
+   * Build graph from component metadata
+   */
+  buildGraph(components: ComponentMetadata[]): DependencyGraph {
+    this.nodes.clear();
+    this.edges = [];
+
+    // Create nodes
+    components.forEach(comp => {
+      this.addNode(comp);
+    });
+
+    // Create edges from imports
+    components.forEach(comp => {
+      this.addEdges(comp, components);
+    });
+
+    return {
+      nodes: Array.from(this.nodes.values()),
+      edges: this.edges,
+      metadata: this.calculateMetadata()
+    };
+  }
+
+  private addNode(component: ComponentMetadata): void {
+    const node: GraphNode = {
+      id: component.path,
+      name: component.name,
+      type: component.type,
+      filePath: component.path,
+      props: component.props?.length,
+      hooks: component.hooks?.map(h => h.name),
+    };
+
+    this.nodes.set(component.path, node);
+  }
+
+  private addEdges(component: ComponentMetadata, allComponents: ComponentMetadata[]): void {
+    const internalImports = component.imports.filter(imp => imp.isInternal);
+
+    internalImports.forEach(imp => {
+      // Find the target component by matching import source
+      const targetComponent = this.findComponentByImport(imp.source, component.path, allComponents);
+      
+      if (targetComponent) {
+        this.edges.push({
+          from: component.path,
+          to: targetComponent.path,
+          type: 'imports',
+        });
+      }
+    });
+
+    // Add hook usage edges
+    if (component.hooks) {
+      component.hooks.forEach(hook => {
+        // Find if this hook is defined in our codebase
+        const hookComponent = allComponents.find(c => c.name === hook.name && c.type === 'hook');
+        
+        if (hookComponent) {
+          this.edges.push({
+            from: component.path,
+            to: hookComponent.path,
+            type: 'uses-hook',
+          });
+        }
+      });
+    }
+  }
+
+  private findComponentByImport(
+    importPath: string,
+    fromPath: string,
+    allComponents: ComponentMetadata[]
+  ): ComponentMetadata | undefined {
+    // Simplified: match by component name in the import path
+    // TODO: Implement proper path resolution
+    
+    const importName = importPath.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '');
+    
+    return allComponents.find(c => 
+      c.name === importName || 
+      c.path.includes(importPath)
+    );
+  }
+
+  private calculateMetadata(): GraphMetadata {
+    const components = Array.from(this.nodes.values()).filter(n => n.type === 'component');
+    const hooks = Array.from(this.nodes.values()).filter(n => n.type === 'hook');
+
+    return {
+      totalNodes: this.nodes.size,
+      totalEdges: this.edges.length,
+      componentsCount: components.length,
+      hooksCount: hooks.length,
+      maxDepth: this.calculateMaxDepth(),
+      circularDependencies: this.findCircularDependencies(),
+    };
+  }
+
+  private calculateMaxDepth(): number {
+    // TODO: Implement proper depth calculation using DFS
+    return 0;
+  }
+
+  private findCircularDependencies(): string[][] {
+    // TODO: Implement cycle detection
+    return [];
+  }
+
+  /**
+   * Analyze impact of changing a component
+   * Answers: "What breaks if I modify this file?"
+   */
+  analyzeImpact(targetPath: string): ImpactAnalysis {
+    const directDependents = this.findDirectDependents(targetPath);
+    const indirectDependents = this.findIndirectDependents(targetPath, directDependents);
+    
+    const allAffected = [...directDependents, ...indirectDependents];
+    const affectedComponents = allAffected
+      .map(path => this.nodes.get(path))
+      .filter(node => node?.type === 'component')
+      .map(node => node!.name);
+
+    return {
+      targetFile: targetPath,
+      directDependents,
+      indirectDependents,
+      affectedComponents,
+      riskLevel: this.calculateRiskLevel(allAffected.length),
+    };
+  }
+
+  /**
+   * Find all files that directly import the target
+   */
+  private findDirectDependents(targetPath: string): string[] {
+    return this.edges
+      .filter(edge => edge.to === targetPath)
+      .map(edge => edge.from);
+  }
+
+  /**
+   * Find all files that depend on the direct dependents (recursive)
+   */
+  private findIndirectDependents(targetPath: string, directDependents: string[]): string[] {
+    const indirect = new Set<string>();
+    const visited = new Set([targetPath, ...directDependents]);
+
+    const traverse = (paths: string[]) => {
+      paths.forEach(path => {
+        const dependents = this.findDirectDependents(path);
+        dependents.forEach(dep => {
+          if (!visited.has(dep)) {
+            visited.add(dep);
+            indirect.add(dep);
+            traverse([dep]);
+          }
+        });
+      });
+    };
+
+    traverse(directDependents);
+    return Array.from(indirect);
+  }
+
+  private calculateRiskLevel(affectedCount: number): 'low' | 'medium' | 'high' {
+    if (affectedCount === 0) return 'low';
+    if (affectedCount <= 3) return 'medium';
+    return 'high';
+  }
+
+  /**
+   * Get all dependencies of a component (what it imports)
+   */
+  getDependencies(componentPath: string): string[] {
+    return this.edges
+      .filter(edge => edge.from === componentPath)
+      .map(edge => edge.to);
+  }
+
+  /**
+   * Get all dependents of a component (what imports it)
+   */
+  getDependents(componentPath: string): string[] {
+    return this.edges
+      .filter(edge => edge.to === componentPath)
+      .map(edge => edge.from);
+  }
+
+  /**
+   * Export graph in various formats
+   */
+  toJSON(): string {
+    return JSON.stringify({
+      nodes: Array.from(this.nodes.values()),
+      edges: this.edges,
+      metadata: this.calculateMetadata(),
+    }, null, 2);
+  }
+}
+</file>
+
+<file path="services/core/parser.ts">
+import { Project, SourceFile, SyntaxKind, CallExpression } from 'ts-morph';
+import * as path from 'path';
+
+export interface ApiCall {
+    url: string;
+    method: string;
+}
+
+export interface ParsedFile {
+    filePath: string;
+    imports: string[];
+    apiCalls: ApiCall[];
+}
+
+export class CodeParser {
+    private project: Project;
+
+    constructor() {
+        this.project = new Project({
+            skipAddingFilesFromTsConfig: true,
+        });
+    }
+
+    parseFile(filePath: string): ParsedFile {
+        // Check if file is already in project to avoid "Duplicate identifier" errors
+        let sourceFile = this.project.getSourceFile(filePath);
+        if (sourceFile) {
+            sourceFile.refreshFromFileSystemSync(); // Reload content
+        } else {
+            sourceFile = this.project.addSourceFileAtPath(filePath);
+        }
+
+        return {
+            filePath: filePath,
+            imports: this.getImports(sourceFile),
+            apiCalls: this.getApiCalls(sourceFile)
+        };
+    }
+
+    private getImports(file: SourceFile): string[] {
+        return file.getImportDeclarations()
+            .map(dec => dec.getModuleSpecifierValue())
+            .filter(path => path.startsWith('.') || path.startsWith('@/'));
+    }
+
+    private getApiCalls(file: SourceFile): ApiCall[] {
+        const apiCalls: ApiCall[] = [];
+        
+        // Find all 'fetch' calls
+        const calls = file.getDescendantsOfKind(SyntaxKind.CallExpression);
+        
+        calls.forEach(call => {
+            const expression = call.getExpression();
+            if (expression.getText() === 'fetch') {
+                apiCalls.push(this.analyzeFetch(call));
+            }
+        });
+
+        return apiCalls;
+    }
+
+    private analyzeFetch(call: CallExpression): ApiCall {
+        const args = call.getArguments();
+        let url = 'unknown';
+        let method = 'GET'; // Default for fetch
+
+        // 1. Get URL (first argument)
+        if (args.length > 0) {
+            // Remove quotes if it's a string literal
+            url = args[0].getText().replace(/^['"`]|['"`]$/g, '');
+        }
+
+        // 2. Get Method (second argument options object)
+        if (args.length > 1) {
+            const optionsArg = args[1];
+            if (optionsArg.getKind() === SyntaxKind.ObjectLiteralExpression) {
+                const methodProp = optionsArg.asKind(SyntaxKind.ObjectLiteralExpression)
+                    ?.getProperty('method');
+                
+                if (methodProp && methodProp.isKind(SyntaxKind.PropertyAssignment)) {
+                    method = methodProp.getInitializer()?.getText().replace(/^['"`]|['"`]$/g, '') || 'GET';
+                }
+            }
+        }
+
+        return { url, method };
+    }
+}
+</file>
+
+<file path="services/core/patterns.ts">
+/**
+ * Framework-specific file patterns
+ * These patterns are framework-agnostic at the scanning level
+ * but help identify component files for each framework
+ */
+
+export const FRAMEWORK_PATTERNS = {
+  react: {
+    include: [
+      '**/*.{jsx,tsx}',
+      '**/components/**/*.{js,ts}',
+      '**/hooks/**/*.{js,ts}',
+    ],
+    exclude: [
+      '**/*.test.{js,jsx,ts,tsx}',
+      '**/*.spec.{js,jsx,ts,tsx}',
+      '**/*.stories.{js,jsx,ts,tsx}',
+      '**/__tests__/**',
+    ],
+  },
+  vue: {
+    include: [
+      '**/*.vue',
+      '**/components/**/*.{js,ts}',
+      '**/composables/**/*.{js,ts}',
+    ],
+    exclude: [
+      '**/*.test.{js,ts}',
+      '**/*.spec.{js,ts}',
+      '**/__tests__/**',
+    ],
+  },
+  svelte: {
+    include: [
+      '**/*.svelte',
+      '**/components/**/*.{js,ts}',
+    ],
+    exclude: [
+      '**/*.test.{js,ts}',
+      '**/*.spec.{js,ts}',
+      '**/__tests__/**',
+    ],
+  },
+} as const;
+
+export const DEFAULT_EXCLUDE_PATTERNS = [
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/.next/**',
+  '**/.nuxt/**',
+  '**/out/**',
+  '**/coverage/**',
+  '**/.git/**',
+  '**/public/**',
+  '**/static/**',
+];
+
+export const DEFAULT_INCLUDE_PATTERNS = [
+  '**/*.{jsx,tsx,vue,svelte}',
+  '**/components/**/*.{js,ts}',
+  '**/hooks/**/*.{js,ts}',
+  '**/composables/**/*.{js,ts}',
+];
+
+export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'auto') {
+  if (framework === 'auto') {
+    // For auto-detection, we'll use a combination of all patterns
+    return {
+      include: DEFAULT_INCLUDE_PATTERNS,
+      exclude: DEFAULT_EXCLUDE_PATTERNS,
+    };
+  }
+  
+  return {
+    include: FRAMEWORK_PATTERNS[framework].include,
+    exclude: [
+      ...DEFAULT_EXCLUDE_PATTERNS,
+      ...FRAMEWORK_PATTERNS[framework].exclude,
+    ],
+  };
+}
+</file>
+
+<file path="services/core/tag-processor.ts">
+import { ComponentMetadata } from '../types/parser.ts';
+
+export class TagProcessor {
+  public process(metadata: ComponentMetadata): string[] {
+    const tags = new Set<string>();
+
+    // 1. Process Documentation (JSDoc)
+    if (metadata.documentation) {
+      const docTags = metadata.documentation.match(/@(\w+)/g);
+      if (docTags) {
+        docTags.forEach(tag => tags.add(tag.replace('@', '').toLowerCase()));
+      }
+    }
+
+    // 2. Process Props (Behavioral)
+    const propNames = (metadata.props || []).map(p => p.name.toLowerCase());
+    if (propNames.some(n => ['onclick', 'onchange', 'onsubmit'].includes(n))) {
+      tags.add('interactive');
+    }
+    if (propNames.includes('children')) {
+      tags.add('container');
+    }
+
+    // 3. Process Path (Structural)
+    const lowerPath = (metadata.path || "").toLowerCase();
+    if (lowerPath.includes('fixtures/') || lowerPath.includes('ui/')) {
+      tags.add('design-system');
+    }
+
+    // 4. Process Name (Semantic)
+    const lowerName = metadata.name.toLowerCase();
+    if (lowerName.includes('button')) tags.add('button');
+    if (metadata.type === 'hook' || lowerName.startsWith('use')) {
+      tags.add('hook');
+    }
+
+    return Array.from(tags).sort();
+  }
+}
+</file>
+
+<file path="services/core/watcher.ts">
+import chokidar, { FSWatcher } from 'chokidar';
+import { parserFactory } from './parsers/index.js';
+import type { ComponentMetadata, ParseOptions } from '../types/parser.js';
+import { DependencyGraphBuilder } from './dependency-graph.js';
+
+export interface WatchOptions {
+  directory: string;
+  patterns?: string[];
+  ignored?: string[];
+  onParse?: (metadata: ComponentMetadata) => void;
+  onError?: (error: Error, filePath: string) => void;
+  onReady?: () => void;
+  verbose?: boolean;
+}
+
+/**
+ * File watcher that re-parses components on change
+ * Refactored from watch-parser.ts with better structure
+ */
+export class ComponentWatcher {
+  private watcher: FSWatcher | null = null;
+  private components: Map<string, ComponentMetadata> = new Map();
+  private graphBuilder: DependencyGraphBuilder;
+  private parseOptions: ParseOptions;
+
+  constructor(private options: WatchOptions) {
+    this.graphBuilder = new DependencyGraphBuilder();
+    this.parseOptions = {
+      extractDocs: true,
+      extractHooks: true,
+      extractProps: true,
+      verbose: options.verbose,
+    };
+  }
+
+  /**
+   * Start watching for file changes
+   */
+  async start(): Promise<void> {
+    const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
+    
+    this.watcher = chokidar.watch(patterns, {
+      cwd: this.options.directory,
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/dist/**',
+        '**/build/**',
+        ...(this.options.ignored || []),
+      ],
+      persistent: true,
+      ignoreInitial: false,
+    });
+
+    this.watcher
+      .on('ready', () => {
+        this.log('✅ Watcher ready. Monitoring for changes...');
+        this.options.onReady?.();
+      })
+      .on('add', (path) => this.handleFileChange('add', path))
+      .on('change', (path) => this.handleFileChange('change', path))
+      .on('unlink', (path) => this.handleFileDelete(path));
+  }
+
+  /**
+   * Stop watching
+   */
+  async stop(): Promise<void> {
+    if (this.watcher) {
+      await this.watcher.close();
+      this.watcher = null;
+      this.log('Watcher stopped');
+    }
+  }
+
+  private async handleFileChange(event: 'add' | 'change', filePath: string): Promise<void> {
+    // Skip non-component files
+    if (!this.isComponentFile(filePath)) return;
+
+    this.log(`[${event}] ${filePath}`);
+
+    try {
+      const result = await parserFactory.parseFile(filePath, this.parseOptions);
+
+      if (result.success && result.metadata) {
+        this.components.set(filePath, result.metadata);
+        this.options.onParse?.(result.metadata);
+        
+        // Rebuild graph
+        this.rebuildGraph();
+        
+        // Analyze impact if this was a change (not initial add)
+        if (event === 'change') {
+          this.analyzeImpact(filePath);
+        }
+      } else {
+        this.logError(`Failed to parse ${filePath}: ${result.error}`);
+        this.options.onError?.(new Error(result.error || 'Unknown error'), filePath);
+      }
+    } catch (error) {
+      this.logError(`Error parsing ${filePath}:`, error);
+      this.options.onError?.(error as Error, filePath);
+    }
+  }
+
+  private handleFileDelete(filePath: string): void {
+    if (this.components.has(filePath)) {
+      this.log(`[delete] ${filePath}`);
+      this.components.delete(filePath);
+      this.rebuildGraph();
+    }
+  }
+
+  private rebuildGraph(): void {
+    const allComponents = Array.from(this.components.values());
+    const graph = this.graphBuilder.buildGraph(allComponents);
+    
+    if (this.options.verbose) {
+      this.log(`📊 Graph rebuilt: ${graph.nodes.length} nodes, ${graph.edges.length} edges`);
+    }
+  }
+
+  private analyzeImpact(filePath: string): void {
+    const impact = this.graphBuilder.analyzeImpact(filePath);
+    
+    if (impact.directDependents.length > 0) {
+      this.log(`\n⚠️  Change Impact for ${filePath}:`);
+      this.log(`   Risk Level: ${impact.riskLevel.toUpperCase()}`);
+      this.log(`   Direct dependents: ${impact.directDependents.length}`);
+      this.log(`   Indirect dependents: ${impact.indirectDependents.length}`);
+      
+      if (this.options.verbose && impact.affectedComponents.length > 0) {
+        this.log(`   Affected components: ${impact.affectedComponents.join(', ')}`);
+      }
+    }
+  }
+
+  private isComponentFile(filePath: string): boolean {
+    return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
+  }
+
+  private log(message: string): void {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[${timestamp}] ${message}`);
+  }
+
+  private logError(message: string, error?: unknown): void {
+    console.error(`❌ ${message}`, error);
+  }
+
+  /**
+   * Get current state
+   */
+  getComponents(): ComponentMetadata[] {
+    return Array.from(this.components.values());
+  }
+
+  getGraph() {
+    return this.graphBuilder.buildGraph(this.getComponents());
+  }
+}
+
+/**
+ * Convenience function to start watching
+ */
+export async function watch(options: WatchOptions): Promise<ComponentWatcher> {
+  const watcher = new ComponentWatcher(options);
+  await watcher.start();
+  return watcher;
+}
+</file>
+
+<file path="services/scripts/dependency-mapper.ts">
+import {Project, ImportDeclaration, SourceFile} from 'ts-morph';
+
+export interface ComponentGraph {
+    [key: string]: string[];
+}
+
+//Loop through the project
+export function buildProjectGraph(directoryPath: string): ComponentGraph {
+    const project: Project = new Project();
+    project.addSourceFilesAtPaths(`${directoryPath}/**/*.tsx`);
+
+    const graph: ComponentGraph = {};
+    const allFiles: SourceFile[] = project.getSourceFiles();
+    allFiles.forEach((file: SourceFile) => {
+        const fileName: string = file.getBaseName();
+        graph[fileName] = getInternalDependencies(file)
+    })
+    return graph;
+}
+
+export function getInternalDependencies(file: SourceFile): string[] {
+
+    //Get imports
+    const imports : ImportDeclaration[] = file.getImportDeclarations();
+
+    //Filtering for internal components
+    return imports
+        .map(dec  => dec.getModuleSpecifierValue())
+        .filter(path => path.startsWith('.') || path.startsWith('@/'));
+
+}
+
+export function getAffectedParents(targetFile: string, graph: ComponentGraph): string[] {
+    return Object.keys(graph).filter(parentFile => graph[parentFile].some(childPath => childPath.includes(targetFile))
+    );
+}
+</file>
+
+<file path="services/scripts/visualizer.ts">
+import { ParsedFile } from '../core/parser.ts';
+import * as path from 'path';
+
+// --- Core-Compatible Interfaces ---
+export interface GraphNode {
+    id: string;
+    label: string;
+    type: 'component' | 'api' | 'hook' | 'store';
+    incomingEdges?: number; // For hotspot detection
+}
+
+export interface GraphEdge {
+    from: string;
+    to: string;
+    type: 'imports' | 'calls' | 'uses';
+}
+
+export interface GraphData {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+}
+
+// --- Main Visualizer Function ---
+export function generateMermaid(data: GraphData): string {
+    let mermaidCode = 'graph TD;\n';
+    
+    // Define styles
+    mermaidCode += '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
+    mermaidCode += '    classDef hotspot fill:#ffcdd2,stroke:#c62828,stroke-width:3px;\n'; // Red for high impact
+    mermaidCode += '    classDef orphan fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5;\n'; // Gray for unused
+    mermaidCode += '    classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;\n';
+    mermaidCode += '    classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;\n';
+
+    // Add Nodes
+    data.nodes.forEach(node => {
+        // Escape quotes in label
+        const safeLabel = node.label.replace(/"/g, "'");
+        let className = 'component';
+
+        // Determine style based on type and metrics
+        if (node.type === 'api') {
+            className = 'api';
+        } else if (node.type === 'hook') {
+            className = 'hook';
+        } else {
+            // Component Logic
+            if ((node.incomingEdges || 0) > 3) {
+                className = 'hotspot';
+            } else if ((node.incomingEdges || 0) === 0) {
+                className = 'orphan';
+            }
+        }
+
+        // Render Node
+        if (node.type === 'api') {
+            mermaidCode += `    ${node.id}[("${safeLabel}")]:::${className}\n`;
+        } else if (node.type === 'hook') {
+            mermaidCode += `    ${node.id}(["${safeLabel}"]):::${className}\n`;
+        } else {
+            mermaidCode += `    ${node.id}["${safeLabel}"]:::${className}\n`;
+        }
+    });
+
+    // Add Edges
+    data.edges.forEach(edge => {
+        if (edge.type === 'calls') {
+            mermaidCode += `    ${edge.from} -.-> ${edge.to}\n`;
+        } else {
+            mermaidCode += `    ${edge.from} --> ${edge.to}\n`;
+        }
+    });
+
+    // Add Legend
+    mermaidCode += '\n    subgraph Legend\n';
+    mermaidCode += '        L1["Component"]:::component\n';
+    mermaidCode += '        L2["Hotspot (>3 deps)"]:::hotspot\n';
+    mermaidCode += '        L3["Orphan (0 deps)"]:::orphan\n';
+    mermaidCode += '        L4[("API Call")]:::api\n';
+    mermaidCode += '        L1 -->|Import| L2\n';
+    mermaidCode += '        L1 -.->|Fetch| L4\n';
+    mermaidCode += '    end\n';
+
+    return mermaidCode;
+}
+
+// --- Adapter for Current Parser ---
+export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
+    const nodes: Map<string, GraphNode> = new Map();
+    const edges: GraphEdge[] = [];
+    const incomingCount: Map<string, number> = new Map();
+
+    // Helper to get or create node
+    const getOrCreateNode = (id: string, type: GraphNode['type'] = 'component', label?: string) => {
+        if (!nodes.has(id)) {
+            nodes.set(id, { id, label: label || id, type, incomingEdges: 0 });
+        }
+        return nodes.get(id)!;
+    };
+
+    files.forEach(file => {
+        const fileId = path.basename(file.filePath).replace(/\.tsx?$/, '');
+        getOrCreateNode(fileId, 'component');
+
+        // Process Imports
+        file.imports.forEach(imp => {
+            const depId = path.basename(imp).replace(/\.tsx?$/, '');
+            getOrCreateNode(depId, 'component');
+
+            edges.push({ from: fileId, to: depId, type: 'imports' });
+            
+            // Increment incoming count for dependency
+            incomingCount.set(depId, (incomingCount.get(depId) || 0) + 1);
+        });
+
+        // Process API Calls
+        file.apiCalls.forEach(api => {
+            const apiId = `API_${api.method}_${api.url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const apiLabel = `${api.method} ${api.url}`;
+            
+            getOrCreateNode(apiId, 'api', apiLabel);
+            edges.push({ from: fileId, to: apiId, type: 'calls' });
+            
+            // API nodes usually have 1 incoming per call, but we track it anyway
+            incomingCount.set(apiId, (incomingCount.get(apiId) || 0) + 1);
+        });
+    });
+
+    // Apply counts to nodes
+    nodes.forEach(node => {
+        node.incomingEdges = incomingCount.get(node.id) || 0;
+    });
+
+    return {
+        nodes: Array.from(nodes.values()),
+        edges
+    };
+}
+</file>
+
+<file path="services/scripts/watcher_temp.ts">
+import chokidar from 'chokidar';
+import { exec } from 'child_process';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Path to watch (your test components)
+const watchPath = path.resolve(__dirname, '../test/fixtures/**/*.tsx');
+
+console.log(`\n👀 Watching for changes in: ${watchPath}`);
+console.log('   The dependency graph will automatically update when you save a file.\n');
+
+const watcher_temp = chokidar.watch(watchPath, {
+    ignored: /(^|[\/\\])\../, // ignore dotfiles
+    persistent: true
+});
+
+let isRunning = false;
+
+watcher_temp.on('change', (filePath) => {
+    if (isRunning) return; // Prevent multiple runs at once
+    isRunning = true;
+
+    console.log(`\n🔄 File changed: ${path.basename(filePath)}`);
+    console.log('   Regenerating dependency graph...');
+
+    exec('npm run generate-graph', { cwd: path.resolve(__dirname, '..') }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`❌ Error: ${error.message}`);
+            isRunning = false;
+            return;
+        }
+        if (stderr) {
+            // mmdc sometimes outputs to stderr even on success, so we just log it
+            // console.error(`stderr: ${stderr}`);
+        }
+        
+        console.log('✅ Graph updated successfully!');
+        console.log('   (dependency-graph.mmd and dependency-graph.png refreshed)');
+        isRunning = false;
+    });
+});
+</file>
+
+<file path="services/test/fixtures/README.md">
+# Test Components
+
+This folder contains sample React components for testing the PatternBook parser.
+
+## Purpose
+
+Use these components to test the ts-morph static analysis engine. The parser should:
+
+1. Scan these `.tsx` files
+2. Extract component metadata (props, types, JSDoc comments)
+3. Generate a `manifest.json` that matches the schema in `/src/types/manifest.ts`
+
+## Components
+
+- **Button.tsx** - Button with variants and sizes
+- **Input.tsx** - Input field with validation
+- **Card.tsx** - Container component
+- **Modal.tsx** - Modal dialog
+- **Dropdown.tsx** - Select dropdown
+
+## For Backend Team
+
+To test the parser, run it against this folder:
+
+```bash
+npx patternbook generate --input ./test-components --output ./public/generated-manifest.json
+```
+
+The generated manifest should match the structure in `/public/mock-data/manifest.json`.
+</file>
+
+<file path="services/test/fixtures/UserProfile.tsx">
+import React, { useEffect, useState } from 'react';
+import { Button } from './Button';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export const UserProfile = ({ userId }: { userId: string }) => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // API Call Example 1: fetch
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(data => setUser(data));
+  }, [userId]);
+
+  const handleUpdate = async () => {
+    // API Call Example 2: fetch with method
+    await fetch('/api/users', {
+      method: 'POST',
+      body: JSON.stringify({ id: userId, name: 'Updated Name' }),
+    });
+  };
+
+  if (!user) return <div>Loading...</div>;
+
+  return (
+    <div className="profile">
+      <h1>{user.name}</h1>
+      <p>{user.email}</p>
+      <Button onClick={handleUpdate}>Update Profile</Button>
+    </div>
+  );
+};
+</file>
+
+<file path="services/test/unit/parser.test.ts">
+import { describe, it, expect } from 'vitest';
+import { CodeParser } from '../../core/parser';
+import * as path from 'path';
+
+describe('CodeParser', () => {
+    const parser = new CodeParser();
+    const fixturesPath = path.resolve(__dirname, '../fixtures');
+
+    it('should extract imports', () => {
+        const filePath = path.join(fixturesPath, 'UserProfile.tsx');
+        const result = parser.parseFile(filePath);
+
+        expect(result.imports).toContain('./Button');
+    });
+
+    it('should extract API calls (fetch)', () => {
+        const filePath = path.join(fixturesPath, 'UserProfile.tsx');
+        const result = parser.parseFile(filePath);
+
+        expect(result.apiCalls).toHaveLength(2);
+
+        // Check GET call
+        const getCall = result.apiCalls.find(c => c.method === 'GET');
+        expect(getCall).toBeDefined();
+        expect(getCall?.url).toContain('/api/users/${userId}');
+
+        // Check POST call
+        const postCall = result.apiCalls.find(c => c.method === 'POST');
+        expect(postCall).toBeDefined();
+        expect(postCall?.url).toBe('/api/users');
+    });
+});
+</file>
+
+<file path="services/test/unit/visualizer.test.ts">
+import { describe, it, expect } from 'vitest';
+import { convertParsedFilesToGraph, generateMermaid, GraphData } from '../../scripts/visualizer';
+import { ParsedFile } from '../../core/parser';
+
+describe('Visualizer Logic', () => {
+    
+    const mockParsedFiles: ParsedFile[] = [
+        {
+            filePath: '/src/Parent.tsx',
+            imports: ['./Child', './Shared'],
+            apiCalls: []
+        },
+        {
+            filePath: '/src/Child.tsx',
+            imports: ['./Shared'],
+            apiCalls: [{ url: '/api/data', method: 'GET' }]
+        },
+        {
+            filePath: '/src/Shared.tsx',
+            imports: [],
+            apiCalls: []
+        },
+        {
+            filePath: '/src/Orphan.tsx',
+            imports: [],
+            apiCalls: []
+        }
+    ];
+
+    describe('convertParsedFilesToGraph', () => {
+        it('should create nodes for all files and dependencies', () => {
+            const graph = convertParsedFilesToGraph(mockParsedFiles);
+            
+            const nodeIds = graph.nodes.map(n => n.id);
+            expect(nodeIds).toContain('Parent');
+            expect(nodeIds).toContain('Child');
+            expect(nodeIds).toContain('Shared');
+            expect(nodeIds).toContain('Orphan');
+        });
+
+        it('should create edges for imports', () => {
+            const graph = convertParsedFilesToGraph(mockParsedFiles);
+            
+            const importEdges = graph.edges.filter(e => e.type === 'imports');
+            expect(importEdges).toHaveLength(3); // Parent->Child, Parent->Shared, Child->Shared
+        });
+
+        it('should create nodes and edges for API calls', () => {
+            const graph = convertParsedFilesToGraph(mockParsedFiles);
+            
+            const apiNode = graph.nodes.find(n => n.type === 'api');
+            expect(apiNode).toBeDefined();
+            expect(apiNode?.label).toBe('GET /api/data');
+
+            const apiEdge = graph.edges.find(e => e.type === 'calls');
+            expect(apiEdge).toBeDefined();
+            expect(apiEdge?.from).toBe('Child');
+        });
+
+        it('should correctly count incoming edges (Hotspot detection)', () => {
+            const graph = convertParsedFilesToGraph(mockParsedFiles);
+            
+            const sharedNode = graph.nodes.find(n => n.id === 'Shared');
+            expect(sharedNode?.incomingEdges).toBe(2); // Imported by Parent and Child
+
+            const orphanNode = graph.nodes.find(n => n.id === 'Orphan');
+            expect(orphanNode?.incomingEdges).toBe(0);
+        });
+    });
+
+    describe('generateMermaid', () => {
+        it('should generate valid Mermaid syntax', () => {
+            const graphData: GraphData = {
+                nodes: [
+                    { id: 'A', label: 'A', type: 'component', incomingEdges: 5 }, // Hotspot
+                    { id: 'B', label: 'B', type: 'component', incomingEdges: 0 }  // Orphan
+                ],
+                edges: [
+                    { from: 'A', to: 'B', type: 'imports' }
+                ]
+            };
+
+            const mermaid = generateMermaid(graphData);
+
+            expect(mermaid).toContain('graph TD;');
+            expect(mermaid).toContain('A["A"]:::hotspot'); // Check hotspot class
+            expect(mermaid).toContain('B["B"]:::orphan');  // Check orphan class
+            expect(mermaid).toContain('A --> B');
+            expect(mermaid).toContain('subgraph Legend');
+        });
+    });
+});
+</file>
+
+<file path="services/types/graph.ts">
+// types for dependency graph and relationship mapping
+
+export interface DependencyGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  metadata: GraphMetadata;
+}
+
+export interface GraphNode {
+  id: string; // File path
+  name: string; // Component/hook name
+  type: 'component' | 'hook' | 'utility';
+  filePath: string;
+  props?: number; // Number of props
+  hooks?: string[]; // Hook names used
+}
+
+export interface GraphEdge {
+  from: string; // Source file path
+  to: string; // Target file path
+  type: 'imports' | 'uses-hook' | 'renders';
+  weight?: number; // For importance/frequency
+}
+
+export interface GraphMetadata {
+  totalNodes: number;
+  totalEdges: number;
+  componentsCount: number;
+  hooksCount: number;
+  maxDepth: number;
+  circularDependencies: string[][];
+}
+
+export interface ImpactAnalysis {
+  targetFile: string;
+  directDependents: string[]; // Files that import this
+  indirectDependents: string[]; // Files that import the direct dependents
+  affectedComponents: string[];
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface ComponentRelationship {
+  component: string;
+  usesHooks: string[];
+  importsComponents: string[];
+  rendersComponents: string[];
+  importedBy: string[];
+}
+</file>
+
+<file path="services/types/index.ts">
+export interface ScanOptions {
+  directory: string;
+  pattern?: string[];
+  exclude?: string[];
+  includeNodeModules?: boolean;
+  respectGitignore?: boolean;
+  framework?: 'react' | 'vue' | 'svelte' | 'auto';
+  verbose?: boolean;
+}
+
+export interface ScanResult {
+  files: ComponentFile[];
+  stats: ScanStats;
+  config: ScanOptions;
+}
+
+export interface ComponentFile {
+  path: string;
+  relativePath: string;
+  name: string;
+  extension: string;
+  directory: string;
+  size: number;
+}
+
+export interface ScanStats {
+  totalFiles: number;
+  totalDirectories: number;
+  scanDuration: number;
+  filesScanned: number;
+  filesIgnored: number;
+}
+
+export interface UserConfig {
+  patterns?: {
+    include?: string[];
+    exclude?: string[];
+  };
+  ignore?: {
+    useGitignore?: boolean;
+    includeNodeModules?: boolean;
+  };
+  framework?: 'react' | 'vue' | 'svelte' | 'auto';
+}
+</file>
+
+<file path="services/dependency-graph.mmd">
+graph TD;
+    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef hotspot fill:#ffcdd2,stroke:#c62828,stroke-width:3px;
+    classDef orphan fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5;
+    classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;
+    Button["Button"]:::component
+    Card["Card"]:::orphan
+    Dropdown["Dropdown"]:::component
+    Input["Input"]:::orphan
+    Modal["Modal"]:::orphan
+    UserProfile["UserProfile"]:::orphan
+    API_GET__api_users___userId_[("GET /api/users/${userId}")]:::api
+    API_POST__api_users[("POST /api/users")]:::api
+    Card --> Button
+    Card --> Dropdown
+    UserProfile --> Button
+    UserProfile -.-> API_GET__api_users___userId_
+    UserProfile -.-> API_POST__api_users
+
+    subgraph Legend
+        L1["Component"]:::component
+        L2["Hotspot (>3 deps)"]:::hotspot
+        L3["Orphan (0 deps)"]:::orphan
+        L4[("API Call")]:::api
+        L1 -->|Import| L2
+        L1 -.->|Fetch| L4
+    end
+</file>
+
+<file path="services/library-manifest.json">
+{
+  "version": "1.0.0",
+  "generated": "2026-02-20T03:22:26.942Z",
+  "components": [
+    {
+      "name": "Button",
+      "path": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
+      "type": "component",
+      "tags": [
+        "button",
+        "container",
+        "design-system",
+        "interactive"
+      ],
+      "props": [
+        {
+          "name": "variant",
+          "type": "\"primary\" | \"secondary\" | \"danger\" | \"ghost\"",
+          "isOptional": true
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\"",
+          "isOptional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "isOptional": true
+        },
+        {
+          "name": "onClick",
+          "type": "() => void",
+          "isOptional": true
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "isOptional": false
+        }
+      ],
+      "hooks": []
+    },
+    {
+      "name": "Card",
+      "path": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Card.tsx",
+      "type": "component",
+      "tags": [
+        "container",
+        "design-system"
+      ],
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "footer",
+          "type": "React.ReactNode",
+          "isOptional": true
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "isOptional": false
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"bordered\" | \"elevated\"",
+          "isOptional": true
+        }
+      ],
+      "hooks": []
+    },
+    {
+      "name": "Dropdown",
+      "path": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Dropdown.tsx",
+      "type": "component",
+      "tags": [
+        "design-system",
+        "interactive"
+      ],
+      "props": [
+        {
+          "name": "options",
+          "type": "{ value: string; label: string; }[]",
+          "isOptional": false
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(value: string) => void",
+          "isOptional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "isOptional": true
+        }
+      ],
+      "hooks": []
+    },
+    {
+      "name": "Input",
+      "path": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Input.tsx",
+      "type": "component",
+      "tags": [
+        "design-system",
+        "interactive"
+      ],
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "type",
+          "type": "\"number\" | \"text\" | \"email\" | \"password\"",
+          "isOptional": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "onChange",
+          "type": "(e: React.ChangeEvent<HTMLInputElement>) => void",
+          "isOptional": true
+        }
+      ],
+      "hooks": []
+    },
+    {
+      "name": "Modal",
+      "path": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Modal.tsx",
+      "type": "component",
+      "tags": [
+        "container",
+        "design-system"
+      ],
+      "props": [
+        {
+          "name": "isOpen",
+          "type": "boolean",
+          "isOptional": false
+        },
+        {
+          "name": "onClose",
+          "type": "() => void",
+          "isOptional": false
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "isOptional": true
+        },
+        {
+          "name": "children",
+          "type": "React.ReactNode",
+          "isOptional": false
+        },
+        {
+          "name": "size",
+          "type": "\"sm\" | \"md\" | \"lg\" | \"xl\"",
+          "isOptional": true
+        }
+      ],
+      "hooks": []
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
+        "name": "Button",
+        "type": "component",
+        "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
+        "props": 5,
+        "hooks": []
+      },
+      {
+        "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Card.tsx",
+        "name": "Card",
+        "type": "component",
+        "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Card.tsx",
+        "props": 4,
+        "hooks": []
+      },
+      {
+        "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Dropdown.tsx",
+        "name": "Dropdown",
+        "type": "component",
+        "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Dropdown.tsx",
+        "props": 5,
+        "hooks": []
+      },
+      {
+        "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Input.tsx",
+        "name": "Input",
+        "type": "component",
+        "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Input.tsx",
+        "props": 6,
+        "hooks": []
+      },
+      {
+        "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Modal.tsx",
+        "name": "Modal",
+        "type": "component",
+        "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Modal.tsx",
+        "props": 5,
+        "hooks": []
+      }
+    ],
+    "edges": [],
+    "metadata": {
+      "totalNodes": 5,
+      "totalEdges": 0,
+      "componentsCount": 5,
+      "hooksCount": 0,
+      "maxDepth": 0,
+      "circularDependencies": []
+    }
+  }
+}
+</file>
+
+<file path="services/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["scripts/**/*", "test/**/*"]
+}
+</file>
+
+<file path="client/src/main.tsx">
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./main.css"; // eventually update
+import App from "./App.tsx";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+</file>
+
+<file path="client/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" />
+    <title>Pattern Book</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="services/cli/commands/generate.ts">
+import ora from 'ora';
+import chalk from 'chalk';
+import { writeFileSync } from 'fs';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
+import { DependencyGraphBuilder } from '../../core/dependency-graph.ts';
+
+interface GenerateCommandOptions {
+  output?: string;
+  includeDocs?: boolean;
+  includeProps?: boolean;
+  includeHooks?: boolean;
+  includeGraph?: boolean;
+  verbose?: boolean;
+}
+
+export async function generateCommand(
+  directory: string,
+  options: GenerateCommandOptions
+): Promise<void> {
+  const spinner = ora('Generating component library manifest...').start();
+
+  try {
+    // Scan and parse
+    const scanner = new ComponentScanner({ 
+      directory, 
+      framework: 'react',
+      verbose: options.verbose || false,
+    });
+    const scanResult = await scanner.scan();
+    
+    spinner.text = 'Parsing components...';
+    const parseResults = await parserFactory.parseFiles(
+      scanResult.files.map(f => f.path),
+      {
+        extractDocs: options.includeDocs !== false,
+        extractHooks: options.includeHooks !== false,
+        extractProps: options.includeProps !== false,
+      }
+    );
+
+    const components = parseResults
+      .filter(r => r.success)
+      .map(r => r.metadata!);
+
+    // Build manifest
+    const manifest: any = {
+      version: '1.0.0',
+      generated: new Date().toISOString(),
+      components: components.map(c => ({
+        name: c.name,
+        path: c.relativePath,
+        type: c.type,
+        tags: c.tags || [],
+        ...(options.includeProps !== false && { props: c.props }),
+        ...(options.includeHooks !== false && { hooks: c.hooks }),
+        ...(options.includeDocs !== false && { documentation: c.documentation }),
+      })),
+    };
+
+    // Add dependency graph if requested
+    if (options.includeGraph !== false) {
+      spinner.text = 'Building dependency graph...';
+      const builder = new DependencyGraphBuilder();
+      manifest.graph = builder.buildGraph(components);
+    }
+
+    // Save
+    const outputPath = options.output || 'library-manifest.json';
+    writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
+
+    spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
+    console.log(chalk.cyan(`\n📊 Summary:`));
+    console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
+    console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
+
+  } catch (error) {
+    spinner.fail(chalk.red('Generation failed'));
+    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    process.exit(1);
+  }
+}
+</file>
+
+<file path="services/core/parsers/index.ts">
+import type { Parser, ParseResult, ParseOptions } from '../../types/parser.js';
+import { ReactParser } from './react-parser.js';
+import { TagProcessor } from '../tag-processor.ts';
+
+/**
+ * Parser factory that routes to the appropriate parser based on file extension
+ */
+export class ParserFactory {
+  private parsers: Map<string, Parser> = new Map();
+  private tagProcessor = new TagProcessor() //intilize tagger 
+
+  constructor() {
+    // Register React parser
+    //const reactParser = new ReactParser();
+    this.parsers.set('react', new ReactParser());
+    
+    // Future: Register Vue and Svelte parsers
+    // this.parsers.set('vue', new VueParser());
+    // this.parsers.set('svelte', new SvelteParser());
+  }
+
+  /**
+   * Get the appropriate parser for a file
+   */
+  getParser(filePath: string): Parser | null {
+    // Check React parser
+    if (/\.(tsx|jsx|ts|js)$/.test(filePath)) {
+      return this.parsers.get('react') || null;
+    }
+
+    // Check Vue parser
+    if (/\.vue$/.test(filePath)) {
+      return this.parsers.get('vue') || null;
+    }
+
+    // Check Svelte parser
+    if (/\.svelte$/.test(filePath)) {
+      return this.parsers.get('svelte') || null;
+    }
+
+    return null;
+  }
+
+  /**
+   * Parse a single file using the appropriate parser
+   */
+  async parseFile(filePath: string, options?: ParseOptions): Promise<ParseResult> {
+    const parser = this.getParser(filePath);
+    
+    if (!parser) {
+      return {
+        success: false,
+        error: `No parser available for file: ${filePath}`
+      };
+    }
+      const result = await parser.parse(filePath,options);
+      //retreive raw data from parser 
+      if (result.success && result.metadata){
+        result.metadata.tags = this.tagProcessor.process(result.metadata);
+      }
+      return result ;
+    }
+
+   // return parser.parse(filePath, options);
+  
+
+  /**
+   * Parse multiple files
+   */
+  async parseFiles(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
+    return Promise.all(
+      filePaths.map(path => this.parseFile(path, options))
+    );
+  }
+}
+  /**
+   * Register a custom parser
+   */
+  //registerParser(name: string, parser: Parser): void {
+  //  this.parsers.set(name, parser);
+ // }
+//}
+
+// Export singleton instance
+export const parserFactory = new ParserFactory();
+</file>
+
+<file path="services/core/parsers/react-parser.ts">
+import { Project, SourceFile, FunctionDeclaration } from 'ts-morph';
+import { resolve } from 'path';
+import type { Parser, ParseResult, ComponentMetadata, ParseOptions, PropMetadata, ImportInfo } from '../../types/parser.ts';
+
+// react-specific parser using ts-morph
+// refactored from jumbo-parser.ts with better structure
+
+export class ReactParser implements Parser {
+    private project: Project;
+    
+    constructor() {
+        this.project = new Project({
+            compilerOptions: {
+                jsx: 1, // JSX preserve mode
+                target: 99 // ESNext
+            },
+        });
+    };
+
+    canParse(filePath: string): boolean {
+        return /\.(tsx|jsx)$/.test(filePath);
+    };
+
+    async parse(filePath: string, options: ParseOptions = {}): Promise<ParseResult> {
+        try {
+            const sourceFile = this.project.addSourceFileAtPath(filePath);
+            // find the main exported component/hook
+            const exportedFunction = this.findExportedFunction(sourceFile);
+    
+            if (!exportedFunction) {
+                if (options.verbose)console.log(`⚠️ No exported function in ${filePath}`);
+                return {
+                    success: false,
+                    error: 'No exported function found'
+                };
+            };
+    
+            const metadata: ComponentMetadata = {
+                name: exportedFunction.getName() || 'Anonymous',
+                path: sourceFile.getFilePath(),
+                relativePath: filePath,
+                type: exportedFunction.getName()?.startsWith('use') ? 'hook': 'component',
+                exports: { named: [exportedFunction.getName()!]},
+                imports: [],
+            };
+
+            // extract props if requested
+            if (options.extractProps !== false) {
+                metadata.props = this.extractProps(exportedFunction);
+            };
+            
+            // extract hooks if requested
+            if (options.extractHooks !== false) {
+                metadata.hooks = this.extractHookUsage(exportedFunction);
+            };
+    
+            // extract documentation if requested
+            if (options.extractDocs) {
+                metadata.documentation = this.extractDocumentation(exportedFunction);
+            };
+    
+            return {
+                success: true,
+                metadata
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: String(error)
+            };
+        };
+    };
+
+    private findExportedFunction(sourceFile: SourceFile): FunctionDeclaration | undefined {
+        // try to find exported function decleration first
+        const functions = sourceFile.getFunctions();
+        const exportedFunc = functions.find(f => f.isExported());
+
+        if (exportedFunc) return exportedFunc;
+
+        // todo: handle arrow function exports, class components, etc.
+        return undefined;
+    };
+
+    private extractProps(fn: FunctionDeclaration): PropMetadata[] {
+        const props: PropMetadata[] = [];
+        const firstParam = fn.getParameters()[0];
+
+        if (!firstParam) return props;
+
+        const type = firstParam.getType();
+        const properties = type.getProperties();
+
+        properties.forEach(prop => {
+            // get JSDoc for this prop
+            const jsDocs = prop.getJsDocTags();
+            const description = jsDocs.find(tag => !tag.getName())?.getText();
+
+            props.push({
+                name: prop.getName(),
+                type: prop.getTypeAtLocation(firstParam).getText(),
+                isOptional: prop.isOptional(),
+                description: description || undefined,
+            });
+        });
+
+        return props;
+    };
+
+    private extractImports(sourceFile: SourceFile): ImportInfo[] {
+        const imports = sourceFile.getImportDeclarations();
+
+        return imports.map(imp => {
+            const source = imp.getModuleSpecifierValue();
+            const specifiers = imp.getNamedImports().map(ni => ni.getName());
+            
+            // add default import if exists
+            const defaultImport = imp.getDefaultImport();
+            if (defaultImport) {
+                specifiers.unshift(defaultImport.getText());
+            };
+
+            return {
+                source,
+                specifiers,
+                isInternal: source.startsWith('.') || source.startsWith('@/'),
+            };
+        });
+    };
+
+
+    private extractExports(sourceFile: SourceFile): { default?: string; named: string[] } {
+    const exportedDeclarations = sourceFile.getExportedDeclarations();
+    const named: string[] = [];
+    let defaultExport: string | undefined;
+
+    exportedDeclarations.forEach((declarations, name) => {
+      if (name === 'default') {
+        // Handle default export
+        const decl = declarations[0];
+        if (decl) {
+          defaultExport = decl.getSymbol()?.getName() || 'default';
+        }
+      } else {
+        named.push(name);
+      }
+    });
+
+    return { default: defaultExport, named };
+  }
+
+  private extractHookUsage(fn: FunctionDeclaration): { name: string; source?: string }[] {
+    const hooks: { name: string; source?: string }[] = [];
+    const body = fn.getBody();
+    
+    if (!body) return hooks;
+
+    // Find all identifiers that look like hooks (start with 'use')
+    body.getDescendantsOfKind(268).forEach(identifier => { // 268 = Identifier
+      const name = identifier.getText();
+      if (name.startsWith('use') && name[3] === name[3].toUpperCase()) {
+        // This looks like a hook call
+        hooks.push({ name });
+      }
+    });
+
+    // Remove duplicates
+    return Array.from(new Map(hooks.map(h => [h.name, h])).values());
+  }
+
+  private extractDocumentation(fn: FunctionDeclaration): string | undefined {
+    const jsDocs = fn.getJsDocs();
+    if (jsDocs.length === 0) return undefined;
+
+    return jsDocs[0].getDescription().trim();
+  }
+
+  /**
+   * Batch parse multiple files
+   */
+  async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
+    return Promise.all(filePaths.map(path => this.parse(path, options)));
+  }
+
+  /**
+   * Clear the project cache
+   */
+  clearCache(): void {
+    this.project = new Project({
+      compilerOptions: {
+        jsx: 1,
+        target: 99,
+      },
+    });
+  }
+}
+</file>
+
+<file path="services/core/scanner.ts">
+import fg from 'fast-glob';
+import { statSync } from 'fs';
+import { resolve, relative, basename, dirname, extname } from 'path';
+import { IgnoreHandler } from '../utils/ignore';
+import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.ts';
+import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.ts';
+
+export class ComponentScanner {
+    private options: Required<ScanOptions>;
+
+    constructor(options: ScanOptions) {
+        this.options = this.normalizeOptions(options);
+    };
+
+    private normalizeOptions(options: ScanOptions): Required<ScanOptions> {
+        const frameworkPatterns = getFrameworkPatterns(options.framework || 'auto');
+
+        return {
+            directory: resolve(options.directory || process.cwd()),
+            pattern: options.pattern || frameworkPatterns.include,
+            exclude: options.exclude || frameworkPatterns.exclude,
+            includeNodeModules: options.includeNodeModules ?? false,
+            respectGitignore: options.respectGitignore ?? true,
+            framework: options.framework || 'auto',
+            verbose: options.verbose ?? false
+        };
+    };
+
+    async scan(): Promise<ScanResult> {
+        const startTime = Date.now();
+        const ignoreHandler = new IgnoreHandler(
+            this.options.directory,
+            this.options.respectGitignore
+        );
+
+        // build exclude patterns
+        const excludePatterns = [...this.options.exclude];
+        if (!this.options.includeNodeModules) {
+            excludePatterns.push('**/node_modules/**');
+        };
+
+        if (this.options.verbose) {
+            console.log('Scanning with patterns:', this.options.pattern);
+            console.log('Excluding:', excludePatterns);
+        };
+
+        // scan for files using fast-glob
+        const foundFiles = await fg(this.options.pattern, {
+            cwd: this.options.directory,
+            ignore: excludePatterns,
+            absolute: false,
+            onlyFiles: true,
+            followSymbolicLinks: false
+        });
+
+        // filter using gitignore if enabled
+        const filteredFiles = this.options.respectGitignore
+        ? ignoreHandler.filter(foundFiles)
+        : foundFiles;
+
+        // convert to ComponentFile objects
+        const componentFiles: ComponentFile[] = filteredFiles.map(file => {
+            const absolutePath = resolve(this.options.directory, file);
+            const stats = statSync(absolutePath);
+
+            return {
+                path: absolutePath,
+                relativePath: file,
+                name: basename(file),
+                extension: extname(file),
+                directory: dirname(file),
+                size: stats.size
+            };
+        });
+
+        const scanDuration = Date.now() - startTime;
+
+        return {
+            files: componentFiles,
+            stats: {
+                totalFiles: componentFiles.length,
+                totalDirectories: new Set(componentFiles.map(f => f.directory)).size,
+                scanDuration,
+                filesScanned: componentFiles.length,
+                filesIgnored: foundFiles.length - filteredFiles.length
+            },
+            config: this.options,
+        };
+    };
+};
+
+// convenience function for quick scanning
+export async function scanForComponents(options: ScanOptions): Promise<ScanResult> {
+    const scanner = new ComponentScanner(options);
+    return scanner.scan();
+};
+</file>
+
+<file path="services/scripts/test-run.ts">
+import { CodeParser, ParsedFile } from '../core/parser.ts';
+import { generateMermaid, convertParsedFilesToGraph } from './visualizer.ts';
+import * as path from "node:path";
+import * as fs from "node:fs";
+import { fileURLToPath } from 'node:url';
+import fg from 'fast-glob';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const testFolder = path.resolve(__dirname, '../test/fixtures');
+
+console.log('Starting Dependency Scan ---');
+
+// 1. Find files
+const files = fg.sync(`${testFolder}/**/*.tsx`.replace(/\\/g, '/'));
+
+// 2. Parse files
+const parser = new CodeParser();
+const parsedFiles: ParsedFile[] = files.map(file => parser.parseFile(file));
+
+// 3. Convert to Graph Data
+const graphData = convertParsedFilesToGraph(parsedFiles);
+
+// 4. Generate Mermaid Diagram
+const mermaidGraph = generateMermaid(graphData);
+const outputPath = path.resolve(__dirname, '../dependency-graph.mmd');
+
+fs.writeFileSync(outputPath, mermaidGraph);
+console.log(`\n--- 📊 Mermaid Diagram Generated ---`);
+console.log(`Saved to: ${outputPath}`);
+console.log(mermaidGraph);
+</file>
+
+<file path="services/test/unit/dependency-mapper.test.ts">
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Project, SourceFile } from 'ts-morph';
+import { getInternalDependencies } from '../../scripts/dependency-mapper.ts';
+
+describe('Dependency Mapper Logic', () => {
+    let project: Project;
+
+  beforeEach(() => {
+    project = new Project();
+  });
+
+
+
+it('should extract internal imports starting with "."', () => {
+    //mock file
+    const file: SourceFile = project.createSourceFile('test.tsx', `
+      import React from 'react';
+      import { Button } from './Button';
+      import { Layout } from '../containers/Layout';
+    `);
+
+    const result: string[] = getInternalDependencies(file);
+
+    expect(result).toContain('./Button');
+    expect(result).toContain('../containers/Layout');
+    expect(result).not.toContain('react');
+});
+
+it('should return an empty array if no internal imports are found', () => {
+    const file: SourceFile = project.createSourceFile('leaf.tsx', `
+      import React from 'react';
+      export const MyComponent = () => <div>Hello</div>;
+    `);
+
+    const result: string[] = getInternalDependencies(file);
+
+    expect(result).toEqual([]);
+
+});
+
+    it('should handle path aliases like "@/" if configured', () => {
+        const file: SourceFile = project.createSourceFile('alias-test.tsx', `
+    import { Header } from '@/components/Header';
+    import { Footer } from '../Footer';
+  `);
+
+        const result = getInternalDependencies(file);
+
+        expect(result).toContain('@/components/Header');
+        expect(result).toContain('../Footer');
+    });
+
+});
+</file>
+
+<file path="services/types/parser.ts">
+// parser-specific types for component metadata extraction
+
+export interface ComponentMetadata {
+  name: string;
+  path: string;
+  relativePath: string;
+  type: 'component' | 'hook' | 'utility'| 'other ';
+  tags?: string[];
+  exports: ExportInfo;
+  imports: ImportInfo[];
+  props?: PropMetadata[];
+  hooks?:{name: string; source?: string}[];
+  documentation?: string;
+}
+
+export interface ExportInfo {
+  default?: string;
+  named: string[];
+}
+
+export interface ImportInfo {
+  source: string;
+  specifiers: string[];
+  isInternal: boolean; // true if starts with '.' or '@/'
+}
+
+export interface PropMetadata {
+  name: string;
+  type: string;
+  isOptional: boolean;
+  description?: string; // From JSDoc
+  defaultValue?: string;
+}
+
+export interface HookUsage {
+  name: string;
+  source?: string; // Where it's imported from
+}
+
+export interface ParseOptions {
+  extractDocs?: boolean;
+  extractHooks?: boolean;
+  extractProps?: boolean;
+  verbose?: boolean;
+}
+
+export interface ParseResult {
+  success: boolean;
+  metadata?: ComponentMetadata;
+  error?: string;
+}
+
+
+// base interface for all parsers (React, Vue, Svelte)
+export interface Parser {
+  parse(filePath: string, options?: ParseOptions): Promise<ParseResult>;
+  canParse(filePath: string): boolean;
+}
+</file>
+
+<file path="services/utils/ignore.ts">
+import ignore from 'ignore';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+
+export class IgnoreHandler {
+    private ig: ReturnType<typeof ignore>;
+
+    constructor(baseDir: string, respectGitignore: boolean = true) {
+        this.ig = ignore();
+        
+        if (respectGitignore) {
+            this.loadGitignore(baseDir);
+        };
+    };
+
+    private loadGitignore(baseDir: string): void {
+        const gitignorePath = join(baseDir, '.gitignore');
+
+        if (existsSync(gitignorePath)) {
+            try {
+                const gitignoreContent = readFileSync(gitignorePath, 'utf8');
+                this.ig.add(gitignoreContent);
+            } catch (error) {
+                // silently fail if .gitignore can't be read
+                console.warn(`Warning: Could not read .gitignore file`);
+            };
+        };
+    };
+
+    // add custom patterns to ignore
+    addPatterns(patterns: string[]): void {
+        this.ig.add(patterns);
+    };
+
+    // check if a path should be ignored
+    shouldIgnore(path: string): boolean {
+        return this.ig.ignores(path);
+    };
+
+    // filter an array of paths
+    filter(paths: string[]): string[] {
+        return paths.filter(path => !this.shouldIgnore(path))
+    };
+};
+</file>
+
+<file path="services/README.md">
+### Back-end file structure
+
+```bash
+services/
+├── cli/
+│   ├── index.ts                    # Main CLI entry point
+│   ├── commands/
+│   │   ├── scan.ts                # Scan command
+│   │   ├── watch.ts               # Watch mode command  
+│   │   ├── analyze.ts             # Dependency analysis command
+│   │   └── generate.ts            # Generate manifest command
+│   └── config.ts                  # CLI config loader
+│
+├── core/
+│   ├── scanner.ts                 # ✅ File discovery (needs bug fixes)
+│   ├── patterns.ts                # ✅ Framework patterns
+│   ├── parser.ts                  # NEW: Unified parser interface
+│   ├── parsers/
+│   │   ├── react-parser.ts       # Refactored from jumbo-parser
+│   │   ├── vue-parser.ts         # Future
+│   │   └── svelte-parser.ts      # Future
+│   ├── dependency-graph.ts        # Refactored from dependency-mapper
+│   ├── watcher_temp.ts                 # Refactored from watch-parser
+│   └── cache.ts                   # NEW: Parse result caching
+│
+├── services/
+│   ├── manifest-generator.ts      # Generate output manifest
+│   ├── impact-analyzer.ts         # "What breaks if I change X?"
+│   └── relationship-mapper.ts     # Component-to-hook relationships
+│
+├── utils/
+│   ├── ignore.ts                  # ⚠️ Needs bug fix
+│   ├── output.ts                  # JSON formatting
+│   ├── logger.ts                  # Structured logging
+│   └── file-hash.ts               # For caching
+│
+├── types/
+│   ├── index.ts                   # ✅ Core types
+│   ├── parser.ts                  # Parser-specific types
+│   ├── graph.ts                   # Dependency graph types
+│   └── manifest.ts                # Output manifest schema
+│
+├── test/
+│   ├── unit/
+│   │   ├── scanner.test.ts
+│   │   ├── parser.test.ts
+│   │   ├── dependency-mapper.test.ts  # ✅ Already exists
+│   │   └── graph-builder.test.ts
+│   ├── integration/
+│   │   ├── full-scan.test.ts
+│   │   └── watch-mode.test.ts
+│   └── fixtures/                   # ✅ Already have good test components
+│       ├── Button.tsx
+│       ├── Card.tsx
+│       └── ...
+│
+└── output/
+    ├── library-metadata.json       # Generated manifest
+    └── dependency-graph.json       # Generated graph
+```
+
+
+### CLI core:
+```bash
+{
+  "dependencies": {
+    "commander": "^11.1.0",
+    "enquirer": "^2.4.1",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1"
+  }
+}
+```
+
+### File scanning
+```bash
+{
+  "dependencies": {
+    "fast-glob": "^3.3.2",      // Faster than globby, better for large projects
+    "ignore": "^5.3.0",         // Respect .gitignore
+    "chokidar": "^3.5.3"        // File watching (for future dev mode)
+  }
+}
+```
+### Mermaid Visual
+
+![Dependency Graph](./dependency-graph.png)
+</file>
+
+<file path="client/src/components/CodeExamples.tsx">
+import { useState } from "react";
+import { Copy, Check } from "lucide-react";
+import type { Example } from "../types/manifest";
+import { ComponentLivePreview } from "./ComponentLivePreview";
+import { getScopeForComponent } from "./componentRegistry";
+
+interface CodeExamplesProps {
+  examples: Example[];
+  /** The component name from the manifest — used to resolve the live preview scope */
+  componentName?: string;
+}
+
+export function CodeExamples({ examples, componentName }: CodeExamplesProps) {
+  const scope = getScopeForComponent(componentName ?? "");
+  const [activeTab, setActiveTab] = useState(0);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  if (!examples || examples.length === 0) {
+    return (
+      <div className="text-gray-500 text-sm italic">
+        No examples available for this component.
+      </div>
+    );
+  }
+
+  const copyToClipboard = (code: string, index: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  return (
+    <div className="mb-8">
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Examples</h2>
+
+      {/* Tabs */}
+      {examples.length > 1 && (
+        <div className="flex gap-2 mb-4 border-b border-gray-200">
+          {examples.map((example, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveTab(index)}
+              className={`px-4 py-2 font-medium text-sm transition ${
+                activeTab === index
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {example.title}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active Example */}
+      {examples.map((example, index) => (
+        <div key={index} className={activeTab === index ? "block" : "hidden"}>
+          {/* Example Title (if only one example) */}
+          {examples.length === 1 && (
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              {example.title}
+            </h3>
+          )}
+
+          {/* Code Block */}
+          <div className="relative group">
+            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+              <code className="text-sm font-mono">{example.code}</code>
+            </pre>
+
+            {/* Copy Button */}
+            <button
+              onClick={() => copyToClipboard(example.code, index)}
+              className="absolute top-3 right-3 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition opacity-0 group-hover:opacity-100"
+              title="Copy code"
+            >
+              {copiedIndex === index ? (
+                <Check size={16} className="text-green-400" />
+              ) : (
+                <Copy size={16} />
+              )}
+            </button>
+          </div>
+
+          {/* Live Preview */}
+          <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Preview
+            </p>
+            <ComponentLivePreview code={example.code} scope={scope} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/ComponentHeader.tsx">
+import { Copy, FileCode, Package } from "lucide-react";
+import type { Component } from "../types/manifest";
+
+interface ComponentHeaderProps {
+  component: Component;
+}
+
+export function ComponentHeader({ component }: ComponentHeaderProps) {
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  return (
+    <div className="border-b border-gray-200 pb-6 mb-6">
+      {/* Component Name and Type Badge */}
+      <div className="flex items-center gap-3 mb-3">
+        <h1 className="text-3xl font-bold text-gray-900">{component.name}</h1>
+        <span
+          className={`px-2 py-1 text-xs font-medium rounded ${
+            component.type === "function"
+              ? "bg-blue-100 text-blue-700"
+              : "bg-purple-100 text-purple-700"
+          }`}
+        >
+          {component.type}
+        </span>
+      </div>
+
+      {/* Description */}
+      {component.description && (
+        <p className="text-gray-600 text-lg mb-4">{component.description}</p>
+      )}
+
+      {/* Metadata Row */}
+      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+        {/* File Path */}
+        <div className="flex items-center gap-2">
+          <FileCode size={16} />
+          <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+            {component.filePath}
+          </code>
+          <button
+            onClick={() => copyToClipboard(component.filePath)}
+            className="text-gray-400 hover:text-gray-600 transition"
+            title="Copy file path"
+          >
+            <Copy size={14} />
+          </button>
+        </div>
+
+        {/* Category */}
+        <div className="flex items-center gap-2">
+          <Package size={16} />
+          <span className="capitalize">{component.category}</span>
+        </div>
+      </div>
+
+      {/* Tags */}
+      {component.tags && component.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {component.tags.map((tag) => (
+            <span
+              key={tag}
+              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Exports */}
+      {component.exports && component.exports.length > 0 && (
+        <div className="mt-4 text-sm text-gray-500">
+          <span className="font-medium">Exports:</span>{" "}
+          <code className="text-gray-700">{component.exports.join(", ")}</code>
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/ComponentLivePreview.tsx">
+import { LiveProvider, LivePreview, LiveError } from "react-live";
+
+interface ComponentLivePreviewProps {
+  /** The raw JSX string from the manifest example, e.g. `<Button>Click</Button>` */
+  code: string;
+  /** Scope object: component(s) + React, from getScopeForComponent() */
+  scope: Record<string, unknown>;
+}
+
+/**
+ * Renders a live, interactive preview of a component example using react-live.
+ *
+ * react-live compiles the JSX string in-browser (no server needed) and renders
+ * the result inside a React tree. Any syntax errors are shown below the preview
+ * frame instead of crashing the whole page.
+ */
+export function ComponentLivePreview({
+  code,
+  scope,
+}: ComponentLivePreviewProps) {
+  return (
+    <LiveProvider
+      code={code}
+      scope={scope}
+      // `noInline` stays false (default) so single-expression JSX just works.
+      // If examples ever need multi-line render() calls, set noInline={true}
+      // and add `render(<Component />)` at the end of the code string.
+      noInline={false}
+    >
+      {/* Rendered component output */}
+      <div className="live-preview-frame">
+        <LivePreview />
+      </div>
+
+      {/* Compilation / runtime errors */}
+      <LiveError className="live-preview-error" />
+    </LiveProvider>
+  );
+}
+</file>
+
+<file path="client/src/components/PropsTable.tsx">
+import type { Prop } from "../types/manifest";
+
+interface PropsTableProps {
+  props: Prop[];
+}
+
+export function PropsTable({ props }: PropsTableProps) {
+  if (!props || props.length === 0) {
+    return (
+      <div className="text-gray-500 text-sm italic">
+        No props documented for this component.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-8">
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Props</h2>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-200">
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                Name
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                Type
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                Required
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                Default
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.map((prop, index) => (
+              <tr
+                key={prop.name}
+                className={`border-b border-gray-100 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                }`}
+              >
+                {/* Name */}
+                <td className="py-3 px-4">
+                  <code className="text-sm font-mono text-blue-600">
+                    {prop.name}
+                  </code>
+                </td>
+
+                {/* Type */}
+                <td className="py-3 px-4">
+                  <code className="text-sm font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                    {prop.type}
+                  </code>
+                </td>
+
+                {/* Required */}
+                <td className="py-3 px-4">
+                  {prop.required ? (
+                    <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">
+                      Required
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-sm">Optional</span>
+                  )}
+                </td>
+
+                {/* Default */}
+                <td className="py-3 px-4">
+                  {prop.defaultValue ? (
+                    <code className="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      {prop.defaultValue}
+                    </code>
+                  ) : (
+                    <span className="text-gray-400 text-sm">—</span>
+                  )}
+                </td>
+
+                {/* Description */}
+                <td className="py-3 px-4 text-sm text-gray-600">
+                  {prop.description || (
+                    <span className="text-gray-400 italic">No description</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/SourceCodeViewer.tsx">
+import { useState } from "react";
+import { Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+
+interface SourceCodeViewerProps {
+  sourceCode: string;
+  componentName: string;
+}
+
+export function SourceCodeViewer({
+  sourceCode,
+  componentName,
+}: SourceCodeViewerProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(sourceCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!sourceCode) {
+    return null;
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-2xl font-bold text-gray-900">Source Code</h2>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition"
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp size={16} />
+              Collapse
+            </>
+          ) : (
+            <>
+              <ChevronDown size={16} />
+              Expand
+            </>
+          )}
+        </button>
+      </div>
+
+      {isExpanded && (
+        <div className="relative group">
+          <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto max-h-96 overflow-y-auto">
+            <code className="text-sm font-mono whitespace-pre">
+              {sourceCode}
+            </code>
+          </pre>
+
+          {/* Copy Button */}
+          <button
+            onClick={copyToClipboard}
+            className="absolute top-3 right-3 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition opacity-0 group-hover:opacity-100"
+            title="Copy source code"
+          >
+            {copied ? (
+              <Check size={16} className="text-green-400" />
+            ) : (
+              <Copy size={16} />
+            )}
+          </button>
+        </div>
+      )}
+
+      {!isExpanded && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+          <p className="text-sm text-gray-600">
+            Click "Expand" to view the full source code for{" "}
+            <code className="font-mono text-gray-800">{componentName}</code>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/main.css">
+@import "tailwindcss";
+
+/* ── react-live preview frame ────────────────────────────────────────── */
+.live-preview-frame {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1.5rem;
+  min-height: 64px;
+}
+
+.live-preview-error {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  color: #b91c1c;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.vite
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="client/src/components/componentRegistry.ts">
+/**
+ * Component Registry
+ *
+ * Maps component names (as they appear in manifest `name` fields) to their
+ * actual imported React components. This is the "scope" object passed to
+ * react-live's LiveProvider so that example code strings like
+ * `<Button variant="primary">Click me</Button>` can resolve `Button` at
+ * runtime.
+ *
+ * When you add a new component to test-components/, import it here and add
+ * it to the COMPONENT_REGISTRY object.
+ */
+
+import React from "react";
+import type { ComponentType } from "react";
+import { Button } from "../../../services/test/fixtures/Button";
+import { Card } from "../../../services/test/fixtures/Card";
+import { Dropdown } from "../../../services/test/fixtures/Dropdown";
+import { Input } from "../../../services/test/fixtures/Input";
+import { Modal } from "../../../services/test/fixtures/Modal";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const COMPONENT_REGISTRY: Record<string, ComponentType<any>> = {
+  Button,
+  Card,
+  Dropdown,
+  Input,
+  Modal,
+};
+
+/**
+ * Given a component name from the manifest, return a scope object containing
+ * that component (plus React itself, which react-live always needs).
+ * Falls back to an empty scope if the component isn't registered.
+ */
+export function getScopeForComponent(
+  componentName: string,
+): Record<string, unknown> {
+  const component = COMPONENT_REGISTRY[componentName];
+  return {
+    React,
+    ...(component ? { [componentName]: component } : {}),
+  };
+}
+</file>
+
+<file path="client/src/dashboard-etc/Dashboard.tsx">
+import "../main.css";
+import PlayGround from "./PlayGround";
+import SideBar from "./SideBar";
+
+function Dashboard() {
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <SideBar />
+      <main className="flex-1 overflow-y-auto bg-gray-50">
+        <PlayGround />
+      </main>
+    </div>
+  );
+}
+
+export default Dashboard;
+</file>
+
+<file path="client/src/dashboard-etc/PlayGround.tsx">
+import { useRegistryStore } from "../stores/registryStore";
+import { ComponentHeader } from "../components/ComponentHeader";
+import { PropsTable } from "../components/PropsTable";
+import { CodeExamples } from "../components/CodeExamples";
+import { SourceCodeViewer } from "../components/SourceCodeViewer";
+import { FileQuestion } from "lucide-react";
+import "../main.css";
+
+function PlayGround() {
+  const selectedComponent = useRegistryStore(
+    (state) => state.selectedComponent,
+  );
+
+  // Empty state when no component is selected
+  if (!selectedComponent) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
+        <FileQuestion size={64} className="text-gray-300 mb-4" />
+        <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+          No Component Selected
+        </h2>
+        <p className="text-gray-500 max-w-md">
+          Select a component from the sidebar to view its documentation, props,
+          examples, and source code.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+      {/* Component Header */}
+      <ComponentHeader component={selectedComponent} />
+
+      {/* Props Table */}
+      <PropsTable props={selectedComponent.props} />
+
+      {/* Code Examples */}
+      <CodeExamples
+        examples={selectedComponent.examples}
+        componentName={selectedComponent.name}
+      />
+
+      {/* Source Code Viewer */}
+      <SourceCodeViewer
+        sourceCode={selectedComponent.sourceCode}
+        componentName={selectedComponent.name}
+      />
+    </div>
+  );
+}
+
+export default PlayGround;
+</file>
+
+<file path="client/src/dashboard-etc/SideBar.tsx">
+import { useState } from "react";
+import { Search, X, BookOpen, ChevronDown, ChevronRight } from "lucide-react";
+import "../main.css";
+import { useRegistryStore } from "../stores/registryStore";
+
+function SideBar() {
+  const components = useRegistryStore((state) => state.filteredComponents);
+  const categories = useRegistryStore(
+    (state) => state.manifest?.categories ?? [],
+  );
+  const selectedComponent = useRegistryStore(
+    (state) => state.selectedComponent,
+  );
+  const setSelectedComponent = useRegistryStore(
+    (state) => state.setSelectedComponent,
+  );
+  const setSearchQuery = useRegistryStore((state) => state.setSearchQuery);
+  const searchQuery = useRegistryStore((state) => state.searchQuery);
+
+  // Track which category groups are collapsed
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleCategory = (categoryName: string) => {
+    setCollapsedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryName)) {
+        next.delete(categoryName);
+      } else {
+        next.add(categoryName);
+      }
+      return next;
+    });
+  };
+
+  // Group filteredComponents by category
+  const byCategory = categories.map((cat) => ({
+    ...cat,
+    items: components.filter((c) => c.category === cat.name),
+  }));
+
+  // Components with no matching category
+  const uncategorized = components.filter(
+    (c) => !categories.some((cat) => cat.name === c.category),
+  );
+
+  return (
+    <aside className="flex flex-col w-64 min-w-64 h-screen bg-white border-r border-gray-200 overflow-hidden">
+      {/* Logo / Brand */}
+      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
+          <BookOpen size={16} className="text-white" />
+        </div>
+        <span className="text-sm font-semibold text-gray-900 tracking-tight">
+          PatternBook
+        </span>
+      </div>
+
+      {/* Search */}
+      <div className="px-3 py-3 border-b border-gray-100">
+        <div className="relative">
+          <Search
+            size={14}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search components..."
+            className="w-full pl-8 pr-7 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-md placeholder:text-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Component list */}
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
+        {byCategory.map((cat) => {
+          if (cat.items.length === 0) return null;
+          const isCollapsed = collapsedCategories.has(cat.name);
+
+          return (
+            <div key={cat.name} className="mb-1">
+              {/* Category header */}
+              <button
+                onClick={() => toggleCategory(cat.name)}
+                className="flex items-center justify-between w-full px-3 py-1.5 text-left group"
+              >
+                <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">
+                  {cat.displayName}
+                </span>
+                {isCollapsed ? (
+                  <ChevronRight
+                    size={12}
+                    className="text-gray-400 group-hover:text-gray-600"
+                  />
+                ) : (
+                  <ChevronDown
+                    size={12}
+                    className="text-gray-400 group-hover:text-gray-600"
+                  />
+                )}
+              </button>
+
+              {/* Component items */}
+              {!isCollapsed && (
+                <ul className="mt-0.5 space-y-0.5">
+                  {cat.items.map((comp) => {
+                    const isSelected = selectedComponent?.id === comp.id;
+                    return (
+                      <li key={comp.id}>
+                        <button
+                          onClick={() => setSelectedComponent(comp.id)}
+                          className={[
+                            "w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors",
+                            isSelected
+                              ? "bg-blue-50 text-blue-700 font-medium"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                          ].join(" ")}
+                        >
+                          {comp.name}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Uncategorized */}
+        {uncategorized.length > 0 && (
+          <div className="mb-1">
+            <div className="px-3 py-1.5">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+                Other
+              </span>
+            </div>
+            <ul className="mt-0.5 space-y-0.5">
+              {uncategorized.map((comp) => {
+                const isSelected = selectedComponent?.id === comp.id;
+                return (
+                  <li key={comp.id}>
+                    <button
+                      onClick={() => setSelectedComponent(comp.id)}
+                      className={[
+                        "w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors",
+                        isSelected
+                          ? "bg-blue-50 text-blue-700 font-medium"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                      ].join(" ")}
+                    >
+                      {comp.name}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+
+        {/* Empty search state */}
+        {components.length === 0 && searchQuery && (
+          <div className="px-3 py-6 text-center">
+            <p className="text-sm text-gray-400">No components match</p>
+            <p className="text-xs text-gray-300 mt-1">"{searchQuery}"</p>
+          </div>
+        )}
+      </nav>
+
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-gray-100">
+        <p className="text-xs text-gray-400">
+          {components.length} component{components.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+export default SideBar;
+</file>
+
+<file path="client/package.json">
+{
+  "name": "temp-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "chokidar": "^5.0.0",
+    "lucide-react": "^0.563.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-live": "^4.1.8",
+    "tailwindcss": "^4.1.18",
+    "ts-morph": "^27.0.2",
+    "zustand": "^5.0.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^24.10.9",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^10.0.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.4",
+    "vitest": "^4.0.18"
+  }
+}
+</file>
+
+<file path="services/test/fixtures/Button.tsx">
+import React from "react";
+
+/**
+ * A customizable button component with multiple variants and sizes
+ */
+export interface ButtonProps {
+  /** Visual style variant of the button */
+  variant?: "primary" | "secondary" | "danger" | "ghost";
+  /** Size of the button */
+  size?: "sm" | "md" | "lg";
+  /** Whether the button is disabled */
+  disabled?: boolean;
+  /** Click handler function */
+  onClick?: () => void;
+  /** Button content */
+  children: React.ReactNode;
+}
+
+const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
+  primary:
+    "bg-blue-600 text-white hover:bg-blue-700 border border-transparent shadow-sm",
+  secondary:
+    "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm",
+  danger:
+    "bg-red-600 text-white hover:bg-red-700 border border-transparent shadow-sm",
+  ghost:
+    "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
+};
+
+const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
+  sm: "px-3 py-1.5 text-xs rounded-md",
+  md: "px-4 py-2 text-sm rounded-md",
+  lg: "px-6 py-3 text-base rounded-lg",
+};
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  disabled = false,
+  onClick,
+  children,
+}: ButtonProps) {
+  return (
+    <button
+      className={[
+        "inline-flex items-center justify-center font-medium transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+        variantClasses[variant],
+        sizeClasses[size],
+        disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "",
+      ].join(" ")}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+</file>
+
+<file path="services/test/fixtures/Dropdown.tsx">
+import React from "react";
+
+/**
+ * A dropdown select component with customizable options
+ */
+export interface DropdownProps {
+  /** Array of dropdown options */
+  options: Array<{ value: string; label: string }>;
+  /** Currently selected value */
+  value?: string;
+  /** Callback when selection changes */
+  onChange?: (value: string) => void;
+  /** Placeholder text */
+  placeholder?: string;
+  /** Whether dropdown is disabled */
+  disabled?: boolean;
+}
+
+export function Dropdown({
+  options,
+  value,
+  onChange,
+  placeholder = "Select...",
+  disabled = false,
+}: DropdownProps) {
+  return (
+    <div className="relative w-full max-w-sm">
+      <select
+        value={value ?? ""}
+        onChange={(e) => onChange?.(e.target.value)}
+        disabled={disabled}
+        className={[
+          "w-full appearance-none px-3 py-2 pr-8 text-sm rounded-md border bg-white shadow-sm",
+          "transition-colors duration-150 cursor-pointer",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          disabled
+            ? "opacity-50 cursor-not-allowed bg-gray-50 border-gray-200"
+            : "border-gray-300 hover:border-gray-400 text-gray-700",
+          !value ? "text-gray-400" : "text-gray-700",
+        ].join(" ")}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {/* Custom chevron arrow */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="services/test/fixtures/Input.tsx">
+import React from "react";
+
+/**
+ * A flexible input field with label, error states, and validation support
+ */
+export interface InputProps {
+  /** Label text displayed above the input */
+  label?: string;
+  /** Placeholder text */
+  placeholder?: string;
+  /** Error message to display */
+  error?: string;
+  /** Input type */
+  type?: "text" | "email" | "password" | "number";
+  /** Controlled input value */
+  value?: string;
+  /** Change handler */
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export function Input({
+  label,
+  placeholder,
+  error,
+  type = "text",
+  value,
+  onChange,
+}: InputProps) {
+  return (
+    <div className="flex flex-col gap-1.5 w-full max-w-sm">
+      {label && (
+        <label className="text-sm font-medium text-gray-700">{label}</label>
+      )}
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className={[
+          "w-full px-3 py-2 text-sm rounded-md border bg-white shadow-sm transition-colors duration-150",
+          "placeholder:text-gray-400",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          error
+            ? "border-red-400 focus:ring-red-400"
+            : "border-gray-300 hover:border-gray-400",
+        ].join(" ")}
+      />
+      {error && (
+        <p className="text-xs text-red-600 flex items-center gap-1">
+          <span>⚠</span> {error}
+        </p>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="services/test/fixtures/Modal.tsx">
+import React from "react";
+
+/**
+ * A modal dialog component with backdrop and close functionality
+ */
+export interface ModalProps {
+  /** Controls modal visibility */
+  isOpen: boolean;
+  /** Callback when modal should close */
+  onClose: () => void;
+  /** Modal title */
+  title?: string;
+  /** Modal content */
+  children: React.ReactNode;
+  /** Modal size */
+  size?: "sm" | "md" | "lg" | "xl";
+}
+
+const sizeClasses: Record<NonNullable<ModalProps["size"]>, string> = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+};
+
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = "md",
+}: ModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      {/* Dialog */}
+      <div
+        className={[
+          "relative w-full bg-white rounded-xl shadow-2xl overflow-hidden",
+          sizeClasses[size],
+        ].join(" ")}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        {title && (
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center w-7 h-7 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* Body */}
+        <div className="px-6 py-5 text-sm text-gray-600">{children}</div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="services/test/fixtures/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true
+  },
+  "references": [{ "path": "../../../client" }]
+}
+</file>
+
+<file path="services/package.json">
+{
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2",
+    "enquirer": "^2.4.1",
+    "fast-glob": "^3.3.3",
+    "ignore": "^7.0.5",
+    "ora": "^9.1.0",
+    "repomix": "^1.11.1",
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@types/node": "^24.10.9",
+    "husky": "^9.1.7",
+    "tsx": "^4.19.2",
+    "vitest": "^4.0.18"
+  },
+  "scripts": {
+    "test": "vitest",
+    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png",
+    "watch:graph": "tsx scripts/watcher_temp.ts",
+    "prepare": "husky"
+  }
+}
+</file>
+
+<file path="README.md">
+### PatternBook
+
+A lightweight user-friendly component mapping tool.
+
+Currently being developed...
+</file>
+
+<file path="client/src/App.tsx">
+import "./main.css";
+import Dashboard from "./dashboard-etc/Dashboard.tsx";
+import { useManifest } from "./hooks/useManifest.ts";
+
+function App() {
+  const { loading, error } = useManifest();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-500 text-sm">
+        Loading components...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen text-red-500 text-sm">
+        Failed to load manifest: {error.message}
+      </div>
+    );
+  }
+
+  return <Dashboard />;
+}
+
+export default App;
+</file>
+
+<file path="client/tsconfig.app.json">
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["vite/client", "node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": [
+    "src",
+    "../services/test/fixtures",
+    "node_modules/@types/node/module.d.ts"
+  ]
+}
+</file>
+
+<file path="services/test/fixtures/Card.tsx">
+import React from "react";
+
+/**
+ * A container component for grouping related content with optional header and footer
+ */
+export interface CardProps {
+  /** Card title displayed in header */
+  title?: string;
+  /** Content for card footer */
+  footer?: React.ReactNode;
+  /** Main card content */
+  children: React.ReactNode;
+  /** Visual style variant */
+  variant?: "default" | "bordered" | "elevated";
+}
+
+const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
+  default: "bg-white border border-gray-200",
+  bordered: "bg-white border-2 border-gray-300",
+  elevated: "bg-white border border-gray-100 shadow-lg",
+};
+
+export function Card({
+  title,
+  footer,
+  children,
+  variant = "default",
+}: CardProps) {
+  return (
+    <div
+      className={[
+        "rounded-xl overflow-hidden w-full max-w-sm",
+        variantClasses[variant],
+      ].join(" ")}
+    >
+      {title && (
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
+        </div>
+      )}
+      <div className="px-5 py-4 text-sm text-gray-600">{children}</div>
+      {footer && (
+        <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+</files>

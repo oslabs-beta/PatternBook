@@ -1,5 +1,5 @@
-import type { ComponentMetadata } from '../types/parser.ts';
-import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.ts';
+import type { ComponentMetadata } from '../types/parser.js';
+import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.js';
 
 /**
  * Builds and analyzes dependency graphs from parsed component metadata

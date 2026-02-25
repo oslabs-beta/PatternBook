@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { scanCommand } from './commands/scan.ts';
-import { watchCommand } from './commands/watch.ts';
-import { analyzeCommand } from './commands/analyze.ts';
-import { generateCommand } from './commands/generate.ts';
+import { scanCommand } from './commands/scan.js';
+import { watchCommand } from './commands/watch.js';
+import { analyzeCommand } from './commands/analyze.js';
+import { generateCommand } from './commands/generate.js';
 
 const program = new Command();
 
