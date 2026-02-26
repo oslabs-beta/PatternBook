@@ -86,3 +86,104 @@ services/
 ### Mermaid Visual
 
 ![Dependency Graph](./dependency-graph.png)
+
+
+### Quick Tutorial, 
+for what we developed so far...
+
+#### 1. **`scan`** - Find Components
+```bash
+patternbook scan ./test/fixtures
+```
+**What it does:**
+- Scans directory for component files (`.tsx`, `.jsx`, `.vue`, `.svelte`)
+- Parses each component to extract metadata (name, props, hooks)
+- Saves results to JSON file (default: `scan-results.json`)
+
+**Use case:** Quick inventory of what components exist in your project
+
+---
+
+#### 2. **`generate`** - Create Full Manifest
+```bash
+patternbook generate ./test/fixtures --output manifest.json
+```
+**What it does:**
+- Scans + parses all components (like `scan`)
+- Builds dependency graph (what imports what)
+- Creates complete manifest with:
+  - Component metadata
+  - Props & types
+  - Hooks usage
+  - Tags (auto-generated)
+  - Dependency relationships
+- Outputs comprehensive JSON for your frontend to consume
+
+**Use case:** Generate the production manifest file that powers your PatternBook UI
+
+---
+
+#### 3. **`analyze`** - Dependency Analysis
+```bash
+patternbook analyze ./test/fixtures --target Button
+```
+**What it does:**
+- Scans + parses all components
+- Builds full dependency graph
+- **Impact analysis** - answers "What breaks if I change X?"
+  - Shows direct dependents (what imports this)
+  - Shows indirect dependents (what imports those)
+  - Calculates risk level (low/medium/high)
+- Can export as JSON or Mermaid diagram
+
+**Use case:** Before refactoring a component, see what else will be affected
+
+---
+
+#### 4. **`watch`** - Live Development Mode
+```bash
+patternbook watch ./test/fixtures
+```
+**What it does:**
+- Monitors directory for file changes
+- Auto-re-parses when you save a file
+- Updates metadata in real-time
+- Continuously saves to `library-metadata.json`
+- Shows impact analysis on changes
+
+**Use case:** Keep your component manifest up-to-date during development
+
+---
+
+#### Quick Comparison
+
+| Command | Speed | Output | Use When |
+|---------|-------|--------|----------|
+| `scan` | ⚡ Fast | Simple list | "What components do I have?" |
+| `generate` | 🐌 Slow | Full manifest | "Build production manifest" |
+| `analyze` | 🐌 Slow | Graph + impact | "What depends on this?" |
+| `watch` | ♻️ Continuous | Live updates | "Keep manifest fresh" |
+
+---
+
+#### 💡 Typical Workflow
+
+```bash
+# 1. First time setup - generate full manifest
+patternbook generate ./src/components --output public/manifest.json
+
+# 2. During development - watch for changes
+patternbook watch ./src/components
+
+# 3. Before refactoring - check impact
+patternbook analyze ./src/components --target Button.tsx
+
+# 4. Quick check - scan only
+patternbook scan ./src/components
+```
+
+**Bottom line:** 
+- **`scan`** = List components
+- **`generate`** = Build full manifest for production
+- **`analyze`** = Understand dependencies & impact
+- **`watch`** = Keep manifest fresh during dev
