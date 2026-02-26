@@ -4,13 +4,15 @@ import { PropsTable } from "../components/PropsTable";
 import { CodeExamples } from "../components/CodeExamples";
 import { SourceCodeViewer } from "../components/SourceCodeViewer";
 import { FileQuestion } from "lucide-react";
+import { useContainerStore } from "../stores/useContainerStore";
 import "../main.css";
 
 function PlayGround() {
   const selectedComponent = useRegistryStore(
     (state) => state.selectedComponent,
   );
-
+  const width = useContainerStore((s) => s.width);
+  const height = useContainerStore((s) => s.height);
   // Empty state when no component is selected
   if (!selectedComponent) {
     return (
@@ -28,7 +30,12 @@ function PlayGround() {
   }
 
   return (
+    <>
+ 
     <div className="p-8 max-w-5xl mx-auto">
+
+     <p>Container is currently {Math.round(width)}px × {Math.round(height)}px</p>
+     
       {/* Component Header */}
       <ComponentHeader component={selectedComponent} />
 
@@ -47,6 +54,7 @@ function PlayGround() {
         componentName={selectedComponent.name}
       />
     </div>
+         </>
   );
 }
 

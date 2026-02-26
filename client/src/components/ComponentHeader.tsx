@@ -11,7 +11,7 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
   };
 
   return (
-    <div className="border-b border-gray-200 pb-6 mb-6">
+    <div className="border-b border-red-200 pb-6 mb-6">
       {/* Component Name and Type Badge */}
       <div className="flex items-center gap-3 mb-3">
         <h1 className="text-3xl font-bold text-gray-900">{component.name}</h1>
