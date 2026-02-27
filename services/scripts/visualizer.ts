@@ -45,7 +45,7 @@ const DB_KEYWORDS = ['prisma', 'mongoose', 'typeorm', 'firebase', 'supabase', 'k
 // --- Main Visualizer Function (Dependency Graph) ---
 export function generateMermaid(data: GraphData, options: { minImports?: number; focusTarget?: string } = {}): string {
     let mermaidCode = 'graph TD;\n';
-
+    
     // Define styles
     mermaidCode += '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
     mermaidCode += '    classDef highImports fill:#ffcdd2,stroke:#c62828,stroke-width:3px;\n'; // Red for many imports
@@ -59,7 +59,7 @@ export function generateMermaid(data: GraphData, options: { minImports?: number;
 
     const minImports = options.minImports !== undefined ? options.minImports : 3;
     const focusTarget = options.focusTarget;
-
+    
     const focusNodeIds = new Set<string>();
     const visibleNodeIds = new Set<string>();
 
@@ -67,7 +67,7 @@ export function generateMermaid(data: GraphData, options: { minImports?: number;
     data.nodes.forEach(node => {
         const isApp = node.label === 'App' || node.id.endsWith('App');
         const isTarget = focusTarget && (node.label === focusTarget || node.id.endsWith(focusTarget));
-
+        
         // Focus on Components with high imports, App, or the specific target
         if (node.type === 'component' && (isApp || isTarget || node.metrics.imports >= minImports)) {
             focusNodeIds.add(node.id);
@@ -81,7 +81,7 @@ export function generateMermaid(data: GraphData, options: { minImports?: number;
 
     while (queue.length > 0) {
         const currentId = queue.shift()!;
-
+        
         data.edges.forEach(edge => {
             if (edge.from === currentId) {
                 if (!visited.has(edge.to)) {
@@ -189,7 +189,7 @@ export function generateMermaid(data: GraphData, options: { minImports?: number;
         if (visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)) {
             const fromId = sanitizeId(edge.from);
             const toId = sanitizeId(edge.to);
-
+            
             if (edge.type === 'calls') {
                 mermaidCode += `    ${fromId} -.-> ${toId}\n`;
             } else {
@@ -237,19 +237,19 @@ export function generateCallGraph(files: ParsedFile[]): string {
         // Group functions by file
         fileMermaid += `    subgraph ${fileName}\n`;
         fileMermaid += `        direction TB\n`;
-
+        
         file.functions.forEach(func => {
             const funcId = `${fileName}_${func.name}`;
             if (!firstNodeId) firstNodeId = funcId;
 
             let funcMermaid = `        ${funcId}(["${func.name}"]):::function\n`;
             let hasCalls = false;
-
+            
             // Add calls
             func.calls.forEach(call => {
                 // Filter out noise
                 if (
-                    !call.name.startsWith('use') &&
+                    !call.name.startsWith('use') && 
                     call.name !== 'fetch' &&
                     !IGNORED_CALLS.has(call.name)
                 ) {
@@ -258,7 +258,7 @@ export function generateCallGraph(files: ParsedFile[]): string {
                      funcMermaid += `        ${funcId} --> ${callId}\n`;
                      hasCalls = true;
                 }
-
+                
                 // Identify Store Variables (heuristic: starts with 'use' and ends with 'Store')
                 if (call.name.startsWith('use') && call.name.endsWith('Store')) {
                      const storeId = `STORE_${call.name}`;
@@ -296,7 +296,7 @@ export function generateCallGraph(files: ParsedFile[]): string {
 
 // --- Taxonomy Graph Visualizer ---
 export function generateTaxonomyGraph(files: ParsedFile[], tagsMap: Map<string, string[]>): string {
-    let mermaidCode = 'graph TD;\n';
+    let mermaidCode = 'graph TD;\n'; 
     mermaidCode += '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
 
     // Wrap in master subgraph
@@ -305,7 +305,7 @@ export function generateTaxonomyGraph(files: ParsedFile[], tagsMap: Map<string, 
 
     // Group by Tag
     const tagGroups = new Map<string, string[]>();
-
+    
     // Default group for untagged
     tagGroups.set('Uncategorized', []);
 
@@ -336,7 +336,7 @@ export function generateTaxonomyGraph(files: ParsedFile[], tagsMap: Map<string, 
         mermaidCode += `    subgraph ${tag.toUpperCase()}\n`;
         mermaidCode += `        direction TB\n`;
         components.forEach(comp => {
-            const nodeId = `${tag}_${comp}`;
+            const nodeId = `${tag}_${comp}`; 
             if (!firstNodeId) firstNodeId = nodeId;
             mermaidCode += `        ${nodeId}["${comp}"]:::component\n`;
         });
@@ -365,11 +365,11 @@ export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
     // Helper to get or create node
     const getOrCreateNode = (id: string, type: GraphNode['type'] = 'component', label?: string) => {
         if (!nodes.has(id)) {
-            nodes.set(id, {
-                id,
-                label: label || id,
-                type,
-                metrics: { imports: 0, apiCalls: 0, functionCalls: 0 }
+            nodes.set(id, { 
+                id, 
+                label: label || id, 
+                type, 
+                metrics: { imports: 0, apiCalls: 0, functionCalls: 0 } 
             });
         }
         return nodes.get(id)!;
@@ -377,7 +377,7 @@ export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
 
     files.forEach(file => {
         const fileId = path.basename(file.filePath).replace(/\.tsx?$/, '');
-
+        
         // Determine type based on naming convention
         let type: GraphNode['type'] = 'component';
         if (fileId.startsWith('use')) {
@@ -387,6 +387,8 @@ export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
         }
 
         const node = getOrCreateNode(fileId, type);
+        // Force update type if we are processing the definition
+        node.type = type;
 
         // Metrics: Imports
         node.metrics.imports = file.imports.length;
@@ -407,8 +409,7 @@ export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
         // Process Imports (Edges)
         file.imports.forEach(imp => {
             const depId = path.basename(imp).replace(/\.tsx?$/, '');
-            // Create placeholder for dependency (default to component, will be updated if processed later)
-            getOrCreateNode(depId, 'component');
+            getOrCreateNode(depId, 'component'); // Create placeholder for dependency
             edges.push({ from: fileId, to: depId, type: 'imports' });
         });
 

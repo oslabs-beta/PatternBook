@@ -70,12 +70,13 @@ async function updateVisuals() {
             { name: 'CALL_GRAPH', title: 'Call Graph', content: callGraph }
         ]);
         
-        // Fallback: Save to file if README update fails or for debugging
-        if (!fs.existsSync(path.join(readmePath, 'README.md')) && !fs.existsSync(readmePath)) {
-             const debugPath = path.resolve(__dirname, '../dependency-graph.mmd');
-             fs.writeFileSync(debugPath, mermaidGraph);
-             console.log(`Saved graph to ${debugPath} (README not found)`);
-        }
+        // 7. Always save .mmd files for mmdc (image generation) and external tools
+        const depGraphPath = path.resolve(process.cwd(), 'dependency-graph.mmd');
+        const callGraphPath = path.resolve(process.cwd(), 'call-graph.mmd');
+        
+        fs.writeFileSync(depGraphPath, mermaidGraph);
+        fs.writeFileSync(callGraphPath, callGraph);
+        console.log(`Saved graphs to ${depGraphPath} and ${callGraphPath}`);
 
     } catch (error) {
         console.error('Error updating visuals:', error);

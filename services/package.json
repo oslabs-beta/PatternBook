@@ -20,7 +20,8 @@
   },
   "scripts": {
     "test": "vitest",
-    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png -s 3 && mmdc -i call-graph.mmd -o call-graph.png -s 3",
+    "generate-graph": "tsx scripts/test-run.ts",
+    "generate-graph:full": "npm run generate-graph && mmdc -i dependency-graph.mmd -o dependency-graph.png -s 3 && mmdc -i call-graph.mmd -o call-graph.png -s 3",
     "watch:graph": "tsx scripts/test-run.ts --watch",
     "prepare": "husky",
     "pack-repo": "repomix"
