@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './Button';
 import { useAuth } from './useAuth';
+import { useAppStore } from './store';
 
-export function UserProfile(){
-  const {login} = useAuth();
-  return <button onClick={login}>login</button>;
-}
 interface User {
   id: string;
   name: string;
@@ -19,6 +16,8 @@ const formatUserName = (name: string) => {
 
 export const UserProfile = ({ userId }: { userId: string }) => {
   const [user, setUser] = useState<User | null>(null);
+  const { addNotification } = useAppStore();
+  const { login } = useAuth();
 
   useEffect(() => {
     // API Call Example 1: fetch
@@ -33,6 +32,8 @@ export const UserProfile = ({ userId }: { userId: string }) => {
       method: 'POST',
       body: JSON.stringify({ id: userId, name: 'Updated Name' }),
     });
+    addNotification();
+    login();
   };
 
   if (!user) return <div>Loading...</div>;

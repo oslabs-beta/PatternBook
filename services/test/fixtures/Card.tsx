@@ -1,4 +1,11 @@
 import React from "react";
+import Button from "./Button";
+import Input from "./Input";
+import Modal from "./Modal";
+import Dropdown from "./Dropdown";
+
+
+
 
 /**
  * A container component for grouping related content with optional header and footer
@@ -38,6 +45,10 @@ export function Card({
           <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
         </div>
       )}
+      <Button />
+      <Input />
+      <Modal />
+      <Dropdown />
       <div className="px-5 py-4 text-sm text-gray-600">{children}</div>
       {footer && (
         <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2">

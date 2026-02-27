@@ -8,11 +8,21 @@ export interface GraphData {
 }
 
 export class Exporter {
-    static updateReadme(directory: string, graphs: GraphData[]): void {
-        const readmePath = path.join(directory, 'README.md');
+    /**
+     * Updates the README file at the target path with the provided graphs.
+     * @param targetPath Path to the README file or the directory containing it.
+     * @param graphs List of graphs to inject.
+     */
+    static updateReadme(targetPath: string, graphs: GraphData[]): void {
+        let readmePath = targetPath;
+
+        // If target is a directory, look for README.md
+        if (fs.existsSync(targetPath) && fs.lstatSync(targetPath).isDirectory()) {
+            readmePath = path.join(targetPath, 'README.md');
+        }
 
         if (!fs.existsSync(readmePath)) {
-            console.warn(`README.md not found in ${directory}`);
+            console.warn(`⚠️ README.md not found at ${readmePath}. Skipping update.`);
             return;
         }
 
@@ -50,7 +60,9 @@ export class Exporter {
 
         if (hasUpdates) {
             fs.writeFileSync(readmePath, readmeContent);
-            console.log(`Updated README.md at ${readmePath}`);
+            console.log(`✅ Updated README at ${readmePath}`);
+        } else {
+            console.log(`No changes needed for ${readmePath}`);
         }
     }
 }
