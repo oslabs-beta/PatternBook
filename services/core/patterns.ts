@@ -7,7 +7,7 @@
 export const FRAMEWORK_PATTERNS = {
   react: {
     include: [
-      '**/*.{jsx,tsx}',
+      '**/*.{jsx,ts,js,tsx}',
       '**/components/**/*.{js,ts}',
       '**/hooks/**/*.{js,ts}',
     ],

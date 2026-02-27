@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './Button';
+import { useAuth } from './useAuth';
 
+export function UserProfile(){
+  const {login} = useAuth();
+  return <button onClick={login}>login</button>;
+}
 interface User {
   id: string;
   name: string;
