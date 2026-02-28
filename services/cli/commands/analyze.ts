@@ -13,7 +13,10 @@ interface AnalyzeOptions {
   format?: 'json' | 'mermaid';
 }
 
-export async function analyzeCommand(directory: string, options: AnalyzeOptions): Promise<void> {
+export async function analyzeCommand(
+  directory: string,
+  options: AnalyzeOptions,
+): Promise<void> {
   const spinner = ora('Scanning and analyzing project...').start();
 
   try {
@@ -32,7 +35,7 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
     // Step 2: Parse all files
     const parseResults = await parserFactory.parseFiles(
       scanResult.files.map(f => f.path),
-      { extractDocs: true, extractHooks: true, extractProps: true }
+      { extractDocs: true, extractHooks: true, extractProps: true },
     );
 
     const components = parseResults
@@ -47,8 +50,8 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     spinner.succeed(
       chalk.green(
-        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`
-      )
+        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`,
+      ),
     );
 
     // Display statistics
@@ -60,25 +63,31 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
     // Step 4: Impact analysis (if target specified)
     if (options.target) {
       console.log(chalk.yellow(`\n⚠️  Impact Analysis for: ${options.target}`));
-      
-      const targetNode = graph.nodes.find(n => 
-        n.filePath.includes(options.target!) || n.name === options.target
+
+      const targetNode = graph.nodes.find(
+        n => n.filePath.includes(options.target!) || n.name === options.target,
       );
 
       if (targetNode) {
         const impact = graphBuilder.analyzeImpact(targetNode.filePath);
-        
-        console.log(`   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`);
+
+        console.log(
+          `   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`,
+        );
         console.log(`   Direct Dependents: ${impact.directDependents.length}`);
-        console.log(`   Indirect Dependents: ${impact.indirectDependents.length}`);
-        
+        console.log(
+          `   Indirect Dependents: ${impact.indirectDependents.length}`,
+        );
+
         if (impact.affectedComponents.length > 0) {
           console.log(`\n   Affected Components:`);
           impact.affectedComponents.forEach(comp => {
             console.log(`   - ${comp}`);
           });
         } else {
-          console.log(`   ✓ No components depend on this file (safe to modify)`);
+          console.log(
+            `   ✓ No components depend on this file (safe to modify)`,
+          );
         }
       } else {
         console.log(chalk.red(`   ✗ Target not found in project`));
@@ -87,11 +96,15 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     // Step 5: Save output
     const outputPath = options.output || 'dependency-graph.json';
-    
+
     if (options.format === 'mermaid') {
       const mermaid = generateMermaidDiagram(graph);
       writeFileSync(outputPath.replace('.json', '.mmd'), mermaid);
-      console.log(chalk.green(`\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`));
+      console.log(
+        chalk.green(
+          `\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`,
+        ),
+      );
     } else {
       writeFileSync(outputPath, graphBuilder.toJSON());
       console.log(chalk.green(`\n💾 Dependency graph saved to: ${outputPath}`));
@@ -99,32 +112,37 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     // Step 6: Warnings
     if (graph.metadata.circularDependencies.length > 0) {
-      console.log(chalk.red(`\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`));
+      console.log(
+        chalk.red(
+          `\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`,
+        ),
+      );
     }
-
   } catch (error) {
     spinner.fail(chalk.red('Analysis failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }
 
 function generateMermaidDiagram(graph: DependencyGraph): string {
   let mermaid = 'graph TD\n';
-  
+
   // Add nodes
-  graph.nodes.forEach((node) => {
+  graph.nodes.forEach(node => {
     const shape = node.type === 'hook' ? '([' : '[';
     const shapeEnd = node.type === 'hook' ? '])' : ']';
     mermaid += `  ${sanitizeId(node.id)}${shape}${node.name}${shapeEnd}\n`;
   });
-  
+
   // Add edges
-  graph.edges.forEach((edge) => {
+  graph.edges.forEach(edge => {
     const arrow = edge.type === 'uses-hook' ? '-.uses.->' : '-->';
     mermaid += `  ${sanitizeId(edge.from)} ${arrow} ${sanitizeId(edge.to)}\n`;
   });
-  
+
   return mermaid;
 }
 

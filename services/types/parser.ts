@@ -1,16 +1,15 @@
-
 // parser-specific types for component metadata extraction
 
 export interface ComponentMetadata {
   name: string;
   path: string;
   relativePath: string;
-  type: 'component' | 'hook' | 'utility'| 'other ';
+  type: 'component' | 'hook' | 'utility' | 'other ';
   tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];
   props?: PropMetadata[];
-  hooks?:{name: string; source?: string}[];
+  hooks?: { name: string; source?: string }[];
   documentation?: string;
 }
 
@@ -50,7 +49,6 @@ export interface ParseResult {
   metadata?: ComponentMetadata;
   error?: string;
 }
-
 
 // base interface for all parsers (React, Vue, Svelte)
 export interface Parser {

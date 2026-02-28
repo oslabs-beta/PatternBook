@@ -24,22 +24,11 @@ export const FRAMEWORK_PATTERNS = {
       '**/components/**/*.{js,ts}',
       '**/composables/**/*.{js,ts}',
     ],
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
+    exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
   },
   svelte: {
-    include: [
-      '**/*.svelte',
-      '**/components/**/*.{js,ts}',
-    ],
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
+    include: ['**/*.svelte', '**/components/**/*.{js,ts}'],
+    exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
   },
 } as const;
 
@@ -63,7 +52,9 @@ export const DEFAULT_INCLUDE_PATTERNS = [
   '**/composables/**/*.{js,ts}',
 ];
 
-export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'auto') {
+export function getFrameworkPatterns(
+  framework: 'react' | 'vue' | 'svelte' | 'auto',
+) {
   if (framework === 'auto') {
     // For auto-detection, we'll use a combination of all patterns
     return {
@@ -71,7 +62,7 @@ export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'au
       exclude: DEFAULT_EXCLUDE_PATTERNS,
     };
   }
-  
+
   return {
     include: FRAMEWORK_PATTERNS[framework].include,
     exclude: [

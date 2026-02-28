@@ -1,5 +1,11 @@
 import type { ComponentMetadata } from '../types/parser.js';
-import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.js';
+import type {
+  DependencyGraph,
+  GraphNode,
+  GraphEdge,
+  GraphMetadata,
+  ImpactAnalysis,
+} from '../types/graph.js';
 
 /**
  * Builds and analyzes dependency graphs from parsed component metadata
@@ -28,7 +34,7 @@ export class DependencyGraphBuilder {
     return {
       nodes: Array.from(this.nodes.values()),
       edges: this.edges,
-      metadata: this.calculateMetadata()
+      metadata: this.calculateMetadata(),
     };
   }
 
@@ -45,13 +51,20 @@ export class DependencyGraphBuilder {
     this.nodes.set(component.path, node);
   }
 
-  private addEdges(component: ComponentMetadata, allComponents: ComponentMetadata[]): void {
+  private addEdges(
+    component: ComponentMetadata,
+    allComponents: ComponentMetadata[],
+  ): void {
     const internalImports = component.imports.filter(imp => imp.isInternal);
 
     internalImports.forEach(imp => {
       // Find the target component by matching import source
-      const targetComponent = this.findComponentByImport(imp.source, component.path, allComponents);
-      
+      const targetComponent = this.findComponentByImport(
+        imp.source,
+        component.path,
+        allComponents,
+      );
+
       if (targetComponent) {
         this.edges.push({
           from: component.path,
@@ -65,8 +78,10 @@ export class DependencyGraphBuilder {
     if (component.hooks) {
       component.hooks.forEach(hook => {
         // Find if this hook is defined in our codebase
-        const hookComponent = allComponents.find(c => c.name === hook.name && c.type === 'hook');
-        
+        const hookComponent = allComponents.find(
+          c => c.name === hook.name && c.type === 'hook',
+        );
+
         if (hookComponent) {
           this.edges.push({
             from: component.path,
@@ -81,22 +96,28 @@ export class DependencyGraphBuilder {
   private findComponentByImport(
     importPath: string,
     fromPath: string,
-    allComponents: ComponentMetadata[]
+    allComponents: ComponentMetadata[],
   ): ComponentMetadata | undefined {
     // Simplified: match by component name in the import path
     // TODO: Implement proper path resolution
-    
-    const importName = importPath.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '');
-    
-    return allComponents.find(c => 
-      c.name === importName || 
-      c.path.includes(importPath)
+
+    const importName = importPath
+      .split('/')
+      .pop()
+      ?.replace(/\.(tsx?|jsx?)$/, '');
+
+    return allComponents.find(
+      c => c.name === importName || c.path.includes(importPath),
     );
   }
 
   private calculateMetadata(): GraphMetadata {
-    const components = Array.from(this.nodes.values()).filter(n => n.type === 'component');
-    const hooks = Array.from(this.nodes.values()).filter(n => n.type === 'hook');
+    const components = Array.from(this.nodes.values()).filter(
+      n => n.type === 'component',
+    );
+    const hooks = Array.from(this.nodes.values()).filter(
+      n => n.type === 'hook',
+    );
 
     return {
       totalNodes: this.nodes.size,
@@ -124,8 +145,11 @@ export class DependencyGraphBuilder {
    */
   analyzeImpact(targetPath: string): ImpactAnalysis {
     const directDependents = this.findDirectDependents(targetPath);
-    const indirectDependents = this.findIndirectDependents(targetPath, directDependents);
-    
+    const indirectDependents = this.findIndirectDependents(
+      targetPath,
+      directDependents,
+    );
+
     const allAffected = [...directDependents, ...indirectDependents];
     const affectedComponents = allAffected
       .map(path => this.nodes.get(path))
@@ -153,7 +177,10 @@ export class DependencyGraphBuilder {
   /**
    * Find all files that depend on the direct dependents (recursive)
    */
-  private findIndirectDependents(targetPath: string, directDependents: string[]): string[] {
+  private findIndirectDependents(
+    targetPath: string,
+    directDependents: string[],
+  ): string[] {
     const indirect = new Set<string>();
     const visited = new Set([targetPath, ...directDependents]);
 
@@ -202,10 +229,14 @@ export class DependencyGraphBuilder {
    * Export graph in various formats
    */
   toJSON(): string {
-    return JSON.stringify({
-      nodes: Array.from(this.nodes.values()),
-      edges: this.edges,
-      metadata: this.calculateMetadata(),
-    }, null, 2);
+    return JSON.stringify(
+      {
+        nodes: Array.from(this.nodes.values()),
+        edges: this.edges,
+        metadata: this.calculateMetadata(),
+      },
+      null,
+      2,
+    );
   }
 }

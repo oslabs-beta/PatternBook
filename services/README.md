@@ -1,4 +1,3 @@
-
 ### Back-end file structure
 
 ```bash
@@ -7,7 +6,7 @@ services/
 │   ├── index.ts                    # Main CLI entry point
 │   ├── commands/
 │   │   ├── scan.ts                # Scan command
-│   │   ├── watch.ts               # Watch mode command  
+│   │   ├── watch.ts               # Watch mode command
 │   │   ├── analyze.ts             # Dependency analysis command
 │   │   └── generate.ts            # Generate manifest command
 │   └── config.ts                  # CLI config loader
@@ -60,8 +59,8 @@ services/
     └── dependency-graph.json       # Generated graph
 ```
 
-
 ### CLI core:
+
 ```bash
 {
   "dependencies": {
@@ -74,6 +73,7 @@ services/
 ```
 
 ### File scanning
+
 ```bash
 {
   "dependencies": {
@@ -83,9 +83,11 @@ services/
   }
 }
 ```
+
 ### Mermaid Visuals
 
 <!-- DEPENDENCY_GRAPH-START -->
+
 #### Dependency Graph (Imports & API Calls)
 
 ```mermaid
@@ -116,9 +118,11 @@ graph TD;
         L1 -.->|Fetch| L4
     end
 ```
+
 <!-- DEPENDENCY_GRAPH-END -->
 
 <!-- CALL_GRAPH-START -->
+
 #### Call Graph (Function Interactions)
 
 ```mermaid
@@ -145,5 +149,5 @@ flowchart TB;
     Dropdown_Dropdown ~~~ UserProfile_formatUserName
     end
 ```
-<!-- CALL_GRAPH-END -->
 
+<!-- CALL_GRAPH-END -->

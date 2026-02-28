@@ -28,8 +28,8 @@ npx patternbook generate --input ./test-components --output ./public/generated-m
 
 The generated manifest should match the structure in `/public/mock-data/manifest.json`.
 
-
 <!-- DEPENDENCY_GRAPH-START -->
+
 #### Dependency Graph
 
 ```mermaid
@@ -84,9 +84,11 @@ graph TD;
     UI_Layer ~~~ Data_Layer
     Legend ~~~ System
 ```
+
 <!-- DEPENDENCY_GRAPH-END -->
 
 <!-- CALL_GRAPH-START -->
+
 #### Call Graph
 
 ```mermaid
@@ -113,4 +115,5 @@ flowchart TB;
     App_App ~~~ Dropdown_Dropdown
     end
 ```
+
 <!-- CALL_GRAPH-END -->

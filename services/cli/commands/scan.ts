@@ -16,7 +16,7 @@ interface ScanCommandOptions {
 
 export async function scanCommand(
   directory: string,
-  options: ScanCommandOptions
+  options: ScanCommandOptions,
 ): Promise<void> {
   const spinner = ora('Scanning for components...').start();
 
@@ -42,16 +42,12 @@ export async function scanCommand(
         extractDocs: true,
         extractHooks: true,
         extractProps: true,
-      }
+      },
     );
 
-    const components = parseResults
-      .filter(r => r.success)
-      .map(r => r.metadata);
+    const components = parseResults.filter(r => r.success).map(r => r.metadata);
 
-    spinner.succeed(
-      chalk.green(`✓ Scanned ${components.length} components`)
-    );
+    spinner.succeed(chalk.green(`✓ Scanned ${components.length} components`));
 
     // Step 3: Save results
     const outputPath = options.output || 'scan-results.json';
@@ -72,10 +68,11 @@ export async function scanCommand(
 
     writeFileSync(outputPath, JSON.stringify(output, null, 2));
     console.log(chalk.green(`💾 Results saved to ${outputPath}`));
-
   } catch (error) {
     spinner.fail(chalk.red('Scan failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }
