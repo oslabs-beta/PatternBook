@@ -16,19 +16,19 @@ interface GenerateCommandOptions {
 
 export async function generateCommand(
   directory: string,
-  options: GenerateCommandOptions
+  options: GenerateCommandOptions,
 ): Promise<void> {
   const spinner = ora('Generating component library manifest...').start();
 
   try {
     // Scan and parse
-    const scanner = new ComponentScanner({ 
-      directory, 
+    const scanner = new ComponentScanner({
+      directory,
       framework: 'react',
       verbose: options.verbose || false,
     });
     const scanResult = await scanner.scan();
-    
+
     spinner.text = 'Parsing components...';
     const parseResults = await parserFactory.parseFiles(
       scanResult.files.map(f => f.path),
@@ -36,7 +36,7 @@ export async function generateCommand(
         extractDocs: options.includeDocs !== false,
         extractHooks: options.includeHooks !== false,
         extractProps: options.includeProps !== false,
-      }
+      },
     );
 
     const components = parseResults
@@ -54,7 +54,9 @@ export async function generateCommand(
         tags: c.tags || [],
         ...(options.includeProps !== false && { props: c.props }),
         ...(options.includeHooks !== false && { hooks: c.hooks }),
-        ...(options.includeDocs !== false && { documentation: c.documentation }),
+        ...(options.includeDocs !== false && {
+          documentation: c.documentation,
+        }),
       })),
     };
 
@@ -71,12 +73,17 @@ export async function generateCommand(
 
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
     console.log(chalk.cyan(`\n📊 Summary:`));
-    console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
-    console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
-
+    console.log(
+      `   Components: ${components.filter(c => c.type === 'component').length}`,
+    );
+    console.log(
+      `   Hooks: ${components.filter(c => c.type === 'hook').length}`,
+    );
   } catch (error) {
     spinner.fail(chalk.red('Generation failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }

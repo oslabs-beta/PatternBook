@@ -9,11 +9,16 @@ interface WatchCommandOptions {
   output?: string;
 }
 
-export async function watchCommand(directory: string, options: WatchCommandOptions): Promise<void> {
+export async function watchCommand(
+  directory: string,
+  options: WatchCommandOptions,
+): Promise<void> {
   console.log(chalk.blue.bold('🚀 Starting PatternBook Watcher...\n'));
   console.log(chalk.gray(`Directory: ${directory}`));
   console.log(chalk.gray(`Framework: ${options.framework || 'auto'}`));
-  console.log(chalk.gray(`Output: ${options.output || 'library-metadata.json'}\n`));
+  console.log(
+    chalk.gray(`Output: ${options.output || 'library-metadata.json'}\n`),
+  );
 
   const allMetadata: ComponentMetadata[] = [];
 
@@ -22,11 +27,13 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       directory,
       patterns: getPatternsByFramework(options.framework || 'auto'),
       verbose: options.verbose || false,
-      
-      onParse: (metadata) => {
+
+      onParse: metadata => {
         // Update or add metadata
-        const existingIndex = allMetadata.findIndex(m => m.path === metadata.path);
-        
+        const existingIndex = allMetadata.findIndex(
+          m => m.path === metadata.path,
+        );
+
         if (existingIndex >= 0) {
           allMetadata[existingIndex] = metadata;
         } else {
@@ -35,9 +42,13 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
 
         // Save to file
         saveMetadata(allMetadata, options.output || 'library-metadata.json');
-        
+
         // Log summary
-        console.log(chalk.green(`✓ ${metadata.name} parsed (${allMetadata.length} total components)`));
+        console.log(
+          chalk.green(
+            `✓ ${metadata.name} parsed (${allMetadata.length} total components)`,
+          ),
+        );
       },
 
       onError: (error, filePath) => {
@@ -45,8 +56,10 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       },
 
       onReady: () => {
-        console.log(chalk.green('✅ Watcher ready. Monitoring for changes...\n'));
-      }
+        console.log(
+          chalk.green('✅ Watcher ready. Monitoring for changes...\n'),
+        );
+      },
     });
 
     // Keep process running
@@ -56,7 +69,6 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       console.log(chalk.green('✓ Watcher stopped'));
       process.exit(0);
     });
-
   } catch (error) {
     console.error(chalk.red('Failed to start watcher:'), error);
     process.exit(1);

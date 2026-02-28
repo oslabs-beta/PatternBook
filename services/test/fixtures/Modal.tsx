@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 /**
  * A modal dialog component with backdrop and close functionality
@@ -13,14 +13,14 @@ export interface ModalProps {
   /** Modal content */
   children: React.ReactNode;
   /** Modal size */
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const sizeClasses: Record<NonNullable<ModalProps["size"]>, string> = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
+const sizeClasses: Record<NonNullable<ModalProps['size']>, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
 };
 
 export function Modal({
@@ -28,7 +28,7 @@ export function Modal({
   onClose,
   title,
   children,
-  size = "md",
+  size = 'md',
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -43,10 +43,10 @@ export function Modal({
       {/* Dialog */}
       <div
         className={[
-          "relative w-full bg-white rounded-xl shadow-2xl overflow-hidden",
+          'relative w-full bg-white rounded-xl shadow-2xl overflow-hidden',
           sizeClasses[size],
-        ].join(" ")}
-        onClick={(e) => e.stopPropagation()}
+        ].join(' ')}
+        onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         {title && (

@@ -22,7 +22,7 @@ export class TagProcessor {
     }
 
     // 3. Process Path (Structural)
-    const lowerPath = (metadata.path || "").toLowerCase();
+    const lowerPath = (metadata.path || '').toLowerCase();
     if (lowerPath.includes('fixtures/') || lowerPath.includes('ui/')) {
       tags.add('design-system');
     }
