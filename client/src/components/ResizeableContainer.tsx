@@ -2,6 +2,7 @@
 import { useRef, useCallback } from 'react';
 import { useContainerStore } from '../stores/useContainerStore';
 import PlayGround from '../dashboard-etc/PlayGround';
+import '../main.css'
 
 export default function ResizableContainer() {
   const { width, height, setSize } = useContainerStore();
@@ -21,8 +22,8 @@ export default function ResizableContainer() {
       const dx = e.clientX - startPos.current.x;
       const dy = e.clientY - startPos.current.y;
       setSize(
-        Math.max(100, startSize.current.width + dx),  // min width: 100px
-        Math.max(100, startSize.current.height + dy)  // min height: 100px
+        Math.max(250, startSize.current.width + dx),  // min width: 
+        Math.max(300, startSize.current.height + dy)  // min height:
       );
     };
 
@@ -39,24 +40,19 @@ export default function ResizableContainer() {
   return (
     <div
       ref={containerRef}
-      style={{ width, height, position: 'relative', background: '#f0f0f0', border: '1px solid #ccc' }}
-    >
-      {<PlayGround />}
-      <p>Container: {Math.round(width)}px × {Math.round(height)}px</p>
+      // className='relative bg-blue-300 border border-width-3 text-`clamp(12px, ${width *.04}px, 32px)` '
+      style={{ width, height, position: 'relative', background: '#f0f0f0', border: '1px solid #ccc', fontSize:`clamp(12px, ${width *.04}px, 32px)`,
 
-      {/* Resize handle — bottom-right corner */}
-      <div
-        onMouseDown={onMouseDown}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          width: 16,
-          height: 16,
-          cursor: 'se-resize',
-          background: '#999',
-          borderRadius: '2px 0 0 0',
-        }}
+      }}
+    >
+         
+      <p className='text-xs'>Container: {Math.round(width)}px × {Math.round(height)}px</p>
+       {<PlayGround />}
+
+      {/* Resize handle — top-right corner */}
+      <div className='absolute top-2 right-2 w-5 h-5 bg-red-400 cursor-ne-resize'
+        onMouseDown={onMouseDown} 
+      
       />
     </div>
   );

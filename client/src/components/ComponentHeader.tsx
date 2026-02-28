@@ -11,12 +11,12 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
   };
 
   return (
-    <div className="border-b border-red-200 pb-6 mb-6">
+    <div className="border-b border-gray-200 pb-6 mb-6">
       {/* Component Name and Type Badge */}
       <div className="flex items-center gap-3 mb-3">
-        <h1 className="text-3xl font-bold text-gray-900">{component.name}</h1>
+        <h1 className="font-bold text-gray-900">{component.name}</h1>
         <span
-          className={`px-2 py-1 text-xs font-medium rounded ${
+          className={`px-2 py-1 font-medium rounded ${
             component.type === "function"
               ? "bg-blue-100 text-blue-700"
               : "bg-purple-100 text-purple-700"
@@ -28,11 +28,11 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
 
       {/* Description */}
       {component.description && (
-        <p className="text-gray-600 text-lg mb-4">{component.description}</p>
+        <p className="text-gray-600 mb-4">{component.description}</p>
       )}
 
       {/* Metadata Row */}
-      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+      <div className="flex flex-wrap gap-4 text-gray-500">
         {/* File Path */}
         <div className="flex items-center gap-2">
           <FileCode size={16} />
