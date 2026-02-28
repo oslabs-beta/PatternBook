@@ -37,30 +37,31 @@ export class ComponentWatcher {
    * Start watching for file changes
    */
   async start(): Promise<void> {
-    const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
-    
-    this.watcher = chokidar.watch(patterns, {
-      cwd: this.options.directory,
-      ignored: [
-        '**/node_modules/**',
-        '**/.git/**',
-        '**/dist/**',
-        '**/build/**',
-        ...(this.options.ignored || []),
-      ],
-      persistent: true,
-      ignoreInitial: false,
-    });
+  // Watch the directory directly, not with patterns + cwd
+  this.watcher = chokidar.watch(this.options.directory, {
+    ignored: [
+      '**/node_modules/**',
+      '**/.git/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/*.test.*',
+      '**/*.spec.*',
+      ...(this.options.ignored || []),
+    ],
+    persistent: true,
+    ignoreInitial: false,
+    depth: 10,  // Reasonable depth limit
+  });
 
-    this.watcher
-      .on('ready', () => {
-        this.log('✅ Watcher ready. Monitoring for changes...');
-        this.options.onReady?.();
-      })
-      .on('add', (path) => this.handleFileChange('add', path))
-      .on('change', (path) => this.handleFileChange('change', path))
-      .on('unlink', (path) => this.handleFileDelete(path));
-  }
+  this.watcher
+    .on('ready', () => {
+      this.log('✅ Watcher ready. Monitoring for changes...');
+      this.options.onReady?.();
+    })
+    .on('add', (path) => this.handleFileChange('add', path))
+    .on('change', (path) => this.handleFileChange('change', path))
+    .on('unlink', (path) => this.handleFileDelete(path));
+  };
 
   /**
    * Stop watching
@@ -136,8 +137,12 @@ export class ComponentWatcher {
   }
 
   private isComponentFile(filePath: string): boolean {
-    return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
-  }
+  // Match the patterns we care about
+  const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
+  
+  // Simple extension check
+  return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
+  };
 
   private log(message: string): void {
     const timestamp = new Date().toLocaleTimeString();

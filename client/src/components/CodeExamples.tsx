@@ -31,9 +31,29 @@ export function CodeExamples({ examples, componentName }: CodeExamplesProps) {
 
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Examples</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-gray-900">Examples</h2>
+        {/* Copy button for the active example's original code */}
+        <button
+          onClick={() => copyToClipboard(examples[activeTab].code, activeTab)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition"
+          title="Copy code"
+        >
+          {copiedIndex === activeTab ? (
+            <>
+              <Check size={13} className="text-green-600" />
+              <span className="text-green-600">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy size={13} />
+              Copy
+            </>
+          )}
+        </button>
+      </div>
 
-      {/* Tabs */}
+      {/* Tabs — only shown when there are multiple examples */}
       {examples.length > 1 && (
         <div className="flex gap-2 mb-4 border-b border-gray-200">
           {examples.map((example, index) => (
@@ -52,43 +72,21 @@ export function CodeExamples({ examples, componentName }: CodeExamplesProps) {
         </div>
       )}
 
-      {/* Active Example */}
+      {/* Active Example — LiveEditor + LivePreview via ComponentLivePreview */}
       {examples.map((example, index) => (
         <div key={index} className={activeTab === index ? "block" : "hidden"}>
-          {/* Example Title (if only one example) */}
+          {/* Title when there's only one example */}
           {examples.length === 1 && (
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-3">
               {example.title}
             </h3>
           )}
 
-          {/* Code Block */}
-          <div className="relative group">
-            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-              <code className="text-sm font-mono">{example.code}</code>
-            </pre>
-
-            {/* Copy Button */}
-            <button
-              onClick={() => copyToClipboard(example.code, index)}
-              className="absolute top-3 right-3 p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded transition opacity-0 group-hover:opacity-100"
-              title="Copy code"
-            >
-              {copiedIndex === index ? (
-                <Check size={16} className="text-green-400" />
-              ) : (
-                <Copy size={16} />
-              )}
-            </button>
-          </div>
-
-          {/* Live Preview */}
-          <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-              Preview
-            </p>
-            <ComponentLivePreview code={example.code} scope={scope} />
-          </div>
+          {/*
+            ComponentLivePreview now renders both the highlighted/editable
+            LiveEditor and the LivePreview inside a shared LiveProvider.
+          */}
+          <ComponentLivePreview code={example.code} scope={scope} />
         </div>
       ))}
     </div>
