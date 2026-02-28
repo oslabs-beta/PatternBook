@@ -1,79 +1,11 @@
 {
-  "nodes": [
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
-      "name": "Button",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
-      "props": 5,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Card.tsx",
-      "name": "Card",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Card.tsx",
-      "props": 4,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Dropdown.tsx",
-      "name": "Dropdown",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Dropdown.tsx",
-      "props": 5,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Input.tsx",
-      "name": "Input",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Input.tsx",
-      "props": 6,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Modal.tsx",
-      "name": "Modal",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Modal.tsx",
-      "props": 5,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/UserProfile.tsx",
-      "name": "UserProfile",
-      "type": "component",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/UserProfile.tsx",
-      "props": 0,
-      "hooks": []
-    },
-    {
-      "id": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/useAuth.ts",
-      "name": "useAuth",
-      "type": "hook",
-      "filePath": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/useAuth.ts",
-      "props": 0,
-      "hooks": []
-    }
-  ],
-  "edges": [
-    {
-      "from": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/UserProfile.tsx",
-      "to": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/Button.tsx",
-      "type": "imports"
-    },
-    {
-      "from": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/UserProfile.tsx",
-      "to": "/Users/guesoul/codesmith/PatternBook/services/test/fixtures/useAuth.ts",
-      "type": "imports"
-    }
-  ],
+  "nodes": [],
+  "edges": [],
   "metadata": {
-    "totalNodes": 7,
-    "totalEdges": 2,
-    "componentsCount": 6,
-    "hooksCount": 1,
+    "totalNodes": 0,
+    "totalEdges": 0,
+    "componentsCount": 0,
+    "hooksCount": 0,
     "maxDepth": 0,
     "circularDependencies": []
   }
