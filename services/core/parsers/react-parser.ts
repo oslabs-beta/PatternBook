@@ -18,7 +18,7 @@ export class ReactParser implements Parser {
     };
 
     canParse(filePath: string): boolean {
-        return /\.(tsx|jsx)$/.test(filePath);
+        return /\.(tsx|jsx|ts|js)$/.test(filePath);
     };
 
     async parse(filePath: string, options: ParseOptions = {}): Promise<ParseResult> {
@@ -41,7 +41,7 @@ export class ReactParser implements Parser {
                 relativePath: filePath,
                 type: exportedFunction.getName()?.startsWith('use') ? 'hook': 'component',
                 exports: { named: [exportedFunction.getName()!]},
-                imports: [],
+                imports: this.extractImports(sourceFile),
             };
 
             // extract props if requested

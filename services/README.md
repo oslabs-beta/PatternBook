@@ -83,107 +83,67 @@ services/
   }
 }
 ```
-### Mermaid Visual
+### Mermaid Visuals
 
-![Dependency Graph](./dependency-graph.png)
+<!-- DEPENDENCY_GRAPH-START -->
+#### Dependency Graph (Imports & API Calls)
 
+```mermaid
+graph TD;
+    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef hotspot fill:#ffcdd2,stroke:#c62828,stroke-width:3px;
+    classDef orphan fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5;
+    classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;
+    Button["Button"]:::component
+    Card["Card"]:::orphan
+    Dropdown["Dropdown"]:::orphan
+    Input["Input"]:::orphan
+    Modal["Modal"]:::orphan
+    UserProfile["UserProfile"]:::orphan
+    API_GET__api_users___userId_[("GET /api/users/${userId}")]:::api
+    API_POST__api_users[("POST /api/users")]:::api
+    UserProfile --> Button
+    UserProfile -.-> API_GET__api_users___userId_
+    UserProfile -.-> API_POST__api_users
 
-### Quick Tutorial, 
-for what we developed so far...
-
-#### 1. **`scan`** - Find Components
-```bash
-patternbook scan ./test/fixtures
+    subgraph Legend
+        L1["Component"]:::component
+        L2["Hotspot (>3 deps)"]:::hotspot
+        L3["Orphan (0 deps)"]:::orphan
+        L4[("API Call")]:::api
+        L1 -->|Import| L2
+        L1 -.->|Fetch| L4
+    end
 ```
-**What it does:**
-- Scans directory for component files (`.tsx`, `.jsx`, `.vue`, `.svelte`)
-- Parses each component to extract metadata (name, props, hooks)
-- Saves results to JSON file (default: `scan-results.json`)
+<!-- DEPENDENCY_GRAPH-END -->
 
-**Use case:** Quick inventory of what components exist in your project
+<!-- CALL_GRAPH-START -->
+#### Call Graph (Function Interactions)
 
----
-
-#### 2. **`generate`** - Create Full Manifest
-```bash
-patternbook generate ./test/fixtures --output manifest.json
+```mermaid
+flowchart TB;
+    classDef function fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10;
+    classDef file fill:#eceff1,stroke:#455a64,stroke-width:1px,stroke-dasharray: 5 5;
+    classDef store fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,rx:5,ry:5;
+    subgraph Call_Graph ["Call Graph"]
+    direction TB
+    subgraph Dropdown
+        direction TB
+        Dropdown_Dropdown(["Dropdown"]):::function
+        Dropdown_Dropdown_calls_onChange["onChange"]:::file
+        Dropdown_Dropdown --> Dropdown_Dropdown_calls_onChange
+    end
+    subgraph UserProfile
+        direction TB
+        UserProfile_UserProfile(["UserProfile"]):::function
+        UserProfile_UserProfile_calls_setUser["setUser"]:::file
+        UserProfile_UserProfile --> UserProfile_UserProfile_calls_setUser
+        UserProfile_UserProfile_calls_formatUserName["formatUserName"]:::file
+        UserProfile_UserProfile --> UserProfile_UserProfile_calls_formatUserName
+    end
+    Dropdown_Dropdown ~~~ UserProfile_formatUserName
+    end
 ```
-**What it does:**
-- Scans + parses all components (like `scan`)
-- Builds dependency graph (what imports what)
-- Creates complete manifest with:
-  - Component metadata
-  - Props & types
-  - Hooks usage
-  - Tags (auto-generated)
-  - Dependency relationships
-- Outputs comprehensive JSON for your frontend to consume
+<!-- CALL_GRAPH-END -->
 
-**Use case:** Generate the production manifest file that powers your PatternBook UI
-
----
-
-#### 3. **`analyze`** - Dependency Analysis
-```bash
-patternbook analyze ./test/fixtures --target Button
-```
-**What it does:**
-- Scans + parses all components
-- Builds full dependency graph
-- **Impact analysis** - answers "What breaks if I change X?"
-  - Shows direct dependents (what imports this)
-  - Shows indirect dependents (what imports those)
-  - Calculates risk level (low/medium/high)
-- Can export as JSON or Mermaid diagram
-
-**Use case:** Before refactoring a component, see what else will be affected
-
----
-
-#### 4. **`watch`** - Live Development Mode
-```bash
-patternbook watch ./test/fixtures
-```
-**What it does:**
-- Monitors directory for file changes
-- Auto-re-parses when you save a file
-- Updates metadata in real-time
-- Continuously saves to `library-metadata.json`
-- Shows impact analysis on changes
-
-**Use case:** Keep your component manifest up-to-date during development
-
----
-
-#### Quick Comparison
-
-| Command | Speed | Output | Use When |
-|---------|-------|--------|----------|
-| `scan` | ⚡ Fast | Simple list | "What components do I have?" |
-| `generate` | 🐌 Slow | Full manifest | "Build production manifest" |
-| `analyze` | 🐌 Slow | Graph + impact | "What depends on this?" |
-| `watch` | ♻️ Continuous | Live updates | "Keep manifest fresh" |
-
----
-
-#### 💡 Typical Workflow
-
-```bash
-# 1. First time setup - generate full manifest
-patternbook generate ./src/components --output public/manifest.json
-
-# 2. During development - watch for changes
-patternbook watch ./src/components
-
-# 3. Before refactoring - check impact
-patternbook analyze ./src/components --target Button.tsx
-
-# 4. Quick check - scan only
-patternbook scan ./src/components
-```
-
-**Bottom line:** 
-- **`scan`** = List components
-- **`generate`** = Build full manifest for production
-- **`analyze`** = Understand dependencies & impact
-- **`watch`** = Keep manifest fresh during dev
