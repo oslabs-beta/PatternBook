@@ -1,0 +1,61 @@
+/* ── Geist Font ────────────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap");
+
+/* ── Starlight CSS Variable Overrides ──────────────────────────────── */
+:root {
+  --sl-font: "Geist", system-ui, sans-serif;
+  --sl-font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Blue accent palette */
+  --sl-color-accent-low: #0d1f4a;
+  --sl-color-accent: #2563eb;
+  --sl-color-accent-high: #93c5fd;
+
+  /* Deep navy page background for dark mode */
+  --sl-color-bg: #030712;
+  --sl-color-bg-nav: rgba(3, 7, 18, 0.85);
+  --sl-color-bg-sidebar: #080f20;
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Light mode overrides ──────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --sl-color-bg: #f8faff;
+  --sl-color-bg-nav: rgba(248, 250, 255, 0.9);
+  --sl-color-bg-sidebar: #eef2ff;
+}
+
+/* ── Liquid Glass Utility ──────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.055);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 8px 32px rgba(0, 30, 120, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1rem;
+}
+
+/* ── Custom Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.7);
+}
