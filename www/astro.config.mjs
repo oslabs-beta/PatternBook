@@ -8,7 +8,7 @@ export default defineConfig({
     starlight({
       title: "PatternBook",
       logo: {
-        src: "./src/assets/patternbook.svg",
+        src: "./src/assets/logo.svg",
       },
       social: [
         {
