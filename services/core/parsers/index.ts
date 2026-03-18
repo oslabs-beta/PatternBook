@@ -1,7 +1,7 @@
-import type { Parser, ParseResult, ParseOptions } from '../../types/parser.js';
-import { ReactParser } from './react-parser.js';
-import { TagProcessor } from '../tag-processor.js';
-
+import type { Parser, ParseResult, ParseOptions } from '../../types/parser.ts';
+import { ReactParser } from './react-parser.ts';
+import { TagProcessor } from '../tag-processor.ts';
+// COMMENT fixed file extensions from .js to .ts
 /**
  * Parser factory that routes to the appropriate parser based on file extension
  */
@@ -27,16 +27,17 @@ export class ParserFactory {
     if (/\.(tsx|jsx|ts|js)$/.test(filePath)) {
       return this.parsers.get('react') || null;
     }
+        
+    //COMMENT I'm commenting this out because it isn't used yet
+    // // Check Vue parser
+    // if (/\.vue$/.test(filePath)) {
+    //   return this.parsers.get('vue') || null;
+    // }
 
-    // Check Vue parser
-    if (/\.vue$/.test(filePath)) {
-      return this.parsers.get('vue') || null;
-    }
-
-    // Check Svelte parser
-    if (/\.svelte$/.test(filePath)) {
-      return this.parsers.get('svelte') || null;
-    }
+    // // Check Svelte parser
+    // if (/\.svelte$/.test(filePath)) {
+    //   return this.parsers.get('svelte') || null;
+    // }
 
     return null;
   }

@@ -11,7 +11,7 @@ export class ReactParser implements Parser {
     constructor() {
         this.project = new Project({
             compilerOptions: {
-                jsx: 1, // JSX preserve mode
+                jsx: 1, // JSX preserve mode //COMMENT why is this .jsx and not .tsx?? does it matter? Just asking idk
                 target: 99 // ESNext
             },
         });
@@ -100,7 +100,7 @@ export class ReactParser implements Parser {
                 name: prop.getName(),
                 type: prop.getTypeAtLocation(firstParam).getText(),
                 isOptional: prop.isOptional(),
-                description: description || undefined,
+                description: description || undefined,  // COMMENT I'm pretty sure this is a typo or a type issue
             });
         });
 
@@ -128,70 +128,70 @@ export class ReactParser implements Parser {
         });
     };
 
-
+//COMMENT- fixed formatting
     private extractExports(sourceFile: SourceFile): { default?: string; named: string[] } {
-    const exportedDeclarations = sourceFile.getExportedDeclarations();
-    const named: string[] = [];
-    let defaultExport: string | undefined;
+        const exportedDeclarations = sourceFile.getExportedDeclarations();
+        const named: string[] = [];
+        let defaultExport: string | undefined;
 
-    exportedDeclarations.forEach((declarations, name) => {
-      if (name === 'default') {
-        // Handle default export
-        const decl = declarations[0];
-        if (decl) {
-          defaultExport = decl.getSymbol()?.getName() || 'default';
+        exportedDeclarations.forEach((declarations, name) => {
+        if (name === 'default') {
+            // Handle default export
+            const decl = declarations[0];
+            if (decl) {
+            defaultExport = decl.getSymbol()?.getName() || 'default';
+            }
+        } else {
+            named.push(name);
         }
-      } else {
-        named.push(name);
-      }
-    });
+        });
 
-    return { default: defaultExport, named };
-  }
+        return { default: defaultExport, named };
+    }
 
-  private extractHookUsage(fn: FunctionDeclaration): { name: string; source?: string }[] {
-    const hooks: { name: string; source?: string }[] = [];
-    const body = fn.getBody();
-    
-    if (!body) return hooks;
+    private extractHookUsage(fn: FunctionDeclaration): { name: string; source?: string }[] {
+        const hooks: { name: string; source?: string }[] = [];
+        const body = fn.getBody();
+        
+        if (!body) return hooks;
 
-    // Find all identifiers that look like hooks (start with 'use')
-    body.getDescendantsOfKind(268).forEach(identifier => { // 268 = Identifier
-      const name = identifier.getText();
-      if (name.startsWith('use') && name[3] === name[3].toUpperCase()) {
-        // This looks like a hook call
-        hooks.push({ name });
-      }
-    });
+        // Find all identifiers that look like hooks (start with 'use')
+        body.getDescendantsOfKind(268).forEach(identifier => { // 268 = Identifier
+        const name = identifier.getText();
+        if (name.startsWith('use') && name[3] === name[3].toUpperCase()) {
+            // This looks like a hook call
+            hooks.push({ name });
+        }
+        });
 
-    // Remove duplicates
-    return Array.from(new Map(hooks.map(h => [h.name, h])).values());
-  }
+        // Remove duplicates
+        return Array.from(new Map(hooks.map(h => [h.name, h])).values());
+    }
 
-  private extractDocumentation(fn: FunctionDeclaration): string | undefined {
-    const jsDocs = fn.getJsDocs();
-    if (jsDocs.length === 0) return undefined;
+    private extractDocumentation(fn: FunctionDeclaration): string | undefined {
+        const jsDocs = fn.getJsDocs();
+        if (jsDocs.length === 0) return undefined;
 
-    return jsDocs[0].getDescription().trim();
-  }
+        return jsDocs[0].getDescription().trim();
+    }
 
-  /**
-   * Batch parse multiple files
-   */
-  async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
-    return Promise.all(filePaths.map(path => this.parse(path, options)));
-  }
+    /**
+     * Batch parse multiple files
+     */
+    async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
+        return Promise.all(filePaths.map(path => this.parse(path, options)));
+    }
 
-  /**
-   * Clear the project cache
-   */
-  clearCache(): void {
-    this.project = new Project({
-      compilerOptions: {
-        jsx: 1,
-        target: 99,
-      },
-    });
-  }
+    /**
+     * Clear the project cache
+     */
+    clearCache(): void {
+        this.project = new Project({
+            compilerOptions: {
+                jsx: 1, //COMMENT again why .jsx?
+                target: 99,
+            },
+        });
+    }
 }
 
