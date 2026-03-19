@@ -221,7 +221,7 @@ app.get('/api/graph/impact/:componentName', (req: Request, res: Response) => {
  * GET /api/search
  * Search components by query
  */
-app.get('/api/searc', (req: Request, res: Response) => {
+app.get('/api/search', (req: Request, res: Response) => {
     if (!manifestCache || !manifestCache.components) {
         return res.status(404).json({
             error: 'No components found'
@@ -236,5 +236,67 @@ app.get('/api/searc', (req: Request, res: Response) => {
         });
     };
 
-    
+    const query = q.toLowerCase();
+    const results = manifestCache.components.filter((c: any) => {
+        const matchName = c.name.toLowerCase().includes(query);
+        const matchTags = c.tags?.some((tag: string) => tag.toLowerCase().includes(query));
+        const matchType = c.type.toLowerCase().includes(query);
+
+        return matchName || matchTags || matchType;
+    });
+
+    res.json({
+        query: q,
+        results,
+        total: results.length
+    });
+});
+
+/**
+ * GET /api/stats
+ * Get statistics about the component library
+ */
+app.get('/api/stats', (req: Request, res: Response) => {
+    if (!manifestCache) {
+        return res.status(404).json({
+            error: 'Manifest not found'
+        });
+    };
+
+    const components = manifestCache.components || [];
+    const graph = dependencyGraphCache;
+
+    const stats = {
+        totalComponents: components.length,
+        componentsByType: {
+            component: components.filter((c: any) => c.type === 'component').length,
+            hook: components.filter((c: any) => c.type === 'hook').length,
+            utility: components.filter((c: any) => c.type === 'utility').length
+        },
+        allTags: [
+            ...new Set(components.flatMap((c: any) => c.tags || []))
+        ].sort(),
+        graph: graph
+        ? {
+            nodes: graph.metadata?.totalNodes || 0,
+            edges: graph.metadata?.totalEdges || 0,
+            components: graph.metadata?.componentsCount || 0,
+            hooks: graph.metadata?.hooksCount || 0
+        }
+        : null,
+        lastGenerated: manifestCache.generated || null
+    };
+
+    res.json(stats);
+});
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+// 404 handler
+app.use((req: Request, res: Response) => {
+    res.status(404).json({
+        
+    })
 })
