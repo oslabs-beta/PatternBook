@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // in-memery cache for manifest data
-let manifesCache: any = null;
+let manifestCache: any = null;
 let dependencyGraphCache: any = null;
 
 // load manifest from file system
@@ -50,4 +50,191 @@ function watchManifestFile(
 const MANIFEST_PATH = resolve(process.cwd(), 'library-manifest.json');
 const DEPENDENCY_GRAPH_PATH = resolve(process.cwd(), 'dependency-graph.json');
 
-manifesCache = loadManifest(MANIFEST_PATH);
+manifestCache = loadManifest(MANIFEST_PATH);
+dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
+
+watchManifestFile(MANIFEST_PATH, data => {
+    manifestCache = data;
+});
+
+watchManifestFile(DEPENDENCY_GRAPH_PATH, data => {
+    dependencyGraphCache = data;
+});
+
+// ===================================
+// api routes
+// ===================================
+
+/**
+ * GET /api/health
+ * Health check endpoint
+ */
+app.get('/api/heatlh', (req: Request, res: Response) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
+/**
+ * GET /api/manifest
+ * Get the complete component library manifest
+ */
+app.get('/api/manifest', (req: Request, res: Response) => {
+    if (!manifestCache) {
+        return res.status(404).json({
+            error: 'Manifest not found',
+            message: 'Run `patternbook generate` to create a manifest first!'
+        });
+    };
+
+    res.json(manifestCache);
+});
+
+/**
+ * GET /api/components
+ * Get all components (simplified list)
+ */
+
+app.get('/api/components', (req: Request, res: Response) => {
+    if (!manifestCache || !manifestCache.components) {
+        return res.status(404).json({
+            error: 'No components found',
+        });
+    };
+
+    const components = manifestCache.components.map((c: any) => ({
+        name: c.name,
+        path: c.path,
+        type: c.type,
+        tags: c.tags || []
+    }));
+
+    res.json({ components, total: components.length });
+});
+
+/**
+ * GET /api/components/:name
+ * Get a specific component by name
+ */
+
+app.get('/api/components/:name', (req: Request, res: Response) => {
+    if (!manifestCache || !manifestCache.components) {
+        return res.status(404).json({
+            error: 'No components found',
+        });
+    };
+
+    const { name } = req.params;
+    const component = manifestCache.components.find(
+        (c: any) => c.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (!component) {
+        return res.status(404).json({
+            error: 'Component not found',
+            message: `Component "${name}" does not exist`
+        });
+    };
+
+    res.json(component);
+});
+
+/**
+ * GET /api/components/tag/:tag
+ * Get all components with a specific tag
+ */
+app.get('/api/components/tag/:tag', (req: Request, res: Response) => {
+    if (!manifestCache || !manifestCache.components) {
+        return res.status(404).json({
+            error: 'No components found'
+        });
+    };
+
+    const { tag } = req.params;
+    const components = manifestCache.components.filter((c: any) => {
+        c.tags?.includes(tag)
+    });
+
+    res.json({ tag, components, total: components.length });
+});
+
+/**
+ * GET /api/graph
+ * Get the dependency graph
+ */
+app.get('/api/graph', (req: Request, res: Response) => {
+    if (!dependencyGraphCache) {
+        return res.status(404).json({
+            error: 'Dependency graph not found',
+            message: 'Run `patternbook analyze` to create dependency graph'
+        });
+    };
+
+    res.json(dependencyGraphCache);
+});
+
+/**
+ * GET /api/graph/impact/:componentName
+ * Get impact analysis for a specific component
+ */
+
+app.get('/api/graph/impact/:componentName', (req: Request, res: Response) => {
+    if (!dependencyGraphCache) {
+        return res.status(404).json({
+            error: 'Dependency graph not found'
+        });
+    };
+
+    const { componentName } = req.params;
+
+    // find the component node
+    const node = dependencyGraphCache.nodes?.find(
+        (n: any) => n.name.toLowerCase() === componentName.toLowerCase()
+    );
+
+    if (!node) {
+        return res.status(404).json({
+            error: 'Component not found in graph'
+        });
+    };
+
+    // find direct dependents--what imports this component--
+    const directDependents = dependencyGraphCache.edges?.filter((e: any) => e.to === node.filePath).map((e: any) => {
+        const depNode = dependencyGraphCache.nodes.find(
+            (n: any) => n.filePath === e.from
+        );
+        return depNode?.name;
+    })
+    .filter(Boolean);
+
+    res.json({
+        component: componentName,
+        node,
+        directDependents: directDependents || [],
+        dependentCount: directDependents?.length || 0
+    });
+});
+
+/**
+ * GET /api/search
+ * Search components by query
+ */
+app.get('/api/searc', (req: Request, res: Response) => {
+    if (!manifestCache || !manifestCache.components) {
+        return res.status(404).json({
+            error: 'No components found'
+        });
+    };
+
+    const { q } = req.query;
+
+    if (!q || typeof q !== 'string') {
+        return res.status(400).json({
+            error: 'Query parameter "q" is required'
+        });
+    };
+
+    
+})
