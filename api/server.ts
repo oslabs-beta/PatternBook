@@ -297,6 +297,69 @@ app.get('/api/stats', (req: Request, res: Response) => {
 // 404 handler
 app.use((req: Request, res: Response) => {
     res.status(404).json({
-        
-    })
-})
+        error: 'Not found',
+        message: `Route ${req.method} ${req.path} not found`,
+        availableRoutes: [
+            'GET /api/health',
+            'GET /api/components',
+            'GET /api/components/:name',
+            'GET /api/components/tag/:tag',
+            'GET /api/graph',
+            'GET /api/graph/impact/:componentName',
+            'GET /api/search?q=<query>',
+            'GET /api/stats'
+        ]
+    });
+});
+
+// Global Error Handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error(chalk.red('Server error:'), err);
+    res.status(500).json({
+        error: 'Internal server error',
+        message: err.message
+    });
+});
+
+// =============================================================================
+// START SERVER
+// =============================================================================
+
+app.listen(PORT, () => {
+    console.log(chalk.green(`\nPatternBook API Server running!`));
+    console.log(chalk.cyan('http://localhost:${PORT}'));
+    console.log(chalk.gray(`\nAvailable endpoints`));
+    console.log(chalk.gray(`   GET  /api/health`));
+    console.log(chalk.gray(`   GET  /api/manifest`));
+    console.log(chalk.gray(`   GET  /api/components`));
+    console.log(chalk.gray(`   GET  /api/components/:name`));
+    console.log(chalk.gray(`   GET  /api/components/tag/:tag`));
+    console.log(chalk.gray(`   GET  /api/graph`));
+    console.log(chalk.gray(`   GET  /api/graph/impact/:componentName`));
+    console.log(chalk.gray(`   GET  /api/search?q=<query>`));
+    console.log(chalk.gray(`   GET  /api/stats`));
+
+    if (manifestCache) {
+        console.log(
+            chalk.green(`\n✓ Manifest Loaded: ${manifestCache.components?.length || 0 } components`)
+        );
+    } else {
+        console.log(
+            chalk.yellow(
+                '\n No manifest found. Run `PatternBook generate` first'
+            )
+        );
+    };
+
+    if (dependencyGraphCache) {
+        console.log(
+            chalk.green(
+                `✓ Dependency graph loaded: ${dependencyGraphCache.metadata?.totalNodes || 0} nodes`
+            )
+        );
+    };
+
+    console.log(chalk.gray(`\n Watching for file chages...\n`));
+});
+
+export default app;
