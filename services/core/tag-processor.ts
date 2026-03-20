@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { ComponentMetadata } from '../types/parser.js';
+=======
+import { ComponentMetadata } from '../types/parser.ts';
+>>>>>>> origin/main
 
 export class TagProcessor {
   public process(metadata: ComponentMetadata): string[] {
@@ -22,7 +26,11 @@ export class TagProcessor {
     }
 
     // 3. Process Path (Structural)
+<<<<<<< HEAD
     const lowerPath = (metadata.path || '').toLowerCase();
+=======
+    const lowerPath = (metadata.path || "").toLowerCase();
+>>>>>>> origin/main
     if (lowerPath.includes('fixtures/') || lowerPath.includes('ui/')) {
       tags.add('design-system');
     }

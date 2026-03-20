@@ -13,12 +13,16 @@
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "ora": "^9.1.0",
+<<<<<<< HEAD
     "path": "^0.12.7",
     "prettier": "3.8.1",
+=======
+>>>>>>> origin/main
     "repomix": "^1.11.1",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@eslint/js": "^10.0.1",
     "@mermaid-js/mermaid-cli": "^11.4.2",
     "@types/node": "^24.10.9",
@@ -28,10 +32,17 @@
     "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1",
+=======
+    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@types/node": "^24.10.9",
+    "husky": "^9.1.7",
+    "tsx": "^4.19.2",
+>>>>>>> origin/main
     "vitest": "^4.0.18"
   },
   "scripts": {
     "test": "vitest",
+<<<<<<< HEAD
     "generate-graph": "tsx scripts/test-run.ts",
     "generate-graph:full": "npm run generate-graph && mmdc -i dependency-graph.mmd -o dependency-graph.png -s 3 && mmdc -i call-graph.mmd -o call-graph.png -s 3",
     "watch:graph": "tsx scripts/test-run.ts --watch",
@@ -43,5 +54,10 @@
   },
   "engines": {
     "node": ">=20.0.0"
+=======
+    "generate-graph": "tsx scripts/test-run.ts && mmdc -i dependency-graph.mmd -o dependency-graph.png",
+    "watch:graph": "tsx scripts/watcher_temp.ts",
+    "prepare": "husky"
+>>>>>>> origin/main
   }
 }
