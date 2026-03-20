@@ -120,7 +120,7 @@ export class ReactParser implements Parser {
         name: prop.getName(),
         type: prop.getTypeAtLocation(firstParam).getText(),
         isOptional: prop.isOptional(),
-        description: description || undefined,
+        description: description ? description.map(p => p.text).join('') : undefined,
       });
     });
 

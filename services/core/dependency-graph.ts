@@ -55,7 +55,7 @@ export class DependencyGraphBuilder {
     const node: GraphNode = {
       id: component.path,
       name: component.name,
-      type: component.type,
+      type: component.type as 'component' | 'hook' | 'utility',
       filePath: component.path,
       props: component.props?.length,
       hooks: component.hooks?.map(h => h.name),
