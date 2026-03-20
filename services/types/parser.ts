@@ -1,15 +1,27 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 // parser-specific types for component metadata extraction
 
 export interface ComponentMetadata {
   name: string;
   path: string;
   relativePath: string;
+<<<<<<< HEAD
   type: 'component' | 'hook' | 'utility' | 'other ';
+=======
+  type: 'component' | 'hook' | 'utility'| 'other ';
+>>>>>>> origin/main
   tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];
   props?: PropMetadata[];
+<<<<<<< HEAD
   hooks?: { name: string; source?: string }[];
+=======
+  hooks?:{name: string; source?: string}[];
+>>>>>>> origin/main
   documentation?: string;
 }
 
@@ -50,8 +62,16 @@ export interface ParseResult {
   error?: string;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 // base interface for all parsers (React, Vue, Svelte)
 export interface Parser {
   parse(filePath: string, options?: ParseOptions): Promise<ParseResult>;
   canParse(filePath: string): boolean;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

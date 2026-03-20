@@ -27,6 +27,7 @@ npx patternbook generate --input ./test-components --output ./public/generated-m
 ```
 
 The generated manifest should match the structure in `/public/mock-data/manifest.json`.
+<<<<<<< HEAD
 
 <!-- DEPENDENCY_GRAPH-START -->
 
@@ -117,3 +118,5 @@ flowchart TB;
 ```
 
 <!-- CALL_GRAPH-END -->
+=======
+>>>>>>> origin/main

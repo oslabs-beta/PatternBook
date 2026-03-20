@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 ### Back-end file structure
 
 ```bash
@@ -6,7 +10,11 @@ services/
 │   ├── index.ts                    # Main CLI entry point
 │   ├── commands/
 │   │   ├── scan.ts                # Scan command
+<<<<<<< HEAD
 │   │   ├── watch.ts               # Watch mode command
+=======
+│   │   ├── watch.ts               # Watch mode command  
+>>>>>>> origin/main
 │   │   ├── analyze.ts             # Dependency analysis command
 │   │   └── generate.ts            # Generate manifest command
 │   └── config.ts                  # CLI config loader
@@ -59,8 +67,13 @@ services/
     └── dependency-graph.json       # Generated graph
 ```
 
+<<<<<<< HEAD
 ### CLI core:
 
+=======
+
+### CLI core:
+>>>>>>> origin/main
 ```bash
 {
   "dependencies": {
@@ -73,7 +86,10 @@ services/
 ```
 
 ### File scanning
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
 ```bash
 {
   "dependencies": {
@@ -83,6 +99,7 @@ services/
   }
 }
 ```
+<<<<<<< HEAD
 
 ### Mermaid Visuals
 
@@ -151,3 +168,8 @@ flowchart TB;
 ```
 
 <!-- CALL_GRAPH-END -->
+=======
+### Mermaid Visual
+
+![Dependency Graph](./dependency-graph.png)
+>>>>>>> origin/main
