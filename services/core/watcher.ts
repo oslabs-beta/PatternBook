@@ -37,19 +37,33 @@ export class ComponentWatcher {
    * Start watching for file changes
    */
   async start(): Promise<void> {
+<<<<<<< HEAD
+    // Watch the directory directly, not with patterns + cwd
+    this.watcher = chokidar.watch(this.options.directory, {
+=======
     const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
     
     this.watcher = chokidar.watch(patterns, {
       cwd: this.options.directory,
+>>>>>>> origin/main
       ignored: [
         '**/node_modules/**',
         '**/.git/**',
         '**/dist/**',
         '**/build/**',
+<<<<<<< HEAD
+        '**/*.test.*',
+        '**/*.spec.*',
+=======
+>>>>>>> origin/main
         ...(this.options.ignored || []),
       ],
       persistent: true,
       ignoreInitial: false,
+<<<<<<< HEAD
+      depth: 10, // Reasonable depth limit
+=======
+>>>>>>> origin/main
     });
 
     this.watcher
@@ -57,9 +71,15 @@ export class ComponentWatcher {
         this.log('✅ Watcher ready. Monitoring for changes...');
         this.options.onReady?.();
       })
+<<<<<<< HEAD
+      .on('add', path => this.handleFileChange('add', path))
+      .on('change', path => this.handleFileChange('change', path))
+      .on('unlink', path => this.handleFileDelete(path));
+=======
       .on('add', (path) => this.handleFileChange('add', path))
       .on('change', (path) => this.handleFileChange('change', path))
       .on('unlink', (path) => this.handleFileDelete(path));
+>>>>>>> origin/main
   }
 
   /**
@@ -73,7 +93,14 @@ export class ComponentWatcher {
     }
   }
 
+<<<<<<< HEAD
+  private async handleFileChange(
+    event: 'add' | 'change',
+    filePath: string,
+  ): Promise<void> {
+=======
   private async handleFileChange(event: 'add' | 'change', filePath: string): Promise<void> {
+>>>>>>> origin/main
     // Skip non-component files
     if (!this.isComponentFile(filePath)) return;
 
@@ -85,17 +112,31 @@ export class ComponentWatcher {
       if (result.success && result.metadata) {
         this.components.set(filePath, result.metadata);
         this.options.onParse?.(result.metadata);
+<<<<<<< HEAD
+
+        // Rebuild graph
+        this.rebuildGraph();
+
+=======
         
         // Rebuild graph
         this.rebuildGraph();
         
+>>>>>>> origin/main
         // Analyze impact if this was a change (not initial add)
         if (event === 'change') {
           this.analyzeImpact(filePath);
         }
       } else {
         this.logError(`Failed to parse ${filePath}: ${result.error}`);
+<<<<<<< HEAD
+        this.options.onError?.(
+          new Error(result.error || 'Unknown error'),
+          filePath,
+        );
+=======
         this.options.onError?.(new Error(result.error || 'Unknown error'), filePath);
+>>>>>>> origin/main
       }
     } catch (error) {
       this.logError(`Error parsing ${filePath}:`, error);
@@ -114,28 +155,55 @@ export class ComponentWatcher {
   private rebuildGraph(): void {
     const allComponents = Array.from(this.components.values());
     const graph = this.graphBuilder.buildGraph(allComponents);
+<<<<<<< HEAD
+
+    if (this.options.verbose) {
+      this.log(
+        `📊 Graph rebuilt: ${graph.nodes.length} nodes, ${graph.edges.length} edges`,
+      );
+=======
     
     if (this.options.verbose) {
       this.log(`📊 Graph rebuilt: ${graph.nodes.length} nodes, ${graph.edges.length} edges`);
+>>>>>>> origin/main
     }
   }
 
   private analyzeImpact(filePath: string): void {
     const impact = this.graphBuilder.analyzeImpact(filePath);
+<<<<<<< HEAD
+
+=======
     
+>>>>>>> origin/main
     if (impact.directDependents.length > 0) {
       this.log(`\n⚠️  Change Impact for ${filePath}:`);
       this.log(`   Risk Level: ${impact.riskLevel.toUpperCase()}`);
       this.log(`   Direct dependents: ${impact.directDependents.length}`);
       this.log(`   Indirect dependents: ${impact.indirectDependents.length}`);
+<<<<<<< HEAD
+
+      if (this.options.verbose && impact.affectedComponents.length > 0) {
+        this.log(
+          `   Affected components: ${impact.affectedComponents.join(', ')}`,
+        );
+=======
       
       if (this.options.verbose && impact.affectedComponents.length > 0) {
         this.log(`   Affected components: ${impact.affectedComponents.join(', ')}`);
+>>>>>>> origin/main
       }
     }
   }
 
   private isComponentFile(filePath: string): boolean {
+<<<<<<< HEAD
+    // Match the patterns we care about
+    const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
+
+    // Simple extension check
+=======
+>>>>>>> origin/main
     return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
   }
 
@@ -167,4 +235,8 @@ export async function watch(options: WatchOptions): Promise<ComponentWatcher> {
   const watcher = new ComponentWatcher(options);
   await watcher.start();
   return watcher;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

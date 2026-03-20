@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/main
 // types for dependency graph and relationship mapping
 
 export interface DependencyGraph {
@@ -46,4 +49,8 @@ export interface ComponentRelationship {
   importsComponents: string[];
   rendersComponents: string[];
   importedBy: string[];
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

@@ -8,8 +8,28 @@
     "strict": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+<<<<<<< HEAD
+    "outDir": "./dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "types": ["node"]
+  },
+  "include": [
+    "cli/**/*",
+    "core/**/*",
+    "types/**/*",
+    "utils/**/*",
+    "scripts/**/*",
+    "test/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
+=======
     "noEmit": true,
     "types": ["node"]
   },
   "include": ["scripts/**/*", "test/**/*"]
 }
+>>>>>>> origin/main

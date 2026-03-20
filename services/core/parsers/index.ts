@@ -1,19 +1,31 @@
 import type { Parser, ParseResult, ParseOptions } from '../../types/parser.js';
 import { ReactParser } from './react-parser.js';
+<<<<<<< HEAD
+import { TagProcessor } from '../tag-processor.js';
+=======
 import { TagProcessor } from '../tag-processor.ts';
+>>>>>>> origin/main
 
 /**
  * Parser factory that routes to the appropriate parser based on file extension
  */
 export class ParserFactory {
   private parsers: Map<string, Parser> = new Map();
+<<<<<<< HEAD
+  private tagProcessor = new TagProcessor(); //intilize tagger
+=======
   private tagProcessor = new TagProcessor() //intilize tagger 
+>>>>>>> origin/main
 
   constructor() {
     // Register React parser
     //const reactParser = new ReactParser();
     this.parsers.set('react', new ReactParser());
+<<<<<<< HEAD
+
+=======
     
+>>>>>>> origin/main
     // Future: Register Vue and Svelte parsers
     // this.parsers.set('vue', new VueParser());
     // this.parsers.set('svelte', new SvelteParser());
@@ -44,6 +56,29 @@ export class ParserFactory {
   /**
    * Parse a single file using the appropriate parser
    */
+<<<<<<< HEAD
+  async parseFile(
+    filePath: string,
+    options?: ParseOptions,
+  ): Promise<ParseResult> {
+    const parser = this.getParser(filePath);
+
+    if (!parser) {
+      return {
+        success: false,
+        error: `No parser available for file: ${filePath}`,
+      };
+    }
+    const result = await parser.parse(filePath, options);
+    //retreive raw data from parser
+    if (result.success && result.metadata) {
+      result.metadata.tags = this.tagProcessor.process(result.metadata);
+    }
+    return result;
+  }
+
+  // return parser.parse(filePath, options);
+=======
   async parseFile(filePath: string, options?: ParseOptions): Promise<ParseResult> {
     const parser = this.getParser(filePath);
     
@@ -63,10 +98,30 @@ export class ParserFactory {
 
    // return parser.parse(filePath, options);
   
+>>>>>>> origin/main
 
   /**
    * Parse multiple files
    */
+<<<<<<< HEAD
+  async parseFiles(
+    filePaths: string[],
+    options?: ParseOptions,
+  ): Promise<ParseResult[]> {
+    return Promise.all(filePaths.map(path => this.parseFile(path, options)));
+  }
+}
+/**
+ * Register a custom parser
+ */
+//registerParser(name: string, parser: Parser): void {
+//  this.parsers.set(name, parser);
+// }
+//}
+
+// Export singleton instance
+export const parserFactory = new ParserFactory();
+=======
   async parseFiles(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
     return Promise.all(
       filePaths.map(path => this.parseFile(path, options))
@@ -83,3 +138,4 @@ export class ParserFactory {
 
 // Export singleton instance
 export const parserFactory = new ParserFactory();
+>>>>>>> origin/main

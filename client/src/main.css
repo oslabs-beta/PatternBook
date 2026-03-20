@@ -1,14 +1,68 @@
 @import "tailwindcss";
 
+<<<<<<< HEAD
+/* ── react-live editor ───────────────────────────────────────────────── */
+.live-editor-wrapper {
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+  border-bottom: none;
+}
+
+.live-editor-label {
+  background: #011627; /* nightOwl background */
+  color: #546e7a;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.4rem 1rem 0;
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  user-select: none;
+}
+
+/* react-live injects a <textarea> + highlighted overlay; give it consistent font */
+.live-editor textarea,
+.live-editor pre {
+  font-family:
+    "JetBrains Mono", "Fira Code", ui-monospace, monospace !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.65 !important;
+  padding: 0.75rem 1rem !important;
+}
+
+=======
+>>>>>>> origin/main
 /* ── react-live preview frame ────────────────────────────────────────── */
 .live-preview-frame {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
+<<<<<<< HEAD
+  border-radius: 0 0 8px 8px;
+  padding: 1rem 1.5rem 1.5rem;
+  min-height: 64px;
+}
+
+.live-preview-label {
+  color: #9ca3af;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+  font-family: ui-monospace, monospace;
+  user-select: none;
+}
+
+/* ── react-live error ────────────────────────────────────────────────── */
+=======
   border-radius: 6px;
   padding: 1.5rem;
   min-height: 64px;
 }
 
+>>>>>>> origin/main
 .live-preview-error {
   margin-top: 0.5rem;
   padding: 0.5rem 0.75rem;
