@@ -85,7 +85,9 @@ types/
   parser.ts
 utils/
   ignore.ts
+.prettierrc.json
 dependency-graph.json
+eslint.config.mts
 package.json
 README.md
 tsconfig.json
@@ -118,7 +120,10 @@ interface AnalyzeOptions {
   format?: 'json' | 'mermaid';
 }
 
-export async function analyzeCommand(directory: string, options: AnalyzeOptions): Promise<void> {
+export async function analyzeCommand(
+  directory: string,
+  options: AnalyzeOptions,
+): Promise<void> {
   const spinner = ora('Scanning and analyzing project...').start();
 
   try {
@@ -137,7 +142,7 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
     // Step 2: Parse all files
     const parseResults = await parserFactory.parseFiles(
       scanResult.files.map(f => f.path),
-      { extractDocs: true, extractHooks: true, extractProps: true }
+      { extractDocs: true, extractHooks: true, extractProps: true },
     );
 
     const components = parseResults
@@ -152,8 +157,8 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     spinner.succeed(
       chalk.green(
-        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`
-      )
+        `✓ Analyzed ${graph.nodes.length} components with ${graph.edges.length} dependencies`,
+      ),
     );
 
     // Display statistics
@@ -165,25 +170,31 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
     // Step 4: Impact analysis (if target specified)
     if (options.target) {
       console.log(chalk.yellow(`\n⚠️  Impact Analysis for: ${options.target}`));
-      
-      const targetNode = graph.nodes.find(n => 
-        n.filePath.includes(options.target!) || n.name === options.target
+
+      const targetNode = graph.nodes.find(
+        n => n.filePath.includes(options.target!) || n.name === options.target,
       );
 
       if (targetNode) {
         const impact = graphBuilder.analyzeImpact(targetNode.filePath);
-        
-        console.log(`   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`);
+
+        console.log(
+          `   Risk Level: ${chalk.bold(impact.riskLevel.toUpperCase())}`,
+        );
         console.log(`   Direct Dependents: ${impact.directDependents.length}`);
-        console.log(`   Indirect Dependents: ${impact.indirectDependents.length}`);
-        
+        console.log(
+          `   Indirect Dependents: ${impact.indirectDependents.length}`,
+        );
+
         if (impact.affectedComponents.length > 0) {
           console.log(`\n   Affected Components:`);
           impact.affectedComponents.forEach(comp => {
             console.log(`   - ${comp}`);
           });
         } else {
-          console.log(`   ✓ No components depend on this file (safe to modify)`);
+          console.log(
+            `   ✓ No components depend on this file (safe to modify)`,
+          );
         }
       } else {
         console.log(chalk.red(`   ✗ Target not found in project`));
@@ -192,11 +203,15 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     // Step 5: Save output
     const outputPath = options.output || 'dependency-graph.json';
-    
+
     if (options.format === 'mermaid') {
       const mermaid = generateMermaidDiagram(graph);
       writeFileSync(outputPath.replace('.json', '.mmd'), mermaid);
-      console.log(chalk.green(`\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`));
+      console.log(
+        chalk.green(
+          `\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`,
+        ),
+      );
     } else {
       writeFileSync(outputPath, graphBuilder.toJSON());
       console.log(chalk.green(`\n💾 Dependency graph saved to: ${outputPath}`));
@@ -204,32 +219,37 @@ export async function analyzeCommand(directory: string, options: AnalyzeOptions)
 
     // Step 6: Warnings
     if (graph.metadata.circularDependencies.length > 0) {
-      console.log(chalk.red(`\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`));
+      console.log(
+        chalk.red(
+          `\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`,
+        ),
+      );
     }
-
   } catch (error) {
     spinner.fail(chalk.red('Analysis failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }
 
 function generateMermaidDiagram(graph: DependencyGraph): string {
   let mermaid = 'graph TD\n';
-  
+
   // Add nodes
-  graph.nodes.forEach((node) => {
+  graph.nodes.forEach(node => {
     const shape = node.type === 'hook' ? '([' : '[';
     const shapeEnd = node.type === 'hook' ? '])' : ']';
     mermaid += `  ${sanitizeId(node.id)}${shape}${node.name}${shapeEnd}\n`;
   });
-  
+
   // Add edges
-  graph.edges.forEach((edge) => {
+  graph.edges.forEach(edge => {
     const arrow = edge.type === 'uses-hook' ? '-.uses.->' : '-->';
     mermaid += `  ${sanitizeId(edge.from)} ${arrow} ${sanitizeId(edge.to)}\n`;
   });
-  
+
   return mermaid;
 }
 
@@ -257,19 +277,19 @@ interface GenerateCommandOptions {
 
 export async function generateCommand(
   directory: string,
-  options: GenerateCommandOptions
+  options: GenerateCommandOptions,
 ): Promise<void> {
   const spinner = ora('Generating component library manifest...').start();
 
   try {
     // Scan and parse
-    const scanner = new ComponentScanner({ 
-      directory, 
+    const scanner = new ComponentScanner({
+      directory,
       framework: 'react',
       verbose: options.verbose || false,
     });
     const scanResult = await scanner.scan();
-    
+
     spinner.text = 'Parsing components...';
     const parseResults = await parserFactory.parseFiles(
       scanResult.files.map(f => f.path),
@@ -277,7 +297,7 @@ export async function generateCommand(
         extractDocs: options.includeDocs !== false,
         extractHooks: options.includeHooks !== false,
         extractProps: options.includeProps !== false,
-      }
+      },
     );
 
     const components = parseResults
@@ -295,7 +315,9 @@ export async function generateCommand(
         tags: c.tags || [],
         ...(options.includeProps !== false && { props: c.props }),
         ...(options.includeHooks !== false && { hooks: c.hooks }),
-        ...(options.includeDocs !== false && { documentation: c.documentation }),
+        ...(options.includeDocs !== false && {
+          documentation: c.documentation,
+        }),
       })),
     };
 
@@ -312,12 +334,17 @@ export async function generateCommand(
 
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
     console.log(chalk.cyan(`\n📊 Summary:`));
-    console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
-    console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
-
+    console.log(
+      `   Components: ${components.filter(c => c.type === 'component').length}`,
+    );
+    console.log(
+      `   Hooks: ${components.filter(c => c.type === 'hook').length}`,
+    );
   } catch (error) {
     spinner.fail(chalk.red('Generation failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }
@@ -342,7 +369,7 @@ interface ScanCommandOptions {
 
 export async function scanCommand(
   directory: string,
-  options: ScanCommandOptions
+  options: ScanCommandOptions,
 ): Promise<void> {
   const spinner = ora('Scanning for components...').start();
 
@@ -368,16 +395,12 @@ export async function scanCommand(
         extractDocs: true,
         extractHooks: true,
         extractProps: true,
-      }
+      },
     );
 
-    const components = parseResults
-      .filter(r => r.success)
-      .map(r => r.metadata);
+    const components = parseResults.filter(r => r.success).map(r => r.metadata);
 
-    spinner.succeed(
-      chalk.green(`✓ Scanned ${components.length} components`)
-    );
+    spinner.succeed(chalk.green(`✓ Scanned ${components.length} components`));
 
     // Step 3: Save results
     const outputPath = options.output || 'scan-results.json';
@@ -398,10 +421,11 @@ export async function scanCommand(
 
     writeFileSync(outputPath, JSON.stringify(output, null, 2));
     console.log(chalk.green(`💾 Results saved to ${outputPath}`));
-
   } catch (error) {
     spinner.fail(chalk.red('Scan failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
+    console.error(
+      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
+    );
     process.exit(1);
   }
 }
@@ -419,11 +443,16 @@ interface WatchCommandOptions {
   output?: string;
 }
 
-export async function watchCommand(directory: string, options: WatchCommandOptions): Promise<void> {
+export async function watchCommand(
+  directory: string,
+  options: WatchCommandOptions,
+): Promise<void> {
   console.log(chalk.blue.bold('🚀 Starting PatternBook Watcher...\n'));
   console.log(chalk.gray(`Directory: ${directory}`));
   console.log(chalk.gray(`Framework: ${options.framework || 'auto'}`));
-  console.log(chalk.gray(`Output: ${options.output || 'library-metadata.json'}\n`));
+  console.log(
+    chalk.gray(`Output: ${options.output || 'library-metadata.json'}\n`),
+  );
 
   const allMetadata: ComponentMetadata[] = [];
 
@@ -432,11 +461,13 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       directory,
       patterns: getPatternsByFramework(options.framework || 'auto'),
       verbose: options.verbose || false,
-      
-      onParse: (metadata) => {
+
+      onParse: metadata => {
         // Update or add metadata
-        const existingIndex = allMetadata.findIndex(m => m.path === metadata.path);
-        
+        const existingIndex = allMetadata.findIndex(
+          m => m.path === metadata.path,
+        );
+
         if (existingIndex >= 0) {
           allMetadata[existingIndex] = metadata;
         } else {
@@ -445,9 +476,13 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
 
         // Save to file
         saveMetadata(allMetadata, options.output || 'library-metadata.json');
-        
+
         // Log summary
-        console.log(chalk.green(`✓ ${metadata.name} parsed (${allMetadata.length} total components)`));
+        console.log(
+          chalk.green(
+            `✓ ${metadata.name} parsed (${allMetadata.length} total components)`,
+          ),
+        );
       },
 
       onError: (error, filePath) => {
@@ -455,8 +490,10 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       },
 
       onReady: () => {
-        console.log(chalk.green('✅ Watcher ready. Monitoring for changes...\n'));
-      }
+        console.log(
+          chalk.green('✅ Watcher ready. Monitoring for changes...\n'),
+        );
+      },
     });
 
     // Keep process running
@@ -466,7 +503,6 @@ export async function watchCommand(directory: string, options: WatchCommandOptio
       console.log(chalk.green('✓ Watcher stopped'));
       process.exit(0);
     });
-
   } catch (error) {
     console.error(chalk.red('Failed to start watcher:'), error);
     process.exit(1);
@@ -521,7 +557,11 @@ program
   .command('scan')
   .description('Scan project for components and hooks')
   .argument('[directory]', 'Directory to scan', '.')
-  .option('-f, --framework <framework>', 'Target framework (react|vue|svelte|auto)', 'auto')
+  .option(
+    '-f, --framework <framework>',
+    'Target framework (react|vue|svelte|auto)',
+    'auto',
+  )
   .option('-p, --pattern <pattern>', 'File pattern to match')
   .option('-e, --exclude <pattern>', 'Pattern to exclude')
   .option('--include-node-modules', 'Include node_modules in scan', false)
@@ -535,9 +575,17 @@ program
   .command('watch')
   .description('Watch for file changes and re-scan')
   .argument('[directory]', 'Directory to watch', '.')
-  .option('-f, --framework <framework>', 'Target framework (react|vue|svelte|auto)', 'auto')
+  .option(
+    '-f, --framework <framework>',
+    'Target framework (react|vue|svelte|auto)',
+    'auto',
+  )
   .option('-v, --verbose', 'Verbose output', false)
-  .option('-o, --output <file>', 'Output file for results', 'library-metadata.json')
+  .option(
+    '-o, --output <file>',
+    'Output file for results',
+    'library-metadata.json',
+  )
   .action(watchCommand);
 
 // Analyze command - Dependency analysis and impact reports
@@ -547,7 +595,11 @@ program
   .argument('[directory]', 'Directory to analyze', '.')
   .option('-t, --target <file>', 'Target file to analyze impact for')
   .option('-v, --verbose', 'Verbose output', false)
-  .option('-o, --output <file>', 'Output file for graph', 'dependency-graph.json')
+  .option(
+    '-o, --output <file>',
+    'Output file for graph',
+    'dependency-graph.json',
+  )
   .option('--format <format>', 'Output format (json|mermaid)', 'json')
   .action(analyzeCommand);
 
@@ -556,7 +608,11 @@ program
   .command('generate')
   .description('Generate complete component library manifest')
   .argument('[directory]', 'Directory to scan', '.')
-  .option('-o, --output <file>', 'Output manifest file', 'library-manifest.json')
+  .option(
+    '-o, --output <file>',
+    'Output manifest file',
+    'library-manifest.json',
+  )
   .option('--include-docs', 'Include JSDoc documentation', true)
   .option('--include-props', 'Include prop definitions', true)
   .option('--include-hooks', 'Include hook usage', true)
@@ -577,13 +633,13 @@ import { TagProcessor } from '../tag-processor.js';
  */
 export class ParserFactory {
   private parsers: Map<string, Parser> = new Map();
-  private tagProcessor = new TagProcessor() //intilize tagger 
+  private tagProcessor = new TagProcessor(); //intilize tagger
 
   constructor() {
     // Register React parser
     //const reactParser = new ReactParser();
     this.parsers.set('react', new ReactParser());
-    
+
     // Future: Register Vue and Svelte parsers
     // this.parsers.set('vue', new VueParser());
     // this.parsers.set('svelte', new SvelteParser());
@@ -614,41 +670,44 @@ export class ParserFactory {
   /**
    * Parse a single file using the appropriate parser
    */
-  async parseFile(filePath: string, options?: ParseOptions): Promise<ParseResult> {
+  async parseFile(
+    filePath: string,
+    options?: ParseOptions,
+  ): Promise<ParseResult> {
     const parser = this.getParser(filePath);
-    
+
     if (!parser) {
       return {
         success: false,
-        error: `No parser available for file: ${filePath}`
+        error: `No parser available for file: ${filePath}`,
       };
     }
-      const result = await parser.parse(filePath,options);
-      //retreive raw data from parser 
-      if (result.success && result.metadata){
-        result.metadata.tags = this.tagProcessor.process(result.metadata);
-      }
-      return result ;
+    const result = await parser.parse(filePath, options);
+    //retreive raw data from parser
+    if (result.success && result.metadata) {
+      result.metadata.tags = this.tagProcessor.process(result.metadata);
     }
+    return result;
+  }
 
-   // return parser.parse(filePath, options);
-  
+  // return parser.parse(filePath, options);
 
   /**
    * Parse multiple files
    */
-  async parseFiles(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
-    return Promise.all(
-      filePaths.map(path => this.parseFile(path, options))
-    );
+  async parseFiles(
+    filePaths: string[],
+    options?: ParseOptions,
+  ): Promise<ParseResult[]> {
+    return Promise.all(filePaths.map(path => this.parseFile(path, options)));
   }
 }
-  /**
-   * Register a custom parser
-   */
-  //registerParser(name: string, parser: Parser): void {
-  //  this.parsers.set(name, parser);
- // }
+/**
+ * Register a custom parser
+ */
+//registerParser(name: string, parser: Parser): void {
+//  this.parsers.set(name, parser);
+// }
 //}
 
 // Export singleton instance
@@ -658,136 +717,153 @@ export const parserFactory = new ParserFactory();
 <file path="core/parsers/react-parser.ts">
 import { Project, SourceFile, FunctionDeclaration } from 'ts-morph';
 import { resolve } from 'path';
-import type { Parser, ParseResult, ComponentMetadata, ParseOptions, PropMetadata, ImportInfo } from '../../types/parser.js';
+import type {
+  Parser,
+  ParseResult,
+  ComponentMetadata,
+  ParseOptions,
+  PropMetadata,
+  ImportInfo,
+} from '../../types/parser.js';
 
 // react-specific parser using ts-morph
 // refactored from jumbo-parser.ts with better structure
 
 export class ReactParser implements Parser {
-    private project: Project;
-    
-    constructor() {
-        this.project = new Project({
-            compilerOptions: {
-                jsx: 1, // JSX preserve mode
-                target: 99 // ESNext
-            },
-        });
-    };
+  private project: Project;
 
-    canParse(filePath: string): boolean {
-        return /\.(tsx|jsx|ts|js)$/.test(filePath);
-    };
+  constructor() {
+    this.project = new Project({
+      compilerOptions: {
+        jsx: 1, // JSX preserve mode
+        target: 99, // ESNext
+      },
+    });
+  }
 
-    async parse(filePath: string, options: ParseOptions = {}): Promise<ParseResult> {
-        try {
-            const sourceFile = this.project.addSourceFileAtPath(filePath);
-            // find the main exported component/hook
-            const exportedFunction = this.findExportedFunction(sourceFile);
-    
-            if (!exportedFunction) {
-                if (options.verbose)console.log(`⚠️ No exported function in ${filePath}`);
-                return {
-                    success: false,
-                    error: 'No exported function found'
-                };
-            };
-    
-            const metadata: ComponentMetadata = {
-                name: exportedFunction.getName() || 'Anonymous',
-                path: sourceFile.getFilePath(),
-                relativePath: filePath,
-                type: exportedFunction.getName()?.startsWith('use') ? 'hook': 'component',
-                exports: { named: [exportedFunction.getName()!]},
-                imports: this.extractImports(sourceFile),
-            };
+  canParse(filePath: string): boolean {
+    return /\.(tsx|jsx|ts|js)$/.test(filePath);
+  }
 
-            // extract props if requested
-            if (options.extractProps !== false) {
-                metadata.props = this.extractProps(exportedFunction);
-            };
-            
-            // extract hooks if requested
-            if (options.extractHooks !== false) {
-                metadata.hooks = this.extractHookUsage(exportedFunction);
-            };
-    
-            // extract documentation if requested
-            if (options.extractDocs) {
-                metadata.documentation = this.extractDocumentation(exportedFunction);
-            };
-    
-            return {
-                success: true,
-                metadata
-            };
-        } catch (error) {
-            return {
-                success: false,
-                error: String(error)
-            };
+  async parse(
+    filePath: string,
+    options: ParseOptions = {},
+  ): Promise<ParseResult> {
+    try {
+      const sourceFile = this.project.addSourceFileAtPath(filePath);
+      // find the main exported component/hook
+      const exportedFunction = this.findExportedFunction(sourceFile);
+
+      if (!exportedFunction) {
+        if (options.verbose)
+          console.log(`⚠️ No exported function in ${filePath}`);
+        return {
+          success: false,
+          error: 'No exported function found',
         };
-    };
+      }
 
-    private findExportedFunction(sourceFile: SourceFile): FunctionDeclaration | undefined {
-        // try to find exported function decleration first
-        const functions = sourceFile.getFunctions();
-        const exportedFunc = functions.find(f => f.isExported());
+      const metadata: ComponentMetadata = {
+        name: exportedFunction.getName() || 'Anonymous',
+        path: sourceFile.getFilePath(),
+        relativePath: filePath,
+        type: exportedFunction.getName()?.startsWith('use')
+          ? 'hook'
+          : 'component',
+        exports: { named: [exportedFunction.getName()!] },
+        imports: this.extractImports(sourceFile),
+      };
 
-        if (exportedFunc) return exportedFunc;
+      // extract props if requested
+      if (options.extractProps !== false) {
+        metadata.props = this.extractProps(exportedFunction);
+      }
 
-        // todo: handle arrow function exports, class components, etc.
-        return undefined;
-    };
+      // extract hooks if requested
+      if (options.extractHooks !== false) {
+        metadata.hooks = this.extractHookUsage(exportedFunction);
+      }
 
-    private extractProps(fn: FunctionDeclaration): PropMetadata[] {
-        const props: PropMetadata[] = [];
-        const firstParam = fn.getParameters()[0];
+      // extract documentation if requested
+      if (options.extractDocs) {
+        metadata.documentation = this.extractDocumentation(exportedFunction);
+      }
 
-        if (!firstParam) return props;
+      return {
+        success: true,
+        metadata,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: String(error),
+      };
+    }
+  }
 
-        const type = firstParam.getType();
-        const properties = type.getProperties();
+  private findExportedFunction(
+    sourceFile: SourceFile,
+  ): FunctionDeclaration | undefined {
+    // try to find exported function decleration first
+    const functions = sourceFile.getFunctions();
+    const exportedFunc = functions.find(f => f.isExported());
 
-        properties.forEach(prop => {
-            // get JSDoc for this prop
-            const jsDocs = prop.getJsDocTags();
-            const description = jsDocs.find(tag => !tag.getName())?.getText();
+    if (exportedFunc) return exportedFunc;
 
-            props.push({
-                name: prop.getName(),
-                type: prop.getTypeAtLocation(firstParam).getText(),
-                isOptional: prop.isOptional(),
-                description: description || undefined,
-            });
-        });
+    // todo: handle arrow function exports, class components, etc.
+    return undefined;
+  }
 
-        return props;
-    };
+  private extractProps(fn: FunctionDeclaration): PropMetadata[] {
+    const props: PropMetadata[] = [];
+    const firstParam = fn.getParameters()[0];
 
-    private extractImports(sourceFile: SourceFile): ImportInfo[] {
-        const imports = sourceFile.getImportDeclarations();
+    if (!firstParam) return props;
 
-        return imports.map(imp => {
-            const source = imp.getModuleSpecifierValue();
-            const specifiers = imp.getNamedImports().map(ni => ni.getName());
-            
-            // add default import if exists
-            const defaultImport = imp.getDefaultImport();
-            if (defaultImport) {
-                specifiers.unshift(defaultImport.getText());
-            };
+    const type = firstParam.getType();
+    const properties = type.getProperties();
 
-            return {
-                source,
-                specifiers,
-                isInternal: source.startsWith('.') || source.startsWith('@/'),
-            };
-        });
-    };
+    properties.forEach(prop => {
+      // get JSDoc for this prop
+      const jsDocs = prop.getJsDocTags();
+      const description = jsDocs.find(tag => !tag.getName())?.getText();
 
+      props.push({
+        name: prop.getName(),
+        type: prop.getTypeAtLocation(firstParam).getText(),
+        isOptional: prop.isOptional(),
+        description: description || undefined,
+      });
+    });
 
-    private extractExports(sourceFile: SourceFile): { default?: string; named: string[] } {
+    return props;
+  }
+
+  private extractImports(sourceFile: SourceFile): ImportInfo[] {
+    const imports = sourceFile.getImportDeclarations();
+
+    return imports.map(imp => {
+      const source = imp.getModuleSpecifierValue();
+      const specifiers = imp.getNamedImports().map(ni => ni.getName());
+
+      // add default import if exists
+      const defaultImport = imp.getDefaultImport();
+      if (defaultImport) {
+        specifiers.unshift(defaultImport.getText());
+      }
+
+      return {
+        source,
+        specifiers,
+        isInternal: source.startsWith('.') || source.startsWith('@/'),
+      };
+    });
+  }
+
+  private extractExports(sourceFile: SourceFile): {
+    default?: string;
+    named: string[];
+  } {
     const exportedDeclarations = sourceFile.getExportedDeclarations();
     const named: string[] = [];
     let defaultExport: string | undefined;
@@ -807,14 +883,17 @@ export class ReactParser implements Parser {
     return { default: defaultExport, named };
   }
 
-  private extractHookUsage(fn: FunctionDeclaration): { name: string; source?: string }[] {
+  private extractHookUsage(
+    fn: FunctionDeclaration,
+  ): { name: string; source?: string }[] {
     const hooks: { name: string; source?: string }[] = [];
     const body = fn.getBody();
-    
+
     if (!body) return hooks;
 
     // Find all identifiers that look like hooks (start with 'use')
-    body.getDescendantsOfKind(268).forEach(identifier => { // 268 = Identifier
+    body.getDescendantsOfKind(268).forEach(identifier => {
+      // 268 = Identifier
       const name = identifier.getText();
       if (name.startsWith('use') && name[3] === name[3].toUpperCase()) {
         // This looks like a hook call
@@ -836,7 +915,10 @@ export class ReactParser implements Parser {
   /**
    * Batch parse multiple files
    */
-  async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
+  async parseMany(
+    filePaths: string[],
+    options?: ParseOptions,
+  ): Promise<ParseResult[]> {
     return Promise.all(filePaths.map(path => this.parse(path, options)));
   }
 
@@ -856,7 +938,13 @@ export class ReactParser implements Parser {
 
 <file path="core/dependency-graph.ts">
 import type { ComponentMetadata } from '../types/parser.js';
-import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.js';
+import type {
+  DependencyGraph,
+  GraphNode,
+  GraphEdge,
+  GraphMetadata,
+  ImpactAnalysis,
+} from '../types/graph.js';
 
 /**
  * Builds and analyzes dependency graphs from parsed component metadata
@@ -885,7 +973,7 @@ export class DependencyGraphBuilder {
     return {
       nodes: Array.from(this.nodes.values()),
       edges: this.edges,
-      metadata: this.calculateMetadata()
+      metadata: this.calculateMetadata(),
     };
   }
 
@@ -902,13 +990,20 @@ export class DependencyGraphBuilder {
     this.nodes.set(component.path, node);
   }
 
-  private addEdges(component: ComponentMetadata, allComponents: ComponentMetadata[]): void {
+  private addEdges(
+    component: ComponentMetadata,
+    allComponents: ComponentMetadata[],
+  ): void {
     const internalImports = component.imports.filter(imp => imp.isInternal);
 
     internalImports.forEach(imp => {
       // Find the target component by matching import source
-      const targetComponent = this.findComponentByImport(imp.source, component.path, allComponents);
-      
+      const targetComponent = this.findComponentByImport(
+        imp.source,
+        component.path,
+        allComponents,
+      );
+
       if (targetComponent) {
         this.edges.push({
           from: component.path,
@@ -922,8 +1017,10 @@ export class DependencyGraphBuilder {
     if (component.hooks) {
       component.hooks.forEach(hook => {
         // Find if this hook is defined in our codebase
-        const hookComponent = allComponents.find(c => c.name === hook.name && c.type === 'hook');
-        
+        const hookComponent = allComponents.find(
+          c => c.name === hook.name && c.type === 'hook',
+        );
+
         if (hookComponent) {
           this.edges.push({
             from: component.path,
@@ -938,22 +1035,28 @@ export class DependencyGraphBuilder {
   private findComponentByImport(
     importPath: string,
     fromPath: string,
-    allComponents: ComponentMetadata[]
+    allComponents: ComponentMetadata[],
   ): ComponentMetadata | undefined {
     // Simplified: match by component name in the import path
     // TODO: Implement proper path resolution
-    
-    const importName = importPath.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '');
-    
-    return allComponents.find(c => 
-      c.name === importName || 
-      c.path.includes(importPath)
+
+    const importName = importPath
+      .split('/')
+      .pop()
+      ?.replace(/\.(tsx?|jsx?)$/, '');
+
+    return allComponents.find(
+      c => c.name === importName || c.path.includes(importPath),
     );
   }
 
   private calculateMetadata(): GraphMetadata {
-    const components = Array.from(this.nodes.values()).filter(n => n.type === 'component');
-    const hooks = Array.from(this.nodes.values()).filter(n => n.type === 'hook');
+    const components = Array.from(this.nodes.values()).filter(
+      n => n.type === 'component',
+    );
+    const hooks = Array.from(this.nodes.values()).filter(
+      n => n.type === 'hook',
+    );
 
     return {
       totalNodes: this.nodes.size,
@@ -981,8 +1084,11 @@ export class DependencyGraphBuilder {
    */
   analyzeImpact(targetPath: string): ImpactAnalysis {
     const directDependents = this.findDirectDependents(targetPath);
-    const indirectDependents = this.findIndirectDependents(targetPath, directDependents);
-    
+    const indirectDependents = this.findIndirectDependents(
+      targetPath,
+      directDependents,
+    );
+
     const allAffected = [...directDependents, ...indirectDependents];
     const affectedComponents = allAffected
       .map(path => this.nodes.get(path))
@@ -1010,7 +1116,10 @@ export class DependencyGraphBuilder {
   /**
    * Find all files that depend on the direct dependents (recursive)
    */
-  private findIndirectDependents(targetPath: string, directDependents: string[]): string[] {
+  private findIndirectDependents(
+    targetPath: string,
+    directDependents: string[],
+  ): string[] {
     const indirect = new Set<string>();
     const visited = new Set([targetPath, ...directDependents]);
 
@@ -1059,11 +1168,15 @@ export class DependencyGraphBuilder {
    * Export graph in various formats
    */
   toJSON(): string {
-    return JSON.stringify({
-      nodes: Array.from(this.nodes.values()),
-      edges: this.edges,
-      metadata: this.calculateMetadata(),
-    }, null, 2);
+    return JSON.stringify(
+      {
+        nodes: Array.from(this.nodes.values()),
+        edges: this.edges,
+        metadata: this.calculateMetadata(),
+      },
+      null,
+      2,
+    );
   }
 }
 </file>
@@ -1073,284 +1186,339 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 export interface GraphData {
-    name: string; // e.g., 'DEPENDENCY_GRAPH'
-    title: string; // e.g., 'Dependency Graph'
-    content: string; // Mermaid code
+  name: string; // e.g., 'DEPENDENCY_GRAPH'
+  title: string; // e.g., 'Dependency Graph'
+  content: string; // Mermaid code
 }
 
 export class Exporter {
-    /**
-     * Updates the README file at the target path with the provided graphs.
-     * @param targetPath Path to the README file or the directory containing it.
-     * @param graphs List of graphs to inject.
-     */
-    static updateReadme(targetPath: string, graphs: GraphData[]): void {
-        let readmePath = targetPath;
+  /**
+   * Updates the README file at the target path with the provided graphs.
+   * @param targetPath Path to the README file or the directory containing it.
+   * @param graphs List of graphs to inject.
+   */
+  static updateReadme(targetPath: string, graphs: GraphData[]): void {
+    let readmePath = targetPath;
 
-        // If target is a directory, look for README.md
-        if (fs.existsSync(targetPath) && fs.lstatSync(targetPath).isDirectory()) {
-            readmePath = path.join(targetPath, 'README.md');
-        }
-
-        if (!fs.existsSync(readmePath)) {
-            console.warn(`⚠️ README.md not found at ${readmePath}. Skipping update.`);
-            return;
-        }
-
-        let readmeContent = fs.readFileSync(readmePath, 'utf8');
-        let hasUpdates = false;
-
-        graphs.forEach(graph => {
-            const startMarker = `<!-- ${graph.name}-START -->`;
-            const endMarker = `<!-- ${graph.name}-END -->`;
-            const mermaidBlock = `\n\`\`\`mermaid\n${graph.content.trim()}\n\`\`\`\n`;
-            
-            const sectionContent = `${startMarker}\n#### ${graph.title}\n${mermaidBlock}${endMarker}`;
-
-            // Regex to find existing block
-            const regex = new RegExp(`${startMarker}[\\s\\S]*?${endMarker}`, 'g');
-            
-            if (regex.test(readmeContent)) {
-                // Replace existing block
-                readmeContent = readmeContent.replace(regex, sectionContent);
-                hasUpdates = true;
-            } else {
-                // Append to end if not found
-                // Check if we can replace an old image link first (backward compatibility)
-                const imageLinkRegex = new RegExp(`#### ${graph.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?!\\[.*?\]\\(.*?\\)`, 'g');
-                
-                if (imageLinkRegex.test(readmeContent)) {
-                     readmeContent = readmeContent.replace(imageLinkRegex, sectionContent);
-                     hasUpdates = true;
-                } else {
-                    readmeContent += `\n\n${sectionContent}`;
-                    hasUpdates = true;
-                }
-            }
-        });
-
-        if (hasUpdates) {
-            fs.writeFileSync(readmePath, readmeContent);
-            console.log(`✅ Updated README at ${readmePath}`);
-        } else {
-            console.log(`No changes needed for ${readmePath}`);
-        }
+    // If target is a directory, look for README.md
+    if (fs.existsSync(targetPath) && fs.lstatSync(targetPath).isDirectory()) {
+      readmePath = path.join(targetPath, 'README.md');
     }
+
+    if (!fs.existsSync(readmePath)) {
+      console.warn(`⚠️ README.md not found at ${readmePath}. Skipping update.`);
+      return;
+    }
+
+    let readmeContent = fs.readFileSync(readmePath, 'utf8');
+    let hasUpdates = false;
+
+    graphs.forEach(graph => {
+      const startMarker = `<!-- ${graph.name}-START -->`;
+      const endMarker = `<!-- ${graph.name}-END -->`;
+      const mermaidBlock = `\n\`\`\`mermaid\n${graph.content.trim()}\n\`\`\`\n`;
+
+      const sectionContent = `${startMarker}\n#### ${graph.title}\n${mermaidBlock}${endMarker}`;
+
+      // Regex to find existing block
+      const regex = new RegExp(`${startMarker}[\\s\\S]*?${endMarker}`, 'g');
+
+      if (regex.test(readmeContent)) {
+        // Replace existing block
+        readmeContent = readmeContent.replace(regex, sectionContent);
+        hasUpdates = true;
+      } else {
+        // Append to end if not found
+        // Check if we can replace an old image link first (backward compatibility)
+        const imageLinkRegex = new RegExp(
+          `#### ${graph.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?!\\[.*?\]\\(.*?\\)`,
+          'g',
+        );
+
+        if (imageLinkRegex.test(readmeContent)) {
+          readmeContent = readmeContent.replace(imageLinkRegex, sectionContent);
+          hasUpdates = true;
+        } else {
+          readmeContent += `\n\n${sectionContent}`;
+          hasUpdates = true;
+        }
+      }
+    });
+
+    if (hasUpdates) {
+      fs.writeFileSync(readmePath, readmeContent);
+      console.log(`✅ Updated README at ${readmePath}`);
+    } else {
+      console.log(`No changes needed for ${readmePath}`);
+    }
+  }
 }
 </file>
 
 <file path="core/parser.ts">
-import { Project, SourceFile, SyntaxKind, CallExpression, FunctionDeclaration, ArrowFunction, VariableDeclaration, JSDoc } from 'ts-morph';
-
+import {
+  Project,
+  SourceFile,
+  SyntaxKind,
+  CallExpression,
+  FunctionDeclaration,
+  ArrowFunction,
+  VariableDeclaration,
+  JSDoc,
+} from 'ts-morph';
 
 export interface ApiCall {
-    url: string;
-    method: string;
+  url: string;
+  method: string;
 }
 
 export interface FunctionCall {
-    name: string;
-    args: string[];
+  name: string;
+  args: string[];
 }
 
 export interface FunctionDef {
-    name: string;
-    calls: FunctionCall[];
+  name: string;
+  calls: FunctionCall[];
 }
 
 export interface ComponentProp {
-    name: string;
-    type: string;
-    required: boolean;
+  name: string;
+  type: string;
+  required: boolean;
 }
 
 export interface ParsedFile {
-    filePath: string;
-    imports: string[];
-    apiCalls: ApiCall[];
-    functions: FunctionDef[];
-    props: ComponentProp[];
-    documentation: string;
+  filePath: string;
+  imports: string[];
+  apiCalls: ApiCall[];
+  functions: FunctionDef[];
+  props: ComponentProp[];
+  documentation: string;
 }
 
 export class CodeParser {
-    private project: Project;
+  private project: Project;
 
-    constructor() {
-        this.project = new Project({
-            skipAddingFilesFromTsConfig: true,
-        });
+  constructor() {
+    this.project = new Project({
+      skipAddingFilesFromTsConfig: true,
+    });
+  }
+
+  parseFile(filePath: string): ParsedFile {
+    // Check if file is already in project to avoid "Duplicate identifier" errors
+    let sourceFile = this.project.getSourceFile(filePath);
+    if (sourceFile) {
+      sourceFile.refreshFromFileSystemSync(); // Reload content
+    } else {
+      sourceFile = this.project.addSourceFileAtPath(filePath);
     }
 
-    parseFile(filePath: string): ParsedFile {
-        // Check if file is already in project to avoid "Duplicate identifier" errors
-        let sourceFile = this.project.getSourceFile(filePath);
-        if (sourceFile) {
-            sourceFile.refreshFromFileSystemSync(); // Reload content
-        } else {
-            sourceFile = this.project.addSourceFileAtPath(filePath);
+    return {
+      filePath: filePath,
+      imports: this.getImports(sourceFile),
+      apiCalls: this.getApiCalls(sourceFile),
+      functions: this.getFunctions(sourceFile),
+      props: this.getProps(sourceFile),
+      documentation: this.getDocumentation(sourceFile),
+    };
+  }
+
+  private getImports(file: SourceFile): string[] {
+    return file
+      .getImportDeclarations()
+      .map(dec => dec.getModuleSpecifierValue())
+      .filter(path => path.startsWith('.') || path.startsWith('@/'));
+  }
+
+  private getApiCalls(file: SourceFile): ApiCall[] {
+    const apiCalls: ApiCall[] = [];
+
+    // Find all 'fetch' calls
+    const calls = file.getDescendantsOfKind(SyntaxKind.CallExpression);
+
+    calls.forEach(call => {
+      const expression = call.getExpression();
+      if (expression.getText() === 'fetch') {
+        apiCalls.push(this.analyzeFetch(call));
+      }
+    });
+
+    return apiCalls;
+  }
+
+  private getFunctions(file: SourceFile): FunctionDef[] {
+    const functions: FunctionDef[] = [];
+
+    // 1. Standard function declarations: function foo() {}
+    file.getFunctions().forEach(func => {
+      const name = func.getName();
+      if (name) {
+        functions.push({
+          name,
+          calls: this.findCallsInBlock(func),
+        });
+      }
+    });
+
+    // 2. Arrow functions / Variable declarations: const foo = () => {}
+    file.getVariableDeclarations().forEach(variable => {
+      const name = variable.getName();
+      const initializer = variable.getInitializer();
+
+      if (
+        initializer &&
+        (initializer.isKind(SyntaxKind.ArrowFunction) ||
+          initializer.isKind(SyntaxKind.FunctionExpression))
+      ) {
+        functions.push({
+          name,
+          calls: this.findCallsInBlock(initializer as any), // Cast because both have getDescendantsOfKind
+        });
+      }
+    });
+
+    return functions;
+  }
+
+  private findCallsInBlock(node: {
+    getDescendantsOfKind: (kind: SyntaxKind) => any[];
+  }): FunctionCall[] {
+    const calls: FunctionCall[] = [];
+    const callExpressions = node.getDescendantsOfKind(
+      SyntaxKind.CallExpression,
+    ) as CallExpression[];
+
+    callExpressions.forEach(call => {
+      const expression = call.getExpression();
+      const name = expression.getText();
+
+      // Filter out common noise (console.log, etc) if desired
+      if (!name.startsWith('console.')) {
+        calls.push({
+          name: name.split('.').pop() || name, // Simplify 'obj.method' to 'method'
+          args: call.getArguments().map(arg => arg.getText()),
+        });
+      }
+    });
+
+    return calls;
+  }
+
+  private analyzeFetch(call: CallExpression): ApiCall {
+    const args = call.getArguments();
+    let url = 'unknown';
+    let method = 'GET'; // Default for fetch
+
+    // 1. Get URL (first argument)
+    if (args.length > 0) {
+      // Remove quotes if it's a string literal
+      url = args[0].getText().replace(/^['"`]|['"`]$/g, '');
+    }
+
+    // 2. Get Method (second argument options object)
+    if (args.length > 1) {
+      const optionsArg = args[1];
+      if (optionsArg.getKind() === SyntaxKind.ObjectLiteralExpression) {
+        const methodProp = optionsArg
+          .asKind(SyntaxKind.ObjectLiteralExpression)
+          ?.getProperty('method');
+
+        if (methodProp && methodProp.isKind(SyntaxKind.PropertyAssignment)) {
+          method =
+            methodProp
+              .getInitializer()
+              ?.getText()
+              .replace(/^['"`]|['"`]$/g, '') || 'GET';
         }
-
-        return {
-            filePath: filePath,
-            imports: this.getImports(sourceFile),
-            apiCalls: this.getApiCalls(sourceFile),
-            functions: this.getFunctions(sourceFile),
-            props: this.getProps(sourceFile),
-            documentation: this.getDocumentation(sourceFile)
-        };
+      }
     }
 
-    private getImports(file: SourceFile): string[] {
-        return file.getImportDeclarations()
-            .map(dec => dec.getModuleSpecifierValue())
-            .filter(path => path.startsWith('.') || path.startsWith('@/'));
+    return { url, method };
+  }
+
+  private getProps(file: SourceFile): ComponentProp[] {
+    const props: ComponentProp[] = [];
+
+    // Find the main exported component (heuristic: exported function)
+    const component =
+      file.getFunctions().find(f => f.isExported()) ||
+      file
+        .getVariableDeclarations()
+        .find(
+          v =>
+            v.isExported() &&
+            (v.getInitializer()?.isKind(SyntaxKind.ArrowFunction) ||
+              v.getInitializer()?.isKind(SyntaxKind.FunctionExpression)),
+        );
+
+    if (!component) return props;
+
+    let params: any[] = [];
+    if (component.getKind() === SyntaxKind.FunctionDeclaration) {
+      params = (component as FunctionDeclaration).getParameters();
+    } else if (component.getKind() === SyntaxKind.VariableDeclaration) {
+      const initializer = (component as VariableDeclaration).getInitializer();
+      if (
+        initializer &&
+        (initializer.isKind(SyntaxKind.ArrowFunction) ||
+          initializer.isKind(SyntaxKind.FunctionExpression))
+      ) {
+        params = (initializer as ArrowFunction).getParameters();
+      }
     }
 
-    private getApiCalls(file: SourceFile): ApiCall[] {
-        const apiCalls: ApiCall[] = [];
-        
-        // Find all 'fetch' calls
-        const calls = file.getDescendantsOfKind(SyntaxKind.CallExpression);
-        
-        calls.forEach(call => {
-            const expression = call.getExpression();
-            if (expression.getText() === 'fetch') {
-                apiCalls.push(this.analyzeFetch(call));
-            }
-        });
+    if (params.length > 0) {
+      const firstParam = params[0];
+      const type = firstParam.getType();
 
-        return apiCalls;
-    }
-
-    private getFunctions(file: SourceFile): FunctionDef[] {
-        const functions: FunctionDef[] = [];
-
-        // 1. Standard function declarations: function foo() {}
-        file.getFunctions().forEach(func => {
-            const name = func.getName();
-            if (name) {
-                functions.push({
-                    name,
-                    calls: this.findCallsInBlock(func)
-                });
-            }
-        });
-
-        // 2. Arrow functions / Variable declarations: const foo = () => {}
-        file.getVariableDeclarations().forEach(variable => {
-            const name = variable.getName();
-            const initializer = variable.getInitializer();
-            
-            if (initializer && (initializer.isKind(SyntaxKind.ArrowFunction) || initializer.isKind(SyntaxKind.FunctionExpression))) {
-                functions.push({
-                    name,
-                    calls: this.findCallsInBlock(initializer as any) // Cast because both have getDescendantsOfKind
-                });
-            }
-        });
-
-        return functions;
-    }
-
-    private findCallsInBlock(node: { getDescendantsOfKind: (kind: SyntaxKind) => any[] }): FunctionCall[] {
-        const calls: FunctionCall[] = [];
-        const callExpressions = node.getDescendantsOfKind(SyntaxKind.CallExpression) as CallExpression[];
-
-        callExpressions.forEach(call => {
-            const expression = call.getExpression();
-            const name = expression.getText();
-            
-            // Filter out common noise (console.log, etc) if desired
-            if (!name.startsWith('console.')) {
-                calls.push({
-                    name: name.split('.').pop() || name, // Simplify 'obj.method' to 'method'
-                    args: call.getArguments().map(arg => arg.getText())
-                });
-            }
-        });
-
-        return calls;
-    }
-
-    private analyzeFetch(call: CallExpression): ApiCall {
-        const args = call.getArguments();
-        let url = 'unknown';
-        let method = 'GET'; // Default for fetch
-
-        // 1. Get URL (first argument)
-        if (args.length > 0) {
-            // Remove quotes if it's a string literal
-            url = args[0].getText().replace(/^['"`]|['"`]$/g, '');
-        }
-
-        // 2. Get Method (second argument options object)
-        if (args.length > 1) {
-            const optionsArg = args[1];
-            if (optionsArg.getKind() === SyntaxKind.ObjectLiteralExpression) {
-                const methodProp = optionsArg.asKind(SyntaxKind.ObjectLiteralExpression)
-                    ?.getProperty('method');
-                
-                if (methodProp && methodProp.isKind(SyntaxKind.PropertyAssignment)) {
-                    method = methodProp.getInitializer()?.getText().replace(/^['"`]|['"`]$/g, '') || 'GET';
-                }
-            }
-        }
-
-        return { url, method };
-    }
-
-    private getProps(file: SourceFile): ComponentProp[] {
-        const props: ComponentProp[] = [];
-        
-        // Find the main exported component (heuristic: exported function)
-        const component = file.getFunctions().find(f => f.isExported()) || 
-                          file.getVariableDeclarations().find(v => v.isExported() && 
-                          (v.getInitializer()?.isKind(SyntaxKind.ArrowFunction) || v.getInitializer()?.isKind(SyntaxKind.FunctionExpression)));
-
-        if (!component) return props;
-
-        let params: any[] = [];
-        if (component.getKind() === SyntaxKind.FunctionDeclaration) {
-            params = (component as FunctionDeclaration).getParameters();
-        } else if (component.getKind() === SyntaxKind.VariableDeclaration) {
-            const initializer = (component as VariableDeclaration).getInitializer();
-            if (initializer && (initializer.isKind(SyntaxKind.ArrowFunction) || initializer.isKind(SyntaxKind.FunctionExpression))) {
-                params = (initializer as ArrowFunction).getParameters();
-            }
-        }
-
-        if (params.length > 0) {
-            const firstParam = params[0];
-            const type = firstParam.getType();
-            
-            type.getProperties().forEach((prop: { getDeclarations: () => any[]; getName: () => any; isOptional: () => any; }) => {
-                const declaration = prop.getDeclarations()[0];
-                props.push({
-                    name: prop.getName(),
-                    type: declaration ? declaration.getType().getText() : 'any',
-                    required: !prop.isOptional()
-                });
+      type
+        .getProperties()
+        .forEach(
+          (prop: {
+            getDeclarations: () => any[];
+            getName: () => any;
+            isOptional: () => any;
+          }) => {
+            const declaration = prop.getDeclarations()[0];
+            props.push({
+              name: prop.getName(),
+              type: declaration ? declaration.getType().getText() : 'any',
+              required: !prop.isOptional(),
             });
-        }
-
-        return props;
+          },
+        );
     }
 
-    private getDocumentation(file: SourceFile): string {
-        // Find the main exported component
-        const component = file.getFunctions().find(f => f.isExported()) || 
-                          file.getVariableDeclarations().find(v => v.isExported());
+    return props;
+  }
 
-        if (component) {
-            // Get JSDoc comments
-            const jsDocs = (component as any).getJsDocs?.() as JSDoc[];
-            if (jsDocs && jsDocs.length > 0) {
-                return jsDocs.map(doc => doc.getDescription() + '\n' + doc.getTags().map(t => `@${t.getTagName()} ${t.getComment() || ''}`).join('\n')).join('\n');
-            }
-        }
-        return '';
+  private getDocumentation(file: SourceFile): string {
+    // Find the main exported component
+    const component =
+      file.getFunctions().find(f => f.isExported()) ||
+      file.getVariableDeclarations().find(v => v.isExported());
+
+    if (component) {
+      // Get JSDoc comments
+      const jsDocs = (component as any).getJsDocs?.() as JSDoc[];
+      if (jsDocs && jsDocs.length > 0) {
+        return jsDocs
+          .map(
+            doc =>
+              doc.getDescription() +
+              '\n' +
+              doc
+                .getTags()
+                .map(t => `@${t.getTagName()} ${t.getComment() || ''}`)
+                .join('\n'),
+          )
+          .join('\n');
+      }
     }
+    return '';
+  }
 }
 </file>
 
@@ -1381,22 +1549,11 @@ export const FRAMEWORK_PATTERNS = {
       '**/components/**/*.{js,ts}',
       '**/composables/**/*.{js,ts}',
     ],
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
+    exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
   },
   svelte: {
-    include: [
-      '**/*.svelte',
-      '**/components/**/*.{js,ts}',
-    ],
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
+    include: ['**/*.svelte', '**/components/**/*.{js,ts}'],
+    exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
   },
 } as const;
 
@@ -1420,7 +1577,9 @@ export const DEFAULT_INCLUDE_PATTERNS = [
   '**/composables/**/*.{js,ts}',
 ];
 
-export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'auto') {
+export function getFrameworkPatterns(
+  framework: 'react' | 'vue' | 'svelte' | 'auto',
+) {
   if (framework === 'auto') {
     // For auto-detection, we'll use a combination of all patterns
     return {
@@ -1428,7 +1587,7 @@ export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'au
       exclude: DEFAULT_EXCLUDE_PATTERNS,
     };
   }
-  
+
   return {
     include: FRAMEWORK_PATTERNS[framework].include,
     exclude: [
@@ -1448,94 +1607,96 @@ import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
 import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
 
 export class ComponentScanner {
-    private options: Required<ScanOptions>;
+  private options: Required<ScanOptions>;
 
-    constructor(options: ScanOptions) {
-        this.options = this.normalizeOptions(options);
+  constructor(options: ScanOptions) {
+    this.options = this.normalizeOptions(options);
+  }
+
+  private normalizeOptions(options: ScanOptions): Required<ScanOptions> {
+    const frameworkPatterns = getFrameworkPatterns(options.framework || 'auto');
+
+    return {
+      directory: resolve(options.directory || process.cwd()),
+      pattern: options.pattern || frameworkPatterns.include,
+      exclude: options.exclude || frameworkPatterns.exclude,
+      includeNodeModules: options.includeNodeModules ?? false,
+      respectGitignore: options.respectGitignore ?? true,
+      framework: options.framework || 'auto',
+      verbose: options.verbose ?? false,
     };
+  }
 
-    private normalizeOptions(options: ScanOptions): Required<ScanOptions> {
-        const frameworkPatterns = getFrameworkPatterns(options.framework || 'auto');
+  async scan(): Promise<ScanResult> {
+    const startTime = Date.now();
+    const ignoreHandler = new IgnoreHandler(
+      this.options.directory,
+      this.options.respectGitignore,
+    );
 
-        return {
-            directory: resolve(options.directory || process.cwd()),
-            pattern: options.pattern || frameworkPatterns.include,
-            exclude: options.exclude || frameworkPatterns.exclude,
-            includeNodeModules: options.includeNodeModules ?? false,
-            respectGitignore: options.respectGitignore ?? true,
-            framework: options.framework || 'auto',
-            verbose: options.verbose ?? false
-        };
+    // build exclude patterns
+    const excludePatterns = [...this.options.exclude];
+    if (!this.options.includeNodeModules) {
+      excludePatterns.push('**/node_modules/**');
+    }
+
+    if (this.options.verbose) {
+      console.log('Scanning with patterns:', this.options.pattern);
+      console.log('Excluding:', excludePatterns);
+    }
+
+    // scan for files using fast-glob
+    const foundFiles = await fg(this.options.pattern, {
+      cwd: this.options.directory,
+      ignore: excludePatterns,
+      absolute: false,
+      onlyFiles: true,
+      followSymbolicLinks: false,
+    });
+
+    // filter using gitignore if enabled
+    const filteredFiles = this.options.respectGitignore
+      ? ignoreHandler.filter(foundFiles)
+      : foundFiles;
+
+    // convert to ComponentFile objects
+    const componentFiles: ComponentFile[] = filteredFiles.map(file => {
+      const absolutePath = resolve(this.options.directory, file);
+      const stats = statSync(absolutePath);
+
+      return {
+        path: absolutePath,
+        relativePath: file,
+        name: basename(file),
+        extension: extname(file),
+        directory: dirname(file),
+        size: stats.size,
+      };
+    });
+
+    const scanDuration = Date.now() - startTime;
+
+    return {
+      files: componentFiles,
+      stats: {
+        totalFiles: componentFiles.length,
+        totalDirectories: new Set(componentFiles.map(f => f.directory)).size,
+        scanDuration,
+        filesScanned: componentFiles.length,
+        filesIgnored: foundFiles.length - filteredFiles.length,
+      },
+      config: this.options,
     };
-
-    async scan(): Promise<ScanResult> {
-        const startTime = Date.now();
-        const ignoreHandler = new IgnoreHandler(
-            this.options.directory,
-            this.options.respectGitignore
-        );
-
-        // build exclude patterns
-        const excludePatterns = [...this.options.exclude];
-        if (!this.options.includeNodeModules) {
-            excludePatterns.push('**/node_modules/**');
-        };
-
-        if (this.options.verbose) {
-            console.log('Scanning with patterns:', this.options.pattern);
-            console.log('Excluding:', excludePatterns);
-        };
-
-        // scan for files using fast-glob
-        const foundFiles = await fg(this.options.pattern, {
-            cwd: this.options.directory,
-            ignore: excludePatterns,
-            absolute: false,
-            onlyFiles: true,
-            followSymbolicLinks: false
-        });
-
-        // filter using gitignore if enabled
-        const filteredFiles = this.options.respectGitignore
-        ? ignoreHandler.filter(foundFiles)
-        : foundFiles;
-
-        // convert to ComponentFile objects
-        const componentFiles: ComponentFile[] = filteredFiles.map(file => {
-            const absolutePath = resolve(this.options.directory, file);
-            const stats = statSync(absolutePath);
-
-            return {
-                path: absolutePath,
-                relativePath: file,
-                name: basename(file),
-                extension: extname(file),
-                directory: dirname(file),
-                size: stats.size
-            };
-        });
-
-        const scanDuration = Date.now() - startTime;
-
-        return {
-            files: componentFiles,
-            stats: {
-                totalFiles: componentFiles.length,
-                totalDirectories: new Set(componentFiles.map(f => f.directory)).size,
-                scanDuration,
-                filesScanned: componentFiles.length,
-                filesIgnored: foundFiles.length - filteredFiles.length
-            },
-            config: this.options,
-        };
-    };
-};
+  }
+}
 
 // convenience function for quick scanning
-export async function scanForComponents(options: ScanOptions): Promise<ScanResult> {
-    const scanner = new ComponentScanner(options);
-    return scanner.scan();
-};
+export async function scanForComponents(
+  options: ScanOptions,
+): Promise<ScanResult> {
+  const scanner = new ComponentScanner(options);
+  return scanner.scan();
+}
 </file>
 
 <file path="core/tag-processor.ts">
@@ -1563,7 +1724,7 @@ export class TagProcessor {
     }
 
     // 3. Process Path (Structural)
-    const lowerPath = (metadata.path || "").toLowerCase();
+    const lowerPath = (metadata.path || '').toLowerCase();
     if (lowerPath.includes('fixtures/') || lowerPath.includes('ui/')) {
       tags.add('design-system');
     }
@@ -1620,31 +1781,31 @@ export class ComponentWatcher {
    * Start watching for file changes
    */
   async start(): Promise<void> {
-  // Watch the directory directly, not with patterns + cwd
-  this.watcher = chokidar.watch(this.options.directory, {
-    ignored: [
-      '**/node_modules/**',
-      '**/.git/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/*.test.*',
-      '**/*.spec.*',
-      ...(this.options.ignored || []),
-    ],
-    persistent: true,
-    ignoreInitial: false,
-    depth: 10,  // Reasonable depth limit
-  });
+    // Watch the directory directly, not with patterns + cwd
+    this.watcher = chokidar.watch(this.options.directory, {
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/*.test.*',
+        '**/*.spec.*',
+        ...(this.options.ignored || []),
+      ],
+      persistent: true,
+      ignoreInitial: false,
+      depth: 10, // Reasonable depth limit
+    });
 
-  this.watcher
-    .on('ready', () => {
-      this.log('✅ Watcher ready. Monitoring for changes...');
-      this.options.onReady?.();
-    })
-    .on('add', (path) => this.handleFileChange('add', path))
-    .on('change', (path) => this.handleFileChange('change', path))
-    .on('unlink', (path) => this.handleFileDelete(path));
-  };
+    this.watcher
+      .on('ready', () => {
+        this.log('✅ Watcher ready. Monitoring for changes...');
+        this.options.onReady?.();
+      })
+      .on('add', path => this.handleFileChange('add', path))
+      .on('change', path => this.handleFileChange('change', path))
+      .on('unlink', path => this.handleFileDelete(path));
+  }
 
   /**
    * Stop watching
@@ -1657,7 +1818,10 @@ export class ComponentWatcher {
     }
   }
 
-  private async handleFileChange(event: 'add' | 'change', filePath: string): Promise<void> {
+  private async handleFileChange(
+    event: 'add' | 'change',
+    filePath: string,
+  ): Promise<void> {
     // Skip non-component files
     if (!this.isComponentFile(filePath)) return;
 
@@ -1669,17 +1833,20 @@ export class ComponentWatcher {
       if (result.success && result.metadata) {
         this.components.set(filePath, result.metadata);
         this.options.onParse?.(result.metadata);
-        
+
         // Rebuild graph
         this.rebuildGraph();
-        
+
         // Analyze impact if this was a change (not initial add)
         if (event === 'change') {
           this.analyzeImpact(filePath);
         }
       } else {
         this.logError(`Failed to parse ${filePath}: ${result.error}`);
-        this.options.onError?.(new Error(result.error || 'Unknown error'), filePath);
+        this.options.onError?.(
+          new Error(result.error || 'Unknown error'),
+          filePath,
+        );
       }
     } catch (error) {
       this.logError(`Error parsing ${filePath}:`, error);
@@ -1698,34 +1865,38 @@ export class ComponentWatcher {
   private rebuildGraph(): void {
     const allComponents = Array.from(this.components.values());
     const graph = this.graphBuilder.buildGraph(allComponents);
-    
+
     if (this.options.verbose) {
-      this.log(`📊 Graph rebuilt: ${graph.nodes.length} nodes, ${graph.edges.length} edges`);
+      this.log(
+        `📊 Graph rebuilt: ${graph.nodes.length} nodes, ${graph.edges.length} edges`,
+      );
     }
   }
 
   private analyzeImpact(filePath: string): void {
     const impact = this.graphBuilder.analyzeImpact(filePath);
-    
+
     if (impact.directDependents.length > 0) {
       this.log(`\n⚠️  Change Impact for ${filePath}:`);
       this.log(`   Risk Level: ${impact.riskLevel.toUpperCase()}`);
       this.log(`   Direct dependents: ${impact.directDependents.length}`);
       this.log(`   Indirect dependents: ${impact.indirectDependents.length}`);
-      
+
       if (this.options.verbose && impact.affectedComponents.length > 0) {
-        this.log(`   Affected components: ${impact.affectedComponents.join(', ')}`);
+        this.log(
+          `   Affected components: ${impact.affectedComponents.join(', ')}`,
+        );
       }
     }
   }
 
   private isComponentFile(filePath: string): boolean {
-  // Match the patterns we care about
-  const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
-  
-  // Simple extension check
-  return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
-  };
+    // Match the patterns we care about
+    const patterns = this.options.patterns || ['**/*.{tsx,jsx,vue,svelte}'];
+
+    // Simple extension check
+    return /\.(tsx|jsx|vue|svelte)$/.test(filePath);
+  }
 
   private log(message: string): void {
     const timestamp = new Date().toLocaleTimeString();
@@ -1761,10 +1932,14 @@ export async function watch(options: WatchOptions): Promise<ComponentWatcher> {
 <file path="scripts/test-run.ts">
 import { ComponentWatcher } from '../core/watcher.ts';
 import { CodeParser } from '../core/parser.ts';
-import { generateMermaid, generateCallGraph, convertParsedFilesToGraph } from './visualizer.ts';
+import {
+  generateMermaid,
+  generateCallGraph,
+  convertParsedFilesToGraph,
+} from './visualizer.ts';
 import { Exporter } from '../core/exporter.ts';
-import * as path from "node:path";
-import * as fs from "node:fs";
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1772,7 +1947,9 @@ const __dirname = path.dirname(__filename);
 
 // CLI Args
 const args = process.argv.slice(2);
-const scanPath = args[0] ? path.resolve(process.cwd(), args[0]) : path.resolve(__dirname, '../test/fixtures');
+const scanPath = args[0]
+  ? path.resolve(process.cwd(), args[0])
+  : path.resolve(__dirname, '../test/fixtures');
 // Default README path is the scan path itself (Exporter will look for README.md inside)
 let readmePath = args[1] ? path.resolve(process.cwd(), args[1]) : scanPath;
 
@@ -1788,60 +1965,63 @@ const codeParser = new CodeParser();
 
 // Initialize Watcher
 const watcher = new ComponentWatcher({
-    directory: scanPath,
-    verbose: true,
-    onReady: async () => {
-        console.log('Watcher ready. Generating initial graphs...');
-        await updateVisuals();
-        if (!isWatchMode) {
-            console.log('Scan complete. Exiting.');
-            await watcher.stop();
-            process.exit(0);
-        }
-    },
-    onParse: async (metadata) => {
-        console.log(`File changed: ${metadata.relativePath}. Updating graphs...`);
-        await updateVisuals();
-    },
-    onError: (err) => console.error('Watcher error:', err)
+  directory: scanPath,
+  verbose: true,
+  onReady: async () => {
+    console.log('Watcher ready. Generating initial graphs...');
+    await updateVisuals();
+    if (!isWatchMode) {
+      console.log('Scan complete. Exiting.');
+      await watcher.stop();
+      process.exit(0);
+    }
+  },
+  onParse: async metadata => {
+    console.log(`File changed: ${metadata.relativePath}. Updating graphs...`);
+    await updateVisuals();
+  },
+  onError: err => console.error('Watcher error:', err),
 });
 
 async function updateVisuals() {
-    try {
-        // 1. Get files from Watcher
-        const components = watcher.getComponents();
-        
-        // 2. Parse with CodeParser (which extracts API calls and function calls)
-        // Note: This is redundant parsing but necessary until Watcher uses CodeParser or equivalent
-        const parsedFiles = components.map(c => codeParser.parseFile(c.path));
-        
-        // 3. Generate GraphData using visualizer's converter
-        const graphData = convertParsedFilesToGraph(parsedFiles);
+  try {
+    // 1. Get files from Watcher
+    const components = watcher.getComponents();
 
-        // 4. Generate Mermaid for Dependency Graph
-        const mermaidGraph = generateMermaid(graphData);
-        
-        // 5. Generate Call Graph
-        const callGraph = generateCallGraph(parsedFiles);
+    // 2. Parse with CodeParser (which extracts API calls and function calls)
+    // Note: This is redundant parsing but necessary until Watcher uses CodeParser or equivalent
+    const parsedFiles = components.map(c => codeParser.parseFile(c.path));
 
-        // 6. Update README using Exporter
-        // Exporter handles finding README.md inside the directory if needed
-        Exporter.updateReadme(readmePath, [
-            { name: 'DEPENDENCY_GRAPH', title: 'Dependency Graph', content: mermaidGraph },
-            { name: 'CALL_GRAPH', title: 'Call Graph', content: callGraph }
-        ]);
-        
-        // 7. Always save .mmd files for mmdc (image generation) and external tools
-        const depGraphPath = path.resolve(process.cwd(), 'dependency-graph.mmd');
-        const callGraphPath = path.resolve(process.cwd(), 'call-graph.mmd');
-        
-        fs.writeFileSync(depGraphPath, mermaidGraph);
-        fs.writeFileSync(callGraphPath, callGraph);
-        console.log(`Saved graphs to ${depGraphPath} and ${callGraphPath}`);
+    // 3. Generate GraphData using visualizer's converter
+    const graphData = convertParsedFilesToGraph(parsedFiles);
 
-    } catch (error) {
-        console.error('Error updating visuals:', error);
-    }
+    // 4. Generate Mermaid for Dependency Graph
+    const mermaidGraph = generateMermaid(graphData);
+
+    // 5. Generate Call Graph
+    const callGraph = generateCallGraph(parsedFiles);
+
+    // 6. Update README using Exporter
+    // Exporter handles finding README.md inside the directory if needed
+    Exporter.updateReadme(readmePath, [
+      {
+        name: 'DEPENDENCY_GRAPH',
+        title: 'Dependency Graph',
+        content: mermaidGraph,
+      },
+      { name: 'CALL_GRAPH', title: 'Call Graph', content: callGraph },
+    ]);
+
+    // 7. Always save .mmd files for mmdc (image generation) and external tools
+    const depGraphPath = path.resolve(process.cwd(), 'dependency-graph.mmd');
+    const callGraphPath = path.resolve(process.cwd(), 'call-graph.mmd');
+
+    fs.writeFileSync(depGraphPath, mermaidGraph);
+    fs.writeFileSync(callGraphPath, callGraph);
+    console.log(`Saved graphs to ${depGraphPath} and ${callGraphPath}`);
+  } catch (error) {
+    console.error('Error updating visuals:', error);
+  }
 }
 
 // Start watching
@@ -1854,444 +2034,515 @@ import * as path from 'path';
 
 // --- Core-Compatible Interfaces ---
 export interface GraphNode {
-    id: string;
-    label: string;
-    type: 'component' | 'api' | 'hook' | 'store' | 'database';
-    metrics: {
-        imports: number;
-        apiCalls: number;
-        functionCalls: number;
-    };
+  id: string;
+  label: string;
+  type: 'component' | 'api' | 'hook' | 'store' | 'database';
+  metrics: {
+    imports: number;
+    apiCalls: number;
+    functionCalls: number;
+  };
 }
 
 export interface GraphEdge {
-    from: string;
-    to: string;
-    type: 'imports' | 'calls' | 'uses';
+  from: string;
+  to: string;
+  type: 'imports' | 'calls' | 'uses';
 }
 
 export interface GraphData {
-    nodes: GraphNode[];
-    edges: GraphEdge[];
+  nodes: GraphNode[];
+  edges: GraphEdge[];
 }
 
 // --- Constants ---
 const IGNORED_CALLS = new Set([
-    // Array methods
-    'map', 'filter', 'reduce', 'forEach', 'find', 'some', 'every', 'includes', 'push', 'pop', 'shift', 'unshift', 'splice', 'slice', 'join',
-    // Promise methods
-    'then', 'catch', 'finally',
-    // JSON methods
-    'json', 'stringify', 'parse',
-    // String methods
-    'toUpperCase', 'toLowerCase', 'trim', 'split', 'replace', 'replaceAll',
-    // Event methods
-    'stopPropagation', 'preventDefault',
-    // Console
-    'log', 'error', 'warn', 'info', 'debug'
+  // Array methods
+  'map',
+  'filter',
+  'reduce',
+  'forEach',
+  'find',
+  'some',
+  'every',
+  'includes',
+  'push',
+  'pop',
+  'shift',
+  'unshift',
+  'splice',
+  'slice',
+  'join',
+  // Promise methods
+  'then',
+  'catch',
+  'finally',
+  // JSON methods
+  'json',
+  'stringify',
+  'parse',
+  // String methods
+  'toUpperCase',
+  'toLowerCase',
+  'trim',
+  'split',
+  'replace',
+  'replaceAll',
+  // Event methods
+  'stopPropagation',
+  'preventDefault',
+  // Console
+  'log',
+  'error',
+  'warn',
+  'info',
+  'debug',
 ]);
 
-const DB_KEYWORDS = ['prisma', 'mongoose', 'typeorm', 'firebase', 'supabase', 'knex', 'sequelize'];
+const DB_KEYWORDS = [
+  'prisma',
+  'mongoose',
+  'typeorm',
+  'firebase',
+  'supabase',
+  'knex',
+  'sequelize',
+];
 
 // --- Main Visualizer Function (Dependency Graph) ---
-export function generateMermaid(data: GraphData, options: { minImports?: number; focusTarget?: string } = {}): string {
-    let mermaidCode = 'graph TD;\n';
-    
-    // Define styles
-    mermaidCode += '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
-    mermaidCode += '    classDef highImports fill:#ffcdd2,stroke:#c62828,stroke-width:3px;\n'; // Red for many imports
-    mermaidCode += '    classDef highApi fill:#ffe0b2,stroke:#e65100,stroke-width:2px;\n'; // Orange for API heavy
-    mermaidCode += '    classDef highLogic fill:#e1bee7,stroke:#4a148c,stroke-width:2px;\n'; // Purple for logic heavy
-    mermaidCode += '    classDef database fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5;\n'; // Yellow for DB
-    mermaidCode += '    classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;\n';
-    mermaidCode += '    classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;\n';
-    mermaidCode += '    classDef store fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px;\n'; // Green for stores
-    mermaidCode += '    classDef leaf fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px;\n'; // Gray for small dependencies
+export function generateMermaid(
+  data: GraphData,
+  options: { minImports?: number; focusTarget?: string } = {},
+): string {
+  let mermaidCode = 'graph TD;\n';
 
-    const minImports = options.minImports !== undefined ? options.minImports : 3;
-    const focusTarget = options.focusTarget;
-    
-    const focusNodeIds = new Set<string>();
-    const visibleNodeIds = new Set<string>();
+  // Define styles
+  mermaidCode +=
+    '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
+  mermaidCode +=
+    '    classDef highImports fill:#ffcdd2,stroke:#c62828,stroke-width:3px;\n'; // Red for many imports
+  mermaidCode +=
+    '    classDef highApi fill:#ffe0b2,stroke:#e65100,stroke-width:2px;\n'; // Orange for API heavy
+  mermaidCode +=
+    '    classDef highLogic fill:#e1bee7,stroke:#4a148c,stroke-width:2px;\n'; // Purple for logic heavy
+  mermaidCode +=
+    '    classDef database fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5;\n'; // Yellow for DB
+  mermaidCode +=
+    '    classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;\n';
+  mermaidCode +=
+    '    classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;\n';
+  mermaidCode +=
+    '    classDef store fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px;\n'; // Green for stores
+  mermaidCode +=
+    '    classDef leaf fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px;\n'; // Gray for small dependencies
 
-    // 1. Identify Focus Nodes (App + High Imports + Optional Target)
-    data.nodes.forEach(node => {
-        const isApp = node.label === 'App' || node.id.endsWith('App');
-        const isTarget = focusTarget && (node.label === focusTarget || node.id.endsWith(focusTarget));
-        
-        // Focus on Components with high imports, App, or the specific target
-        if (node.type === 'component' && (isApp || isTarget || node.metrics.imports >= minImports)) {
-            focusNodeIds.add(node.id);
-            visibleNodeIds.add(node.id);
-        }
-    });
+  const minImports = options.minImports !== undefined ? options.minImports : 3;
+  const focusTarget = options.focusTarget;
 
-    // 2. Identify Related Nodes (Recursive traversal from Focus Nodes)
-    const queue = Array.from(focusNodeIds);
-    const visited = new Set<string>(focusNodeIds);
+  const focusNodeIds = new Set<string>();
+  const visibleNodeIds = new Set<string>();
 
-    while (queue.length > 0) {
-        const currentId = queue.shift()!;
-        
-        data.edges.forEach(edge => {
-            if (edge.from === currentId) {
-                if (!visited.has(edge.to)) {
-                    visited.add(edge.to);
-                    visibleNodeIds.add(edge.to);
-                    queue.push(edge.to);
-                }
-            }
-        });
+  // 1. Identify Focus Nodes (App + High Imports + Optional Target)
+  data.nodes.forEach(node => {
+    const isApp = node.label === 'App' || node.id.endsWith('App');
+    const isTarget =
+      focusTarget &&
+      (node.label === focusTarget || node.id.endsWith(focusTarget));
+
+    // Focus on Components with high imports, App, or the specific target
+    if (
+      node.type === 'component' &&
+      (isApp || isTarget || node.metrics.imports >= minImports)
+    ) {
+      focusNodeIds.add(node.id);
+      visibleNodeIds.add(node.id);
     }
+  });
 
-    // --- LEGEND (Top, Horizontal, Compact) ---
-    mermaidCode += '    subgraph Legend\n';
-    mermaidCode += '        direction LR\n';
-    mermaidCode += '        L_Focus["Focus"]:::component ~~~ L_Imp["High Imports"]:::highImports ~~~ L_API["High API"]:::highApi ~~~ L_Logic["High Logic"]:::highLogic ~~~ L_DB[("Database")]:::database ~~~ L_Minor["Minor"]:::leaf\n';
-    mermaidCode += '    end\n';
+  // 2. Identify Related Nodes (Recursive traversal from Focus Nodes)
+  const queue = Array.from(focusNodeIds);
+  const visited = new Set<string>(focusNodeIds);
 
-    // --- SYSTEM (Main Graph with Layers) ---
-    mermaidCode += '    subgraph System ["System Components"]\n';
-    mermaidCode += '    direction TB\n';
+  while (queue.length > 0) {
+    const currentId = queue.shift()!;
 
-    // Group nodes by layer
-    const layerUI: GraphNode[] = [];
-    const layerLogic: GraphNode[] = [];
-    const layerData: GraphNode[] = [];
-
-    data.nodes.forEach(node => {
-        if (!visibleNodeIds.has(node.id)) return;
-
-        if (node.type === 'component') {
-            layerUI.push(node);
-        } else if (node.type === 'hook' || node.type === 'store') {
-            layerLogic.push(node);
-        } else {
-            // api, database
-            layerData.push(node);
-        }
-    });
-
-    // Helper to render a node
-    const renderNode = (node: GraphNode) => {
-        // Escape quotes in label
-        const safeLabel = node.label.replace(/"/g, "'");
-        let className = 'component';
-        const isFocus = focusNodeIds.has(node.id);
-
-        // Determine style based on type and metrics
-        if (node.type === 'database') {
-            className = 'database';
-        } else if (node.type === 'api') {
-            className = 'api';
-        } else if (node.type === 'hook') {
-            className = 'hook';
-        } else if (node.type === 'store') {
-            className = 'store';
-        } else {
-            // Component Logic
-            if (!isFocus) {
-                className = 'leaf';
-            } else if (node.metrics.imports > 5) {
-                className = 'highImports';
-            } else if (node.metrics.apiCalls > 2) {
-                className = 'highApi';
-            } else if (node.metrics.functionCalls > 10) {
-                className = 'highLogic';
-            }
-        }
-
-        const nodeId = sanitizeId(node.id);
-        const labelWithMetrics = `${safeLabel}\\n(Imp:${node.metrics.imports}, API:${node.metrics.apiCalls}, Fn:${node.metrics.functionCalls})`;
-
-        if (node.type === 'api' || node.type === 'database') {
-            return `    ${nodeId}[("${labelWithMetrics}")]:::${className}\n`;
-        } else if (node.type === 'hook' || node.type === 'store') {
-            return `    ${nodeId}(["${labelWithMetrics}"]):::${className}\n`;
-        } else {
-            return `    ${nodeId}["${labelWithMetrics}"]:::${className}\n`;
-        }
-    };
-
-    // Render Layers
-    if (layerUI.length > 0) {
-        mermaidCode += '    subgraph UI_Layer ["UI Components"]\n';
-        mermaidCode += '        direction TB\n';
-        layerUI.forEach(node => mermaidCode += renderNode(node));
-        mermaidCode += '    end\n';
-    }
-
-    if (layerLogic.length > 0) {
-        mermaidCode += '    subgraph Logic_Layer ["Logic & State"]\n';
-        mermaidCode += '        direction TB\n';
-        layerLogic.forEach(node => mermaidCode += renderNode(node));
-        mermaidCode += '    end\n';
-    }
-
-    if (layerData.length > 0) {
-        mermaidCode += '    subgraph Data_Layer ["Data & API"]\n';
-        mermaidCode += '        direction TB\n';
-        layerData.forEach(node => mermaidCode += renderNode(node));
-        mermaidCode += '    end\n';
-    }
-
-    // Render Edges
     data.edges.forEach(edge => {
-        if (visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)) {
-            const fromId = sanitizeId(edge.from);
-            const toId = sanitizeId(edge.to);
-            
-            if (edge.type === 'calls') {
-                mermaidCode += `    ${fromId} -.-> ${toId}\n`;
-            } else {
-                mermaidCode += `    ${fromId} --> ${toId}\n`;
-            }
+      if (edge.from === currentId) {
+        if (!visited.has(edge.to)) {
+          visited.add(edge.to);
+          visibleNodeIds.add(edge.to);
+          queue.push(edge.to);
         }
+      }
     });
+  }
 
-    mermaidCode += '    end\n'; // End System subgraph
+  // --- LEGEND (Top, Horizontal, Compact) ---
+  mermaidCode += '    subgraph Legend\n';
+  mermaidCode += '        direction LR\n';
+  mermaidCode +=
+    '        L_Focus["Focus"]:::component ~~~ L_Imp["High Imports"]:::highImports ~~~ L_API["High API"]:::highApi ~~~ L_Logic["High Logic"]:::highLogic ~~~ L_DB[("Database")]:::database ~~~ L_Minor["Minor"]:::leaf\n';
+  mermaidCode += '    end\n';
 
-    // Force Layer Ordering (Invisible links)
-    if (layerUI.length > 0 && layerLogic.length > 0) mermaidCode += '    UI_Layer ~~~ Logic_Layer\n';
-    if (layerLogic.length > 0 && layerData.length > 0) mermaidCode += '    Logic_Layer ~~~ Data_Layer\n';
-    else if (layerUI.length > 0 && layerData.length > 0) mermaidCode += '    UI_Layer ~~~ Data_Layer\n';
+  // --- SYSTEM (Main Graph with Layers) ---
+  mermaidCode += '    subgraph System ["System Components"]\n';
+  mermaidCode += '    direction TB\n';
 
-    // Legend position
-    mermaidCode += '    Legend ~~~ System\n';
+  // Group nodes by layer
+  const layerUI: GraphNode[] = [];
+  const layerLogic: GraphNode[] = [];
+  const layerData: GraphNode[] = [];
 
-    return mermaidCode;
+  data.nodes.forEach(node => {
+    if (!visibleNodeIds.has(node.id)) return;
+
+    if (node.type === 'component') {
+      layerUI.push(node);
+    } else if (node.type === 'hook' || node.type === 'store') {
+      layerLogic.push(node);
+    } else {
+      // api, database
+      layerData.push(node);
+    }
+  });
+
+  // Helper to render a node
+  const renderNode = (node: GraphNode) => {
+    // Escape quotes in label
+    const safeLabel = node.label.replace(/"/g, "'");
+    let className = 'component';
+    const isFocus = focusNodeIds.has(node.id);
+
+    // Determine style based on type and metrics
+    if (node.type === 'database') {
+      className = 'database';
+    } else if (node.type === 'api') {
+      className = 'api';
+    } else if (node.type === 'hook') {
+      className = 'hook';
+    } else if (node.type === 'store') {
+      className = 'store';
+    } else {
+      // Component Logic
+      if (!isFocus) {
+        className = 'leaf';
+      } else if (node.metrics.imports > 5) {
+        className = 'highImports';
+      } else if (node.metrics.apiCalls > 2) {
+        className = 'highApi';
+      } else if (node.metrics.functionCalls > 10) {
+        className = 'highLogic';
+      }
+    }
+
+    const nodeId = sanitizeId(node.id);
+    const labelWithMetrics = `${safeLabel}\\n(Imp:${node.metrics.imports}, API:${node.metrics.apiCalls}, Fn:${node.metrics.functionCalls})`;
+
+    if (node.type === 'api' || node.type === 'database') {
+      return `    ${nodeId}[("${labelWithMetrics}")]:::${className}\n`;
+    } else if (node.type === 'hook' || node.type === 'store') {
+      return `    ${nodeId}(["${labelWithMetrics}"]):::${className}\n`;
+    } else {
+      return `    ${nodeId}["${labelWithMetrics}"]:::${className}\n`;
+    }
+  };
+
+  // Render Layers
+  if (layerUI.length > 0) {
+    mermaidCode += '    subgraph UI_Layer ["UI Components"]\n';
+    mermaidCode += '        direction TB\n';
+    layerUI.forEach(node => (mermaidCode += renderNode(node)));
+    mermaidCode += '    end\n';
+  }
+
+  if (layerLogic.length > 0) {
+    mermaidCode += '    subgraph Logic_Layer ["Logic & State"]\n';
+    mermaidCode += '        direction TB\n';
+    layerLogic.forEach(node => (mermaidCode += renderNode(node)));
+    mermaidCode += '    end\n';
+  }
+
+  if (layerData.length > 0) {
+    mermaidCode += '    subgraph Data_Layer ["Data & API"]\n';
+    mermaidCode += '        direction TB\n';
+    layerData.forEach(node => (mermaidCode += renderNode(node)));
+    mermaidCode += '    end\n';
+  }
+
+  // Render Edges
+  data.edges.forEach(edge => {
+    if (visibleNodeIds.has(edge.from) && visibleNodeIds.has(edge.to)) {
+      const fromId = sanitizeId(edge.from);
+      const toId = sanitizeId(edge.to);
+
+      if (edge.type === 'calls') {
+        mermaidCode += `    ${fromId} -.-> ${toId}\n`;
+      } else {
+        mermaidCode += `    ${fromId} --> ${toId}\n`;
+      }
+    }
+  });
+
+  mermaidCode += '    end\n'; // End System subgraph
+
+  // Force Layer Ordering (Invisible links)
+  if (layerUI.length > 0 && layerLogic.length > 0)
+    mermaidCode += '    UI_Layer ~~~ Logic_Layer\n';
+  if (layerLogic.length > 0 && layerData.length > 0)
+    mermaidCode += '    Logic_Layer ~~~ Data_Layer\n';
+  else if (layerUI.length > 0 && layerData.length > 0)
+    mermaidCode += '    UI_Layer ~~~ Data_Layer\n';
+
+  // Legend position
+  mermaidCode += '    Legend ~~~ System\n';
+
+  return mermaidCode;
 }
 
 function sanitizeId(id: string): string {
-    return id.replace(/[^a-zA-Z0-9]/g, '_');
+  return id.replace(/[^a-zA-Z0-9]/g, '_');
 }
 
 // --- Call Graph Visualizer ---
 export function generateCallGraph(files: ParsedFile[]): string {
-    let mermaidCode = 'flowchart TB;\n';
-    mermaidCode += '    classDef function fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10;\n';
-    mermaidCode += '    classDef file fill:#eceff1,stroke:#455a64,stroke-width:1px,stroke-dasharray: 5 5;\n';
-    mermaidCode += '    classDef store fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,rx:5,ry:5;\n'; // Yellow for stores
+  let mermaidCode = 'flowchart TB;\n';
+  mermaidCode +=
+    '    classDef function fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10;\n';
+  mermaidCode +=
+    '    classDef file fill:#eceff1,stroke:#455a64,stroke-width:1px,stroke-dasharray: 5 5;\n';
+  mermaidCode +=
+    '    classDef store fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,rx:5,ry:5;\n'; // Yellow for stores
 
-    // Wrap everything in a master subgraph to force direction
-    mermaidCode += '    subgraph Call_Graph ["Call Graph"]\n';
-    mermaidCode += '    direction TB\n';
+  // Wrap everything in a master subgraph to force direction
+  mermaidCode += '    subgraph Call_Graph ["Call Graph"]\n';
+  mermaidCode += '    direction TB\n';
 
-    const subgraphNodes: string[] = [];
+  const subgraphNodes: string[] = [];
 
-    files.forEach(file => {
-        const fileName = path.basename(file.filePath).replace(/\.tsx?$/, '');
-        let fileMermaid = '';
-        let hasValidCalls = false;
-        let firstNodeId = '';
+  files.forEach(file => {
+    const fileName = path.basename(file.filePath).replace(/\.tsx?$/, '');
+    let fileMermaid = '';
+    let hasValidCalls = false;
+    let firstNodeId = '';
 
-        // Group functions by file
-        fileMermaid += `    subgraph ${fileName}\n`;
-        fileMermaid += `        direction TB\n`;
-        
-        file.functions.forEach(func => {
-            const funcId = `${fileName}_${func.name}`;
-            if (!firstNodeId) firstNodeId = funcId;
+    // Group functions by file
+    fileMermaid += `    subgraph ${fileName}\n`;
+    fileMermaid += `        direction TB\n`;
 
-            let funcMermaid = `        ${funcId}(["${func.name}"]):::function\n`;
-            let hasCalls = false;
-            
-            // Add calls
-            func.calls.forEach(call => {
-                // Filter out noise
-                if (
-                    !call.name.startsWith('use') && 
-                    call.name !== 'fetch' &&
-                    !IGNORED_CALLS.has(call.name)
-                ) {
-                     const callId = `${fileName}_${func.name}_calls_${call.name}`;
-                     funcMermaid += `        ${callId}["${call.name}"]:::file\n`;
-                     funcMermaid += `        ${funcId} --> ${callId}\n`;
-                     hasCalls = true;
-                }
-                
-                // Identify Store Variables (heuristic: starts with 'use' and ends with 'Store')
-                if (call.name.startsWith('use') && call.name.endsWith('Store')) {
-                     const storeId = `STORE_${call.name}`;
-                     funcMermaid += `        ${storeId}[("${call.name}")]:::store\n`;
-                     funcMermaid += `        ${funcId} -.-> ${storeId}\n`;
-                     hasCalls = true;
-                }
-            });
+    file.functions.forEach(func => {
+      const funcId = `${fileName}_${func.name}`;
+      if (!firstNodeId) firstNodeId = funcId;
 
-            if (hasCalls) {
-                fileMermaid += funcMermaid;
-                hasValidCalls = true;
-            }
-        });
-        fileMermaid += `    end\n`;
+      let funcMermaid = `        ${funcId}(["${func.name}"]):::function\n`;
+      let hasCalls = false;
 
-        // Only add the subgraph if it has valid calls
-        if (hasValidCalls) {
-            mermaidCode += fileMermaid;
-            if (firstNodeId) {
-                subgraphNodes.push(firstNodeId);
-            }
+      // Add calls
+      func.calls.forEach(call => {
+        // Filter out noise
+        if (
+          !call.name.startsWith('use') &&
+          call.name !== 'fetch' &&
+          !IGNORED_CALLS.has(call.name)
+        ) {
+          const callId = `${fileName}_${func.name}_calls_${call.name}`;
+          funcMermaid += `        ${callId}["${call.name}"]:::file\n`;
+          funcMermaid += `        ${funcId} --> ${callId}\n`;
+          hasCalls = true;
         }
+
+        // Identify Store Variables (heuristic: starts with 'use' and ends with 'Store')
+        if (call.name.startsWith('use') && call.name.endsWith('Store')) {
+          const storeId = `STORE_${call.name}`;
+          funcMermaid += `        ${storeId}[("${call.name}")]:::store\n`;
+          funcMermaid += `        ${funcId} -.-> ${storeId}\n`;
+          hasCalls = true;
+        }
+      });
+
+      if (hasCalls) {
+        fileMermaid += funcMermaid;
+        hasValidCalls = true;
+      }
     });
+    fileMermaid += `    end\n`;
 
-    // Force vertical stacking by linking the first node of each subgraph
-    for (let i = 0; i < subgraphNodes.length - 1; i++) {
-        mermaidCode += `    ${subgraphNodes[i]} ~~~ ${subgraphNodes[i+1]}\n`;
+    // Only add the subgraph if it has valid calls
+    if (hasValidCalls) {
+      mermaidCode += fileMermaid;
+      if (firstNodeId) {
+        subgraphNodes.push(firstNodeId);
+      }
     }
+  });
 
-    mermaidCode += '    end\n'; // Close master subgraph
+  // Force vertical stacking by linking the first node of each subgraph
+  for (let i = 0; i < subgraphNodes.length - 1; i++) {
+    mermaidCode += `    ${subgraphNodes[i]} ~~~ ${subgraphNodes[i + 1]}\n`;
+  }
 
-    return mermaidCode;
+  mermaidCode += '    end\n'; // Close master subgraph
+
+  return mermaidCode;
 }
 
 // --- Taxonomy Graph Visualizer ---
-export function generateTaxonomyGraph(files: ParsedFile[], tagsMap: Map<string, string[]>): string {
-    let mermaidCode = 'graph TD;\n'; 
-    mermaidCode += '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
+export function generateTaxonomyGraph(
+  files: ParsedFile[],
+  tagsMap: Map<string, string[]>,
+): string {
+  let mermaidCode = 'graph TD;\n';
+  mermaidCode +=
+    '    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;\n';
 
-    // Wrap in master subgraph
-    mermaidCode += '    subgraph Taxonomy ["Component Taxonomy"]\n';
-    mermaidCode += '    direction TB\n';
+  // Wrap in master subgraph
+  mermaidCode += '    subgraph Taxonomy ["Component Taxonomy"]\n';
+  mermaidCode += '    direction TB\n';
 
-    // Group by Tag
-    const tagGroups = new Map<string, string[]>();
-    
-    // Default group for untagged
-    tagGroups.set('Uncategorized', []);
+  // Group by Tag
+  const tagGroups = new Map<string, string[]>();
 
-    files.forEach(file => {
-        const fileName = path.basename(file.filePath).replace(/\.tsx?$/, '');
-        const tags = tagsMap.get(file.filePath) || [];
+  // Default group for untagged
+  tagGroups.set('Uncategorized', []);
 
-        if (tags.length === 0) {
-            tagGroups.get('Uncategorized')?.push(fileName);
-        } else {
-            tags.forEach(tag => {
-                if (!tagGroups.has(tag)) {
-                    tagGroups.set(tag, []);
-                }
-                tagGroups.get(tag)?.push(fileName);
-            });
+  files.forEach(file => {
+    const fileName = path.basename(file.filePath).replace(/\.tsx?$/, '');
+    const tags = tagsMap.get(file.filePath) || [];
+
+    if (tags.length === 0) {
+      tagGroups.get('Uncategorized')?.push(fileName);
+    } else {
+      tags.forEach(tag => {
+        if (!tagGroups.has(tag)) {
+          tagGroups.set(tag, []);
         }
-    });
-
-    const subgraphIds: string[] = [];
-
-    // Generate Subgraphs
-    tagGroups.forEach((components, tag) => {
-        if (components.length === 0) return;
-
-        let firstNodeId = '';
-
-        mermaidCode += `    subgraph ${tag.toUpperCase()}\n`;
-        mermaidCode += `        direction TB\n`;
-        components.forEach(comp => {
-            const nodeId = `${tag}_${comp}`; 
-            if (!firstNodeId) firstNodeId = nodeId;
-            mermaidCode += `        ${nodeId}["${comp}"]:::component\n`;
-        });
-        mermaidCode += `    end\n`;
-
-        if (firstNodeId) {
-            subgraphIds.push(firstNodeId);
-        }
-    });
-
-    // Force vertical stacking
-    for (let i = 0; i < subgraphIds.length - 1; i++) {
-        mermaidCode += `    ${subgraphIds[i]} ~~~ ${subgraphIds[i+1]}\n`;
+        tagGroups.get(tag)?.push(fileName);
+      });
     }
+  });
 
-    mermaidCode += '    end\n'; // Close master subgraph
+  const subgraphIds: string[] = [];
 
-    return mermaidCode;
+  // Generate Subgraphs
+  tagGroups.forEach((components, tag) => {
+    if (components.length === 0) return;
+
+    let firstNodeId = '';
+
+    mermaidCode += `    subgraph ${tag.toUpperCase()}\n`;
+    mermaidCode += `        direction TB\n`;
+    components.forEach(comp => {
+      const nodeId = `${tag}_${comp}`;
+      if (!firstNodeId) firstNodeId = nodeId;
+      mermaidCode += `        ${nodeId}["${comp}"]:::component\n`;
+    });
+    mermaidCode += `    end\n`;
+
+    if (firstNodeId) {
+      subgraphIds.push(firstNodeId);
+    }
+  });
+
+  // Force vertical stacking
+  for (let i = 0; i < subgraphIds.length - 1; i++) {
+    mermaidCode += `    ${subgraphIds[i]} ~~~ ${subgraphIds[i + 1]}\n`;
+  }
+
+  mermaidCode += '    end\n'; // Close master subgraph
+
+  return mermaidCode;
 }
 
 // --- Adapter for Current Parser ---
 export function convertParsedFilesToGraph(files: ParsedFile[]): GraphData {
-    const nodes: Map<string, GraphNode> = new Map();
-    const edges: GraphEdge[] = [];
+  const nodes: Map<string, GraphNode> = new Map();
+  const edges: GraphEdge[] = [];
 
-    // Helper to get or create node
-    const getOrCreateNode = (id: string, type: GraphNode['type'] = 'component', label?: string) => {
-        if (!nodes.has(id)) {
-            nodes.set(id, { 
-                id, 
-                label: label || id, 
-                type, 
-                metrics: { imports: 0, apiCalls: 0, functionCalls: 0 } 
-            });
-        }
-        return nodes.get(id)!;
-    };
+  // Helper to get or create node
+  const getOrCreateNode = (
+    id: string,
+    type: GraphNode['type'] = 'component',
+    label?: string,
+  ) => {
+    if (!nodes.has(id)) {
+      nodes.set(id, {
+        id,
+        label: label || id,
+        type,
+        metrics: { imports: 0, apiCalls: 0, functionCalls: 0 },
+      });
+    }
+    return nodes.get(id)!;
+  };
 
-    files.forEach(file => {
-        const fileId = path.basename(file.filePath).replace(/\.tsx?$/, '');
-        
-        // Determine type based on naming convention
-        let type: GraphNode['type'] = 'component';
-        if (fileId.startsWith('use')) {
-            type = 'hook';
-        } else if (fileId.endsWith('Store') || fileId.endsWith('Context')) {
-            type = 'store';
-        }
+  files.forEach(file => {
+    const fileId = path.basename(file.filePath).replace(/\.tsx?$/, '');
 
-        const node = getOrCreateNode(fileId, type);
-        // Force update type if we are processing the definition
-        node.type = type;
+    // Determine type based on naming convention
+    let type: GraphNode['type'] = 'component';
+    if (fileId.startsWith('use')) {
+      type = 'hook';
+    } else if (fileId.endsWith('Store') || fileId.endsWith('Context')) {
+      type = 'store';
+    }
 
-        // Metrics: Imports
-        node.metrics.imports = file.imports.length;
+    const node = getOrCreateNode(fileId, type);
+    // Force update type if we are processing the definition
+    node.type = type;
 
-        // Metrics: API Calls
-        node.metrics.apiCalls = file.apiCalls.length;
+    // Metrics: Imports
+    node.metrics.imports = file.imports.length;
 
-        // Metrics: Function Calls (sum of all calls in all functions)
-        node.metrics.functionCalls = file.functions.reduce((acc, func) => acc + func.calls.length, 0);
+    // Metrics: API Calls
+    node.metrics.apiCalls = file.apiCalls.length;
 
-        // Check for Database/Store imports (Override type if DB)
-        file.imports.forEach(imp => {
-            if (DB_KEYWORDS.some(kw => imp.toLowerCase().includes(kw))) {
-                node.type = 'database';
-            }
-        });
+    // Metrics: Function Calls (sum of all calls in all functions)
+    node.metrics.functionCalls = file.functions.reduce(
+      (acc, func) => acc + func.calls.length,
+      0,
+    );
 
-        // Process Imports (Edges)
-        file.imports.forEach(imp => {
-            const depId = path.basename(imp).replace(/\.tsx?$/, '');
-            getOrCreateNode(depId, 'component'); // Create placeholder for dependency
-            edges.push({ from: fileId, to: depId, type: 'imports' });
-        });
-
-        // Process API Calls (Nodes & Edges)
-        file.apiCalls.forEach(api => {
-            const apiId = `API_${api.method}_${api.url.replace(/[^a-zA-Z0-9]/g, '_')}`;
-            const apiLabel = `${api.method} ${api.url}`;
-
-            getOrCreateNode(apiId, 'api', apiLabel);
-            edges.push({ from: fileId, to: apiId, type: 'calls' });
-        });
+    // Check for Database/Store imports (Override type if DB)
+    file.imports.forEach(imp => {
+      if (DB_KEYWORDS.some(kw => imp.toLowerCase().includes(kw))) {
+        node.type = 'database';
+      }
     });
 
-    return {
-        nodes: Array.from(nodes.values()),
-        edges
-    };
+    // Process Imports (Edges)
+    file.imports.forEach(imp => {
+      const depId = path.basename(imp).replace(/\.tsx?$/, '');
+      getOrCreateNode(depId, 'component'); // Create placeholder for dependency
+      edges.push({ from: fileId, to: depId, type: 'imports' });
+    });
+
+    // Process API Calls (Nodes & Edges)
+    file.apiCalls.forEach(api => {
+      const apiId = `API_${api.method}_${api.url.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const apiLabel = `${api.method} ${api.url}`;
+
+      getOrCreateNode(apiId, 'api', apiLabel);
+      edges.push({ from: fileId, to: apiId, type: 'calls' });
+    });
+  });
+
+  return {
+    nodes: Array.from(nodes.values()),
+    edges,
+  };
 }
 </file>
 
 <file path="test/fixtures/Button.tsx">
-import React from "react";
+import React from 'react';
 
 /**
  * A customizable button component with multiple variants and sizes
  */
 export interface ButtonProps {
   /** Visual style variant of the button */
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   /** Size of the button */
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   /** Whether the button is disabled */
   disabled?: boolean;
   /** Click handler function */
@@ -2300,26 +2551,26 @@ export interface ButtonProps {
   children: React.ReactNode;
 }
 
-const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
+const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:
-    "bg-blue-600 text-white hover:bg-blue-700 border border-transparent shadow-sm",
+    'bg-blue-600 text-white hover:bg-blue-700 border border-transparent shadow-sm',
   secondary:
-    "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm",
+    'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm',
   danger:
-    "bg-red-600 text-white hover:bg-red-700 border border-transparent shadow-sm",
+    'bg-red-600 text-white hover:bg-red-700 border border-transparent shadow-sm',
   ghost:
-    "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
+    'bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent',
 };
 
-const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "px-3 py-1.5 text-xs rounded-md",
-  md: "px-4 py-2 text-sm rounded-md",
-  lg: "px-6 py-3 text-base rounded-lg",
+const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
+  sm: 'px-3 py-1.5 text-xs rounded-md',
+  md: 'px-4 py-2 text-sm rounded-md',
+  lg: 'px-6 py-3 text-base rounded-lg',
 };
 
 export function Button({
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   onClick,
   children,
@@ -2327,11 +2578,11 @@ export function Button({
   return (
     <button
       className={[
-        "inline-flex items-center justify-center font-medium transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+        'inline-flex items-center justify-center font-medium transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
         variantClasses[variant],
         sizeClasses[size],
-        disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "",
-      ].join(" ")}
+        disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
+      ].join(' ')}
       disabled={disabled}
       onClick={onClick}
     >
@@ -2342,14 +2593,11 @@ export function Button({
 </file>
 
 <file path="test/fixtures/Card.tsx">
-import React from "react";
-import Button from "./Button";
-import Input from "./Input";
-import Modal from "./Modal";
-import Dropdown from "./Dropdown";
-
-
-
+import React from 'react';
+import Button from './Button';
+import Input from './Input';
+import Modal from './Modal';
+import Dropdown from './Dropdown';
 
 /**
  * A container component for grouping related content with optional header and footer
@@ -2362,27 +2610,27 @@ export interface CardProps {
   /** Main card content */
   children: React.ReactNode;
   /** Visual style variant */
-  variant?: "default" | "bordered" | "elevated";
+  variant?: 'default' | 'bordered' | 'elevated';
 }
 
-const variantClasses: Record<NonNullable<CardProps["variant"]>, string> = {
-  default: "bg-white border border-gray-200",
-  bordered: "bg-white border-2 border-gray-300",
-  elevated: "bg-white border border-gray-100 shadow-lg",
+const variantClasses: Record<NonNullable<CardProps['variant']>, string> = {
+  default: 'bg-white border border-gray-200',
+  bordered: 'bg-white border-2 border-gray-300',
+  elevated: 'bg-white border border-gray-100 shadow-lg',
 };
 
 export function Card({
   title,
   footer,
   children,
-  variant = "default",
+  variant = 'default',
 }: CardProps) {
   return (
     <div
       className={[
-        "rounded-xl overflow-hidden w-full max-w-sm",
+        'rounded-xl overflow-hidden w-full max-w-sm',
         variantClasses[variant],
-      ].join(" ")}
+      ].join(' ')}
     >
       {title && (
         <div className="px-5 py-3.5 border-b border-gray-100">
@@ -2405,7 +2653,7 @@ export function Card({
 </file>
 
 <file path="test/fixtures/Dropdown.tsx">
-import React from "react";
+import React from 'react';
 
 /**
  * A dropdown select component with customizable options
@@ -2427,29 +2675,29 @@ export function Dropdown({
   options,
   value,
   onChange,
-  placeholder = "Select...",
+  placeholder = 'Select...',
   disabled = false,
 }: DropdownProps) {
   return (
     <div className="relative w-full max-w-sm">
       <select
-        value={value ?? ""}
-        onChange={(e) => onChange?.(e.target.value)}
+        value={value ?? ''}
+        onChange={e => onChange?.(e.target.value)}
         disabled={disabled}
         className={[
-          "w-full appearance-none px-3 py-2 pr-8 text-sm rounded-md border bg-white shadow-sm",
-          "transition-colors duration-150 cursor-pointer",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          'w-full appearance-none px-3 py-2 pr-8 text-sm rounded-md border bg-white shadow-sm',
+          'transition-colors duration-150 cursor-pointer',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
           disabled
-            ? "opacity-50 cursor-not-allowed bg-gray-50 border-gray-200"
-            : "border-gray-300 hover:border-gray-400 text-gray-700",
-          !value ? "text-gray-400" : "text-gray-700",
-        ].join(" ")}
+            ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200'
+            : 'border-gray-300 hover:border-gray-400 text-gray-700',
+          !value ? 'text-gray-400' : 'text-gray-700',
+        ].join(' ')}
       >
         <option value="" disabled>
           {placeholder}
         </option>
-        {options.map((opt) => (
+        {options.map(opt => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
@@ -2477,7 +2725,7 @@ export function Dropdown({
 </file>
 
 <file path="test/fixtures/Input.tsx">
-import React from "react";
+import React from 'react';
 
 /**
  * A flexible input field with label, error states, and validation support
@@ -2490,7 +2738,7 @@ export interface InputProps {
   /** Error message to display */
   error?: string;
   /** Input type */
-  type?: "text" | "email" | "password" | "number";
+  type?: 'text' | 'email' | 'password' | 'number';
   /** Controlled input value */
   value?: string;
   /** Change handler */
@@ -2501,7 +2749,7 @@ export function Input({
   label,
   placeholder,
   error,
-  type = "text",
+  type = 'text',
   value,
   onChange,
 }: InputProps) {
@@ -2516,13 +2764,13 @@ export function Input({
         value={value}
         onChange={onChange}
         className={[
-          "w-full px-3 py-2 text-sm rounded-md border bg-white shadow-sm transition-colors duration-150",
-          "placeholder:text-gray-400",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+          'w-full px-3 py-2 text-sm rounded-md border bg-white shadow-sm transition-colors duration-150',
+          'placeholder:text-gray-400',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
           error
-            ? "border-red-400 focus:ring-red-400"
-            : "border-gray-300 hover:border-gray-400",
-        ].join(" ")}
+            ? 'border-red-400 focus:ring-red-400'
+            : 'border-gray-300 hover:border-gray-400',
+        ].join(' ')}
       />
       {error && (
         <p className="text-xs text-red-600 flex items-center gap-1">
@@ -2535,7 +2783,7 @@ export function Input({
 </file>
 
 <file path="test/fixtures/Modal.tsx">
-import React from "react";
+import React from 'react';
 
 /**
  * A modal dialog component with backdrop and close functionality
@@ -2550,14 +2798,14 @@ export interface ModalProps {
   /** Modal content */
   children: React.ReactNode;
   /** Modal size */
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const sizeClasses: Record<NonNullable<ModalProps["size"]>, string> = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
+const sizeClasses: Record<NonNullable<ModalProps['size']>, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
 };
 
 export function Modal({
@@ -2565,7 +2813,7 @@ export function Modal({
   onClose,
   title,
   children,
-  size = "md",
+  size = 'md',
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -2580,10 +2828,10 @@ export function Modal({
       {/* Dialog */}
       <div
         className={[
-          "relative w-full bg-white rounded-xl shadow-2xl overflow-hidden",
+          'relative w-full bg-white rounded-xl shadow-2xl overflow-hidden',
           sizeClasses[size],
-        ].join(" ")}
-        onClick={(e) => e.stopPropagation()}
+        ].join(' ')}
+        onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
@@ -2649,8 +2897,8 @@ npx patternbook generate --input ./test-components --output ./public/generated-m
 
 The generated manifest should match the structure in `/public/mock-data/manifest.json`.
 
-
 <!-- DEPENDENCY_GRAPH-START -->
+
 #### Dependency Graph
 
 ```mermaid
@@ -2705,9 +2953,11 @@ graph TD;
     UI_Layer ~~~ Data_Layer
     Legend ~~~ System
 ```
+
 <!-- DEPENDENCY_GRAPH-END -->
 
 <!-- CALL_GRAPH-START -->
+
 #### Call Graph
 
 ```mermaid
@@ -2734,6 +2984,7 @@ flowchart TB;
     App_App ~~~ Dropdown_Dropdown
     end
 ```
+
 <!-- CALL_GRAPH-END -->
 </file>
 
@@ -2757,8 +3008,8 @@ flowchart TB;
 
 <file path="test/fixtures/useAuth.ts">
 export function useAuth() {
- const login = () => console.log('Login');
- return { login };
+  const login = () => console.log('Login');
+  return { login };
 }
 </file>
 
@@ -2823,36 +3074,36 @@ const TEST_DIR = path.join(__dirname, 'temp_exporter_test');
 const README_PATH = path.join(TEST_DIR, 'README.md');
 
 describe('Exporter', () => {
-    beforeEach(() => {
-        if (!fs.existsSync(TEST_DIR)) {
-            fs.mkdirSync(TEST_DIR);
-        }
-        fs.writeFileSync(README_PATH, '# Test Project\n\nSome content here.');
-    });
+  beforeEach(() => {
+    if (!fs.existsSync(TEST_DIR)) {
+      fs.mkdirSync(TEST_DIR);
+    }
+    fs.writeFileSync(README_PATH, '# Test Project\n\nSome content here.');
+  });
 
-    afterEach(() => {
-        if (fs.existsSync(TEST_DIR)) {
-            fs.rmSync(TEST_DIR, { recursive: true, force: true });
-        }
-    });
+  afterEach(() => {
+    if (fs.existsSync(TEST_DIR)) {
+      fs.rmSync(TEST_DIR, { recursive: true, force: true });
+    }
+  });
 
-    it('should append new graphs to README if markers do not exist', () => {
-        const graphs = [
-            { name: 'TEST_GRAPH', title: 'Test Graph', content: 'graph TD; A-->B;' }
-        ];
+  it('should append new graphs to README if markers do not exist', () => {
+    const graphs = [
+      { name: 'TEST_GRAPH', title: 'Test Graph', content: 'graph TD; A-->B;' },
+    ];
 
-        Exporter.updateReadme(TEST_DIR, graphs);
+    Exporter.updateReadme(TEST_DIR, graphs);
 
-        const content = fs.readFileSync(README_PATH, 'utf8');
-        expect(content).toContain('<!-- TEST_GRAPH-START -->');
-        expect(content).toContain('#### Test Graph');
-        expect(content).toContain('```mermaid\ngraph TD; A-->B;\n```');
-        expect(content).toContain('<!-- TEST_GRAPH-END -->');
-    });
+    const content = fs.readFileSync(README_PATH, 'utf8');
+    expect(content).toContain('<!-- TEST_GRAPH-START -->');
+    expect(content).toContain('#### Test Graph');
+    expect(content).toContain('```mermaid\ngraph TD; A-->B;\n```');
+    expect(content).toContain('<!-- TEST_GRAPH-END -->');
+  });
 
-    it('should update existing graphs in README', () => {
-        // Setup initial state with old content
-        const initialContent = `
+  it('should update existing graphs in README', () => {
+    // Setup initial state with old content
+    const initialContent = `
 # Test Project
 <!-- TEST_GRAPH-START -->
 #### Test Graph
@@ -2861,33 +3112,37 @@ graph TD; OLD-->CONTENT;
 \`\`\`
 <!-- TEST_GRAPH-END -->
 `;
-        fs.writeFileSync(README_PATH, initialContent);
+    fs.writeFileSync(README_PATH, initialContent);
 
-        const graphs = [
-            { name: 'TEST_GRAPH', title: 'Test Graph', content: 'graph TD; NEW-->CONTENT;' }
-        ];
+    const graphs = [
+      {
+        name: 'TEST_GRAPH',
+        title: 'Test Graph',
+        content: 'graph TD; NEW-->CONTENT;',
+      },
+    ];
 
-        Exporter.updateReadme(TEST_DIR, graphs);
+    Exporter.updateReadme(TEST_DIR, graphs);
 
-        const content = fs.readFileSync(README_PATH, 'utf8');
-        expect(content).toContain('graph TD; NEW-->CONTENT;');
-        expect(content).not.toContain('OLD-->CONTENT');
-    });
+    const content = fs.readFileSync(README_PATH, 'utf8');
+    expect(content).toContain('graph TD; NEW-->CONTENT;');
+    expect(content).not.toContain('OLD-->CONTENT');
+  });
 
-    it('should handle multiple graphs', () => {
-        const graphs = [
-            { name: 'GRAPH_1', title: 'Graph 1', content: 'A-->B' },
-            { name: 'GRAPH_2', title: 'Graph 2', content: 'C-->D' }
-        ];
+  it('should handle multiple graphs', () => {
+    const graphs = [
+      { name: 'GRAPH_1', title: 'Graph 1', content: 'A-->B' },
+      { name: 'GRAPH_2', title: 'Graph 2', content: 'C-->D' },
+    ];
 
-        Exporter.updateReadme(TEST_DIR, graphs);
+    Exporter.updateReadme(TEST_DIR, graphs);
 
-        const content = fs.readFileSync(README_PATH, 'utf8');
-        expect(content).toContain('#### Graph 1');
-        expect(content).toContain('A-->B');
-        expect(content).toContain('#### Graph 2');
-        expect(content).toContain('C-->D');
-    });
+    const content = fs.readFileSync(README_PATH, 'utf8');
+    expect(content).toContain('#### Graph 1');
+    expect(content).toContain('A-->B');
+    expect(content).toContain('#### Graph 2');
+    expect(content).toContain('C-->D');
+  });
 });
 </file>
 
@@ -2897,139 +3152,142 @@ import { CodeParser } from '../../core/parser';
 import * as path from 'path';
 
 describe('CodeParser', () => {
-    const parser = new CodeParser();
-    const fixturesPath = path.resolve(__dirname, '../fixtures');
+  const parser = new CodeParser();
+  const fixturesPath = path.resolve(__dirname, '../fixtures');
 
-    it('should extract imports', () => {
-        const filePath = path.join(fixturesPath, 'UserProfile.tsx');
-        const result = parser.parseFile(filePath);
+  it('should extract imports', () => {
+    const filePath = path.join(fixturesPath, 'UserProfile.tsx');
+    const result = parser.parseFile(filePath);
 
-        expect(result.imports).toContain('./Button');
-    });
+    expect(result.imports).toContain('./Button');
+  });
 
-    it('should extract API calls (fetch)', () => {
-        const filePath = path.join(fixturesPath, 'UserProfile.tsx');
-        const result = parser.parseFile(filePath);
+  it('should extract API calls (fetch)', () => {
+    const filePath = path.join(fixturesPath, 'UserProfile.tsx');
+    const result = parser.parseFile(filePath);
 
-        expect(result.apiCalls).toHaveLength(2);
+    expect(result.apiCalls).toHaveLength(2);
 
-        // Check GET call
-        const getCall = result.apiCalls.find(c => c.method === 'GET');
-        expect(getCall).toBeDefined();
-        expect(getCall?.url).toContain('/api/users/${userId}');
+    // Check GET call
+    const getCall = result.apiCalls.find(c => c.method === 'GET');
+    expect(getCall).toBeDefined();
+    expect(getCall?.url).toContain('/api/users/${userId}');
 
-        // Check POST call
-        const postCall = result.apiCalls.find(c => c.method === 'POST');
-        expect(postCall).toBeDefined();
-        expect(postCall?.url).toBe('/api/users');
-    });
+    // Check POST call
+    const postCall = result.apiCalls.find(c => c.method === 'POST');
+    expect(postCall).toBeDefined();
+    expect(postCall?.url).toBe('/api/users');
+  });
 });
 </file>
 
 <file path="test/unit/visualizer.test.ts">
 import { describe, it, expect } from 'vitest';
-import { convertParsedFilesToGraph, generateMermaid, GraphData } from '../../scripts/visualizer';
+import {
+  convertParsedFilesToGraph,
+  generateMermaid,
+  GraphData,
+} from '../../scripts/visualizer';
 import { ParsedFile } from '../../core/parser';
 
 describe('Visualizer Logic', () => {
-    
-    // Use simple filenames to avoid OS-specific path separator issues in tests
-    const mockParsedFiles: ParsedFile[] = [
-        {
-            filePath: 'App.tsx',
-            imports: ['./Child', './Shared', './Utils', './useAuth', './appStore'],
-            apiCalls: [],
-            functions: [{ name: 'App', calls: [] }],
-            props: [],
-            documentation: ''
-        },
-        {
-            filePath: 'Child.tsx',
-            imports: ['./Shared'],
-            apiCalls: [{ url: '/api/data', method: 'GET' }],
-            functions: [{ name: 'Child', calls: [{ name: 'fetch', args: [] }] }],
-            props: [],
-            documentation: ''
-        },
-        {
-            filePath: 'Shared.tsx',
-            imports: [],
-            apiCalls: [],
-            functions: [{ name: 'Shared', calls: [] }],
-            props: [],
-            documentation: ''
-        },
-        {
-            filePath: 'useAuth.ts',
-            imports: [],
-            apiCalls: [],
-            functions: [{ name: 'useAuth', calls: [] }],
-            props: [],
-            documentation: ''
-        },
-        {
-            filePath: 'appStore.ts',
-            imports: ['zustand'],
-            apiCalls: [],
-            functions: [],
-            props: [],
-            documentation: ''
-        }
-    ];
+  // Use simple filenames to avoid OS-specific path separator issues in tests
+  const mockParsedFiles: ParsedFile[] = [
+    {
+      filePath: 'App.tsx',
+      imports: ['./Child', './Shared', './Utils', './useAuth', './appStore'],
+      apiCalls: [],
+      functions: [{ name: 'App', calls: [] }],
+      props: [],
+      documentation: '',
+    },
+    {
+      filePath: 'Child.tsx',
+      imports: ['./Shared'],
+      apiCalls: [{ url: '/api/data', method: 'GET' }],
+      functions: [{ name: 'Child', calls: [{ name: 'fetch', args: [] }] }],
+      props: [],
+      documentation: '',
+    },
+    {
+      filePath: 'Shared.tsx',
+      imports: [],
+      apiCalls: [],
+      functions: [{ name: 'Shared', calls: [] }],
+      props: [],
+      documentation: '',
+    },
+    {
+      filePath: 'useAuth.ts',
+      imports: [],
+      apiCalls: [],
+      functions: [{ name: 'useAuth', calls: [] }],
+      props: [],
+      documentation: '',
+    },
+    {
+      filePath: 'appStore.ts',
+      imports: ['zustand'],
+      apiCalls: [],
+      functions: [],
+      props: [],
+      documentation: '',
+    },
+  ];
 
-    describe('convertParsedFilesToGraph', () => {
-        it('should create nodes with correct metrics', () => {
-            const graph = convertParsedFilesToGraph(mockParsedFiles);
-            
-            const appNode = graph.nodes.find(n => n.id === 'App');
-            expect(appNode).toBeDefined();
-            expect(appNode?.metrics.imports).toBe(5);
+  describe('convertParsedFilesToGraph', () => {
+    it('should create nodes with correct metrics', () => {
+      const graph = convertParsedFilesToGraph(mockParsedFiles);
 
-            const childNode = graph.nodes.find(n => n.id === 'Child');
-            expect(childNode?.metrics.apiCalls).toBe(1);
-            expect(childNode?.metrics.functionCalls).toBe(1);
-        });
+      const appNode = graph.nodes.find(n => n.id === 'App');
+      expect(appNode).toBeDefined();
+      expect(appNode?.metrics.imports).toBe(5);
 
-        it('should identify node types correctly', () => {
-            const graph = convertParsedFilesToGraph(mockParsedFiles);
-            
-            const hookNode = graph.nodes.find(n => n.id === 'useAuth');
-            expect(hookNode?.type).toBe('hook');
-
-            const storeNode = graph.nodes.find(n => n.id === 'appStore');
-            expect(storeNode?.type).toBe('store');
-        });
+      const childNode = graph.nodes.find(n => n.id === 'Child');
+      expect(childNode?.metrics.apiCalls).toBe(1);
+      expect(childNode?.metrics.functionCalls).toBe(1);
     });
 
-    describe('generateMermaid', () => {
-        const graphData: GraphData = convertParsedFilesToGraph(mockParsedFiles);
+    it('should identify node types correctly', () => {
+      const graph = convertParsedFilesToGraph(mockParsedFiles);
 
-        it('should always show App component', () => {
-            const mermaid = generateMermaid(graphData, { minImports: 5 });
-            expect(mermaid).toContain('App');
-        });
+      const hookNode = graph.nodes.find(n => n.id === 'useAuth');
+      expect(hookNode?.type).toBe('hook');
 
-        it('should show dependencies of focus nodes (Recursive Traversal)', () => {
-            // App (Focus) -> Child -> Shared
-            // Shared has 0 imports, but should be visible because it's reachable from App
-            const mermaid = generateMermaid(graphData, { minImports: 5 });
-            expect(mermaid).toContain('Child');
-            expect(mermaid).toContain('Shared');
-        });
-
-        it('should generate layers', () => {
-            const mermaid = generateMermaid(graphData);
-            expect(mermaid).toContain('subgraph UI_Layer');
-            expect(mermaid).toContain('subgraph Logic_Layer');
-            expect(mermaid).toContain('subgraph Data_Layer');
-        });
-
-        it('should generate horizontal legend', () => {
-            const mermaid = generateMermaid(graphData);
-            expect(mermaid).toContain('direction LR');
-            expect(mermaid).toContain('subgraph Legend');
-        });
+      const storeNode = graph.nodes.find(n => n.id === 'appStore');
+      expect(storeNode?.type).toBe('store');
     });
+  });
+
+  describe('generateMermaid', () => {
+    const graphData: GraphData = convertParsedFilesToGraph(mockParsedFiles);
+
+    it('should always show App component', () => {
+      const mermaid = generateMermaid(graphData, { minImports: 5 });
+      expect(mermaid).toContain('App');
+    });
+
+    it('should show dependencies of focus nodes (Recursive Traversal)', () => {
+      // App (Focus) -> Child -> Shared
+      // Shared has 0 imports, but should be visible because it's reachable from App
+      const mermaid = generateMermaid(graphData, { minImports: 5 });
+      expect(mermaid).toContain('Child');
+      expect(mermaid).toContain('Shared');
+    });
+
+    it('should generate layers', () => {
+      const mermaid = generateMermaid(graphData);
+      expect(mermaid).toContain('subgraph UI_Layer');
+      expect(mermaid).toContain('subgraph Logic_Layer');
+      expect(mermaid).toContain('subgraph Data_Layer');
+    });
+
+    it('should generate horizontal legend', () => {
+      const mermaid = generateMermaid(graphData);
+      expect(mermaid).toContain('direction LR');
+      expect(mermaid).toContain('subgraph Legend');
+    });
+  });
 });
 </file>
 
@@ -3138,12 +3396,12 @@ export interface ComponentMetadata {
   name: string;
   path: string;
   relativePath: string;
-  type: 'component' | 'hook' | 'utility'| 'other ';
+  type: 'component' | 'hook' | 'utility' | 'other ';
   tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];
   props?: PropMetadata[];
-  hooks?:{name: string; source?: string}[];
+  hooks?: { name: string; source?: string }[];
   documentation?: string;
 }
 
@@ -3184,7 +3442,6 @@ export interface ParseResult {
   error?: string;
 }
 
-
 // base interface for all parsers (React, Vue, Svelte)
 export interface Parser {
   parse(filePath: string, options?: ParseOptions): Promise<ParseResult>;
@@ -3198,45 +3455,59 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 export class IgnoreHandler {
-    private ig: ReturnType<typeof ignore>;
+  private ig: ReturnType<typeof ignore>;
 
-    constructor(baseDir: string, respectGitignore: boolean = true) {
-        this.ig = ignore();
-        
-        if (respectGitignore) {
-            this.loadGitignore(baseDir);
-        };
-    };
+  constructor(baseDir: string, respectGitignore: boolean = true) {
+    this.ig = ignore();
 
-    private loadGitignore(baseDir: string): void {
-        const gitignorePath = join(baseDir, '.gitignore');
+    if (respectGitignore) {
+      this.loadGitignore(baseDir);
+    }
+  }
 
-        if (existsSync(gitignorePath)) {
-            try {
-                const gitignoreContent = readFileSync(gitignorePath, 'utf8');
-                this.ig.add(gitignoreContent);
-            } catch (error) {
-                // silently fail if .gitignore can't be read
-                console.warn(`Warning: Could not read .gitignore file`);
-            };
-        };
-    };
+  private loadGitignore(baseDir: string): void {
+    const gitignorePath = join(baseDir, '.gitignore');
 
-    // add custom patterns to ignore
-    addPatterns(patterns: string[]): void {
-        this.ig.add(patterns);
-    };
+    if (existsSync(gitignorePath)) {
+      try {
+        const gitignoreContent = readFileSync(gitignorePath, 'utf8');
+        this.ig.add(gitignoreContent);
+      } catch (error) {
+        // silently fail if .gitignore can't be read
+        console.warn(`Warning: Could not read .gitignore file`);
+      }
+    }
+  }
 
-    // check if a path should be ignored
-    shouldIgnore(path: string): boolean {
-        return this.ig.ignores(path);
-    };
+  // add custom patterns to ignore
+  addPatterns(patterns: string[]): void {
+    this.ig.add(patterns);
+  }
 
-    // filter an array of paths
-    filter(paths: string[]): string[] {
-        return paths.filter(path => !this.shouldIgnore(path))
-    };
-};
+  // check if a path should be ignored
+  shouldIgnore(path: string): boolean {
+    return this.ig.ignores(path);
+  }
+
+  // filter an array of paths
+  filter(paths: string[]): string[] {
+    return paths.filter(path => !this.shouldIgnore(path));
+  }
+}
+</file>
+
+<file path=".prettierrc.json">
+{
+  "semi": true,
+  "trailingComma": "all",
+  "singleQuote": true,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
+}
 </file>
 
 <file path="dependency-graph.json">
@@ -3254,6 +3525,23 @@ export class IgnoreHandler {
 }
 </file>
 
+<file path="eslint.config.mts">
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
+
+export default defineConfig([
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    plugins: { js },
+    extends: ['js/recommended'],
+    languageOptions: { globals: globals.browser },
+  },
+  tseslint.configs.recommended,
+]);
+</file>
+
 <file path="package.json">
 {
   "dependencies": {
@@ -3265,14 +3553,20 @@ export class IgnoreHandler {
     "ignore": "^7.0.5",
     "ora": "^9.1.0",
     "path": "^0.12.7",
+    "prettier": "3.8.1",
     "repomix": "^1.11.1",
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@mermaid-js/mermaid-cli": "^11.4.2",
     "@types/node": "^24.10.9",
+    "eslint": "^10.0.2",
+    "globals": "^17.3.0",
     "husky": "^9.1.7",
     "tsx": "^4.19.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
     "vitest": "^4.0.18"
   },
   "scripts": {
@@ -3281,7 +3575,8 @@ export class IgnoreHandler {
     "generate-graph:full": "npm run generate-graph && mmdc -i dependency-graph.mmd -o dependency-graph.png -s 3 && mmdc -i call-graph.mmd -o call-graph.png -s 3",
     "watch:graph": "tsx scripts/test-run.ts --watch",
     "prepare": "husky",
-    "pack-repo": "repomix"
+    "pack-repo": "repomix",
+    "format": "prettier --write ."
   },
   "engines": {
     "node": ">=20.0.0"
@@ -3298,7 +3593,7 @@ services/
 │   ├── index.ts                    # Main CLI entry point
 │   ├── commands/
 │   │   ├── scan.ts                # Scan command
-│   │   ├── watch.ts               # Watch mode command  
+│   │   ├── watch.ts               # Watch mode command
 │   │   ├── analyze.ts             # Dependency analysis command
 │   │   └── generate.ts            # Generate manifest command
 │   └── config.ts                  # CLI config loader
@@ -3351,8 +3646,8 @@ services/
     └── dependency-graph.json       # Generated graph
 ```
 
-
 ### CLI core:
+
 ```bash
 {
   "dependencies": {
@@ -3365,6 +3660,7 @@ services/
 ```
 
 ### File scanning
+
 ```bash
 {
   "dependencies": {
@@ -3374,9 +3670,11 @@ services/
   }
 }
 ```
+
 ### Mermaid Visuals
 
 <!-- DEPENDENCY_GRAPH-START -->
+
 #### Dependency Graph (Imports & API Calls)
 
 ```mermaid
@@ -3407,9 +3705,11 @@ graph TD;
         L1 -.->|Fetch| L4
     end
 ```
+
 <!-- DEPENDENCY_GRAPH-END -->
 
 <!-- CALL_GRAPH-START -->
+
 #### Call Graph (Function Interactions)
 
 ```mermaid
@@ -3436,6 +3736,7 @@ flowchart TB;
     Dropdown_Dropdown ~~~ UserProfile_formatUserName
     end
 ```
+
 <!-- CALL_GRAPH-END -->
 </file>
 
@@ -3465,11 +3766,7 @@ flowchart TB;
     "scripts/**/*",
     "test/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts"
-  ]
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
 </file>
 
