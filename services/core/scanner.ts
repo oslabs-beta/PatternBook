@@ -1,8 +1,7 @@
 import fg from 'fast-glob';
 import { statSync } from 'fs';
 import { resolve, relative, basename, dirname, extname } from 'path';
-import { IgnoreHandler } from '../utils/ignore';
-<<<<<<< HEAD
+import { IgnoreHandler } from '../utils/ignore.js';
 import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
 import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
 
@@ -18,7 +17,7 @@ export class ComponentScanner {
 
     return {
       directory: resolve(options.directory || process.cwd()),
-      pattern: options.pattern || frameworkPatterns.include,
+      pattern: options.pattern || [...frameworkPatterns.include],
       exclude: options.exclude || frameworkPatterns.exclude,
       includeNodeModules: options.includeNodeModules ?? false,
       respectGitignore: options.respectGitignore ?? true,
@@ -60,7 +59,7 @@ export class ComponentScanner {
       : foundFiles;
 
     // convert to ComponentFile objects
-    const componentFiles: ComponentFile[] = filteredFiles.map(file => {
+    const componentFiles: ComponentFile[] = filteredFiles.map((file: string) => {
       const absolutePath = resolve(this.options.directory, file);
       const stats = statSync(absolutePath);
 
