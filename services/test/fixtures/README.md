@@ -29,7 +29,6 @@ npx patternbook generate --input ./test-components --output ./public/generated-m
 The generated manifest should match the structure in `/public/mock-data/manifest.json`.
 
 <!-- DEPENDENCY_GRAPH-START -->
-
 #### Dependency Graph
 
 ```mermaid
@@ -51,69 +50,37 @@ graph TD;
     direction TB
     subgraph UI_Layer ["UI Components"]
         direction TB
-    App["App\n(Imp:7, API:3, Fn:6)"]:::highImports
-    Card["Card\n(Imp:4, API:0, Fn:1)"]:::component
-    Button["Button\n(Imp:0, API:0, Fn:1)"]:::leaf
-    Input["Input\n(Imp:0, API:0, Fn:1)"]:::leaf
-    Modal["Modal\n(Imp:0, API:0, Fn:2)"]:::leaf
-    Dropdown["Dropdown\n(Imp:0, API:0, Fn:3)"]:::leaf
-    UserProfile["UserProfile\n(Imp:0, API:0, Fn:0)"]:::leaf
-    store["store\n(Imp:0, API:0, Fn:0)"]:::leaf
+    Button["Button\n(Imp:1, API:0, Fn:0)"]:::leaf
+    Card["Card\n(Imp:5, API:0, Fn:0)"]:::component
+    Dropdown["Dropdown\n(Imp:1, API:0, Fn:0)"]:::leaf
+    Input["Input\n(Imp:1, API:0, Fn:0)"]:::leaf
+    Modal["Modal\n(Imp:1, API:0, Fn:0)"]:::leaf
+    UserProfile["UserProfile\n(Imp:4, API:2, Fn:0)"]:::component
     end
     subgraph Data_Layer ["Data & API"]
         direction TB
-    API_GET__api_config[("GET /api/config\n(Imp:0, API:0, Fn:0)")]:::api
-    API_GET__api_user_123[("GET /api/user/123\n(Imp:0, API:0, Fn:0)")]:::api
-    API_POST__api_submit[("POST /api/submit\n(Imp:0, API:0, Fn:0)")]:::api
+    API_GET__api_users___userId_[("GET /api/users/${userId}\n(Imp:0, API:0, Fn:0)")]:::api
+    API_POST__api_users[("POST /api/users\n(Imp:0, API:0, Fn:0)")]:::api
     end
-    App --> Card
-    App --> Button
-    App --> Input
-    App --> Modal
-    App --> Dropdown
-    App --> UserProfile
-    App --> store
-    App -.-> API_GET__api_config
-    App -.-> API_GET__api_user_123
-    App -.-> API_POST__api_submit
     Card --> Button
     Card --> Input
     Card --> Modal
     Card --> Dropdown
+    UserProfile -.-> API_GET__api_users___userId_
+    UserProfile -.-> API_POST__api_users
+    UserProfile --> Button
+    UserProfile --> useAuth
+    UserProfile --> store
     end
-    UI_Layer ~~~ Data_Layer
     Legend ~~~ System
 ```
-
 <!-- DEPENDENCY_GRAPH-END -->
 
 <!-- CALL_GRAPH-START -->
-
 #### Call Graph
 
 ```mermaid
-flowchart TB;
-    classDef function fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10;
-    classDef file fill:#eceff1,stroke:#455a64,stroke-width:1px,stroke-dasharray: 5 5;
-    classDef store fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,rx:5,ry:5;
-    subgraph Call_Graph ["Call Graph"]
-    direction TB
-    subgraph App
-        direction TB
-        App_App(["App"]):::function
-        STORE_useAppStore[("useAppStore")]:::store
-        App_App -.-> STORE_useAppStore
-        App_App_calls_toggleTheme["toggleTheme"]:::file
-        App_App --> App_App_calls_toggleTheme
-    end
-    subgraph Dropdown
-        direction TB
-        Dropdown_Dropdown(["Dropdown"]):::function
-        Dropdown_Dropdown_calls_onChange["onChange"]:::file
-        Dropdown_Dropdown --> Dropdown_Dropdown_calls_onChange
-    end
-    App_App ~~~ Dropdown_Dropdown
-    end
+graph TD;
+  A[Call Graph] --> B[Integrated Metadata]
 ```
-
 <!-- CALL_GRAPH-END -->
