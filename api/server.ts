@@ -3,11 +3,17 @@ import cors from 'cors';
 import { readFileSync, existsSync, watchFile } from 'fs';
 import { resolve } from 'path';
 import chalk from 'chalk';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// ES Module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// middleware
+// middlewareeslint
 app.use(cors());
 app.use(express.json());
 
@@ -47,8 +53,8 @@ function watchManifestFile(
 };
 
 // initialize caches and watchers
-const MANIFEST_PATH = resolve(process.cwd(), 'library-manifest.json');
-const DEPENDENCY_GRAPH_PATH = resolve(process.cwd(), 'dependency-graph.json');
+const MANIFEST_PATH = resolve(__dirname, '..', 'library-manifest.json');
+const DEPENDENCY_GRAPH_PATH = resolve(__dirname, '..', 'dependency-graph.json');
 
 manifestCache = loadManifest(MANIFEST_PATH);
 dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
@@ -69,7 +75,7 @@ watchManifestFile(DEPENDENCY_GRAPH_PATH, data => {
  * GET /api/health
  * Health check endpoint
  */
-app.get('/api/heatlh', (req: Request, res: Response) => {
+app.get('/api/health', (req: Request, res: Response) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
@@ -153,9 +159,7 @@ app.get('/api/components/tag/:tag', (req: Request, res: Response) => {
     };
 
     const { tag } = req.params;
-    const components = manifestCache.components.filter((c: any) => {
-        c.tags?.includes(tag)
-    });
+    const components = manifestCache.components.filter((c: any) => c.tags?.includes(tag));
 
     res.json({ tag, components, total: components.length });
 });
