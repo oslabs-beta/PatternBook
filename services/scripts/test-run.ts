@@ -3,12 +3,13 @@ import { CodeParser } from '../core/parser.ts';
 import {
   generateMermaid,
   generateCallGraph,
-  convertParsedFilesToGraph,
 } from './visualizer.ts';
 import { Exporter } from '../core/exporter.ts';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { DependencyGraphBuilder } from '../core/dependency-graph.js';
+import { ComponentMetadata } from '../types/parser.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,17 +52,18 @@ const watcher = new ComponentWatcher({
   onError: err => console.error('Watcher error:', err),
 });
 
+const graphBuilder = new DependencyGraphBuilder();
 async function updateVisuals() {
   try {
     // 1. Get components from watcher
-    const components = watcher.getComponents();
+    const components: ComponentMetadata[] = watcher.getComponents();
 
     // 2. Generate Dependency Graph
-    const graphData = convertParsedFilesToGraph(components);
-    const mermaidGraph = generateMermaid(graphData);
+    const dependencyGraph = graphBuilder.buildGraph(components);
+    const mermaidGraph = generateMermaid(dependencyGraph);
 
     // 3. Generate Call Graph (Placeholder until we sync the logic)
-    const callGraph = "graph TD;\n  A[Call Graph] --> B[Integrated Metadata]";
+    const callGraph = generateCallGraph(components);
 
     // 4. Update README
     Exporter.updateReadme(readmePath, [
@@ -76,6 +78,7 @@ async function updateVisuals() {
         content: callGraph 
       },
     ]);
+   
 
     // 5. Save .mmd files for the Mermaid CLI
     const depGraphPath = path.resolve(process.cwd(), 'dependency-graph.mmd');

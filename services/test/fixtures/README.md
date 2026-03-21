@@ -34,45 +34,24 @@ The generated manifest should match the structure in `/public/mock-data/manifest
 ```mermaid
 graph TD;
     classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef highImports fill:#ffcdd2,stroke:#c62828,stroke-width:3px;
-    classDef highApi fill:#ffe0b2,stroke:#e65100,stroke-width:2px;
-    classDef highLogic fill:#e1bee7,stroke:#4a148c,stroke-width:2px;
     classDef database fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5;
     classDef api fill:#fff3e0,stroke:#ff6f00,stroke-width:2px,stroke-dasharray: 5 5;
     classDef hook fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px;
-    classDef store fill:#e0f2f1,stroke:#2e7d32,stroke-width:2px;
     classDef leaf fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px;
-    subgraph Legend
-        direction LR
-        L_Focus["Focus"]:::component ~~~ L_Imp["High Imports"]:::highImports ~~~ L_API["High API"]:::highApi ~~~ L_Logic["High Logic"]:::highLogic ~~~ L_DB[("Database")]:::database ~~~ L_Minor["Minor"]:::leaf
-    end
     subgraph System ["System Components"]
     direction TB
-    subgraph UI_Layer ["UI Components"]
-        direction TB
-    Button["Button\n(Imp:1, API:0, Fn:0)"]:::leaf
-    Card["Card\n(Imp:5, API:0, Fn:0)"]:::component
-    Dropdown["Dropdown\n(Imp:1, API:0, Fn:0)"]:::leaf
-    Input["Input\n(Imp:1, API:0, Fn:0)"]:::leaf
-    Modal["Modal\n(Imp:1, API:0, Fn:0)"]:::leaf
-    UserProfile["UserProfile\n(Imp:4, API:2, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx["Button\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx["Card\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Dropdown_tsx["Dropdown\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Input_tsx["Input\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Modal_tsx["Modal\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_UserProfile_tsx["UserProfile\n(Imp:0, API:0, Fn:4)"]:::component
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Input_tsx
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Modal_tsx
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Dropdown_tsx
+    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_UserProfile_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx
     end
-    subgraph Data_Layer ["Data & API"]
-        direction TB
-    API_GET__api_users___userId_[("GET /api/users/${userId}\n(Imp:0, API:0, Fn:0)")]:::api
-    API_POST__api_users[("POST /api/users\n(Imp:0, API:0, Fn:0)")]:::api
-    end
-    Card --> Button
-    Card --> Input
-    Card --> Modal
-    Card --> Dropdown
-    UserProfile -.-> API_GET__api_users___userId_
-    UserProfile -.-> API_POST__api_users
-    UserProfile --> Button
-    UserProfile --> useAuth
-    UserProfile --> store
-    end
-    Legend ~~~ System
 ```
 <!-- DEPENDENCY_GRAPH-END -->
 
@@ -80,7 +59,7 @@ graph TD;
 #### Call Graph
 
 ```mermaid
-graph TD;
-  A[Call Graph] --> B[Integrated Metadata]
+flowchart TB
+    classDef function fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10;
 ```
 <!-- CALL_GRAPH-END -->
