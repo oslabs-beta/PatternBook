@@ -14,8 +14,7 @@ dist-ssr
 *.local
 .vite
 
-libray-manifest.json
-*/libray-manifest.json
+
 
 # Editor directories and files
 */.vscode
@@ -29,7 +28,13 @@ libray-manifest.json
 *.njsproj
 *.sln
 *.sw?
+
+# service outputs
 /repomix-output.xml/
 */repomix-output.xml
 repomix-output.xml
 
+library-manifest.json
+*/library-manifest.json
+
+*/dependency-graph.*

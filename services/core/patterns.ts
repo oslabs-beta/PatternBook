@@ -7,11 +7,7 @@
 export const FRAMEWORK_PATTERNS = {
   react: {
     include: [
-<<<<<<< HEAD
       '**/*.{jsx,ts,js,tsx}',
-=======
-      '**/*.{jsx,tsx}',
->>>>>>> origin/main
       '**/components/**/*.{js,ts}',
       '**/hooks/**/*.{js,ts}',
     ],
@@ -28,30 +24,11 @@ export const FRAMEWORK_PATTERNS = {
       '**/components/**/*.{js,ts}',
       '**/composables/**/*.{js,ts}',
     ],
-<<<<<<< HEAD
     exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
   },
   svelte: {
     include: ['**/*.svelte', '**/components/**/*.{js,ts}'],
     exclude: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/__tests__/**'],
-=======
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
-  },
-  svelte: {
-    include: [
-      '**/*.svelte',
-      '**/components/**/*.{js,ts}',
-    ],
-    exclude: [
-      '**/*.test.{js,ts}',
-      '**/*.spec.{js,ts}',
-      '**/__tests__/**',
-    ],
->>>>>>> origin/main
   },
 } as const;
 
@@ -75,13 +52,9 @@ export const DEFAULT_INCLUDE_PATTERNS = [
   '**/composables/**/*.{js,ts}',
 ];
 
-<<<<<<< HEAD
 export function getFrameworkPatterns(
   framework: 'react' | 'vue' | 'svelte' | 'auto',
 ) {
-=======
-export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'auto') {
->>>>>>> origin/main
   if (framework === 'auto') {
     // For auto-detection, we'll use a combination of all patterns
     return {
@@ -89,11 +62,7 @@ export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'au
       exclude: DEFAULT_EXCLUDE_PATTERNS,
     };
   }
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> origin/main
   return {
     include: FRAMEWORK_PATTERNS[framework].include,
     exclude: [
@@ -101,8 +70,4 @@ export function getFrameworkPatterns(framework: 'react' | 'vue' | 'svelte' | 'au
       ...FRAMEWORK_PATTERNS[framework].exclude,
     ],
   };
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main

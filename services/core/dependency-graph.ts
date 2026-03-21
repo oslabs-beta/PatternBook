@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { ComponentMetadata } from '../types/parser.js';
 import type {
   DependencyGraph,
@@ -10,14 +9,6 @@ import type {
 
 /**
  * Builds and analyzes dependency graphs from parsed component metadata
-=======
-import type { ComponentMetadata } from '../types/parser.ts';
-import type { DependencyGraph, GraphNode, GraphEdge, GraphMetadata, ImpactAnalysis } from '../types/graph.ts';
-
-/**
- * Builds and analyzes dependency graphs from parsed component metadata
- * Refactored from scripts/dependency-mapper.ts
->>>>>>> origin/main
  */
 export class DependencyGraphBuilder {
   private nodes: Map<string, GraphNode> = new Map();
@@ -43,11 +34,7 @@ export class DependencyGraphBuilder {
     return {
       nodes: Array.from(this.nodes.values()),
       edges: this.edges,
-<<<<<<< HEAD
       metadata: this.calculateMetadata(),
-=======
-      metadata: this.calculateMetadata()
->>>>>>> origin/main
     };
   }
 
@@ -55,7 +42,7 @@ export class DependencyGraphBuilder {
     const node: GraphNode = {
       id: component.path,
       name: component.name,
-      type: component.type,
+      type: component.type as 'component' | 'hook' | 'utility',
       filePath: component.path,
       props: component.props?.length,
       hooks: component.hooks?.map(h => h.name),
@@ -64,29 +51,20 @@ export class DependencyGraphBuilder {
     this.nodes.set(component.path, node);
   }
 
-<<<<<<< HEAD
   private addEdges(
     component: ComponentMetadata,
     allComponents: ComponentMetadata[],
   ): void {
-=======
-  private addEdges(component: ComponentMetadata, allComponents: ComponentMetadata[]): void {
->>>>>>> origin/main
     const internalImports = component.imports.filter(imp => imp.isInternal);
 
     internalImports.forEach(imp => {
       // Find the target component by matching import source
-<<<<<<< HEAD
       const targetComponent = this.findComponentByImport(
         imp.source,
         component.path,
         allComponents,
       );
 
-=======
-      const targetComponent = this.findComponentByImport(imp.source, component.path, allComponents);
-      
->>>>>>> origin/main
       if (targetComponent) {
         this.edges.push({
           from: component.path,
@@ -100,15 +78,10 @@ export class DependencyGraphBuilder {
     if (component.hooks) {
       component.hooks.forEach(hook => {
         // Find if this hook is defined in our codebase
-<<<<<<< HEAD
         const hookComponent = allComponents.find(
           c => c.name === hook.name && c.type === 'hook',
         );
 
-=======
-        const hookComponent = allComponents.find(c => c.name === hook.name && c.type === 'hook');
-        
->>>>>>> origin/main
         if (hookComponent) {
           this.edges.push({
             from: component.path,
@@ -123,7 +96,6 @@ export class DependencyGraphBuilder {
   private findComponentByImport(
     importPath: string,
     fromPath: string,
-<<<<<<< HEAD
     allComponents: ComponentMetadata[],
   ): ComponentMetadata | undefined {
     // Simplified: match by component name in the import path
@@ -136,33 +108,16 @@ export class DependencyGraphBuilder {
 
     return allComponents.find(
       c => c.name === importName || c.path.includes(importPath),
-=======
-    allComponents: ComponentMetadata[]
-  ): ComponentMetadata | undefined {
-    // Simplified: match by component name in the import path
-    // TODO: Implement proper path resolution
-    
-    const importName = importPath.split('/').pop()?.replace(/\.(tsx?|jsx?)$/, '');
-    
-    return allComponents.find(c => 
-      c.name === importName || 
-      c.path.includes(importPath)
->>>>>>> origin/main
     );
   }
 
   private calculateMetadata(): GraphMetadata {
-<<<<<<< HEAD
     const components = Array.from(this.nodes.values()).filter(
       n => n.type === 'component',
     );
     const hooks = Array.from(this.nodes.values()).filter(
       n => n.type === 'hook',
     );
-=======
-    const components = Array.from(this.nodes.values()).filter(n => n.type === 'component');
-    const hooks = Array.from(this.nodes.values()).filter(n => n.type === 'hook');
->>>>>>> origin/main
 
     return {
       totalNodes: this.nodes.size,
@@ -190,16 +145,11 @@ export class DependencyGraphBuilder {
    */
   analyzeImpact(targetPath: string): ImpactAnalysis {
     const directDependents = this.findDirectDependents(targetPath);
-<<<<<<< HEAD
     const indirectDependents = this.findIndirectDependents(
       targetPath,
       directDependents,
     );
 
-=======
-    const indirectDependents = this.findIndirectDependents(targetPath, directDependents);
-    
->>>>>>> origin/main
     const allAffected = [...directDependents, ...indirectDependents];
     const affectedComponents = allAffected
       .map(path => this.nodes.get(path))
@@ -227,14 +177,10 @@ export class DependencyGraphBuilder {
   /**
    * Find all files that depend on the direct dependents (recursive)
    */
-<<<<<<< HEAD
   private findIndirectDependents(
     targetPath: string,
     directDependents: string[],
   ): string[] {
-=======
-  private findIndirectDependents(targetPath: string, directDependents: string[]): string[] {
->>>>>>> origin/main
     const indirect = new Set<string>();
     const visited = new Set([targetPath, ...directDependents]);
 
@@ -283,7 +229,6 @@ export class DependencyGraphBuilder {
    * Export graph in various formats
    */
   toJSON(): string {
-<<<<<<< HEAD
     return JSON.stringify(
       {
         nodes: Array.from(this.nodes.values()),
@@ -295,12 +240,3 @@ export class DependencyGraphBuilder {
     );
   }
 }
-=======
-    return JSON.stringify({
-      nodes: Array.from(this.nodes.values()),
-      edges: this.edges,
-      metadata: this.calculateMetadata(),
-    }, null, 2);
-  }
-}
->>>>>>> origin/main
