@@ -34,10 +34,11 @@
     "access": "public"
   },
   "scripts": {
-    "dev:api": "npm run dev --workspace=api",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:api\" \"npm run dev:services\"",
     "dev:client": "npm run dev --workspace=client",
+    "dev:api": "npm run dev --workspace=api",
     "dev:services": "npm run cli:dev --workspace=services",
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
+    "dev:services-test": "npm run cli:dev --workspace=services -- watch ./test/fixtures --output ./library-manifest.json",
     "build:all": "npm run build --workspaces"
   },
   "devDependencies": {
