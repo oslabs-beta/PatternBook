@@ -1,7 +1,7 @@
 {
   "name": "patternbook-api",
-  "version": "1.0.0",
-  "description": "API server for PatternBook component library",
+  "version": "0.1.0",
+  "description": "API server for PatternBook",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {

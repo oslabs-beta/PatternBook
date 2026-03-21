@@ -6,6 +6,33 @@
     "api",
     "client"
   ],
+  "keywords": [
+    "components",
+    "storybook",
+    "design-system",
+    "cli",
+    "react",
+    "vue",
+    "svelte"
+  ],
+  "homepage": "https://github.com/oslabs-beta/PatternBook#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oslabs-beta/PatternBook.git",
+    "directory": "services"
+  },
+  "license": "MIT",
+  "bin": {
+    "patternbook": "./dist/cli/index.js"
+  },
+  "main": "./dist/cli/index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev:api": "npm run dev --workspace=api",
     "dev:client": "npm run dev --workspace=client",
