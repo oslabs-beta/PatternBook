@@ -12,8 +12,9 @@ Currently being developed...
 - do "npm install"
 - go to /api and setup your env vars
 - start cli tool to generate manifest file
+- then use runs these commands;
 
-e.g
+RUN services first
 ```bash
 cd services
 npm run cli:dev -- generate ./test/fixtures --output ../library-manifest.json
@@ -23,7 +24,7 @@ OR try
 cd services
 npm run cli:dev -- watch ./test/fixtures --output ../library-manifest.json
 ```
-THEN
+THEN run start api server
 ```bash
 cd api
 npm run dev
