@@ -41,8 +41,4 @@ export interface UserConfig {
     includeNodeModules?: boolean;
   };
   framework?: 'react' | 'vue' | 'svelte' | 'auto';
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main
