@@ -1,6 +1,6 @@
 ### PatternBook
 
-A lightweight user-friendly component mapping tool.
+A lightweight zero-config component mapping tool.
 
 Currently being developed...
 
@@ -9,19 +9,26 @@ Currently being developed...
 
 #### Quick usage guide for dev env
 
-i) go to /api and setup your env vars
-ii) start cli tool to generate manifest file
+i) do "npm install"
+ii) go to /api and setup your env vars
+iiI) start cli tool to generate manifest file
 
 e.g
 ```bash
+cd services
 npm run cli:dev -- generate ./test/fixtures --output ../library-manifest.json
 ```
 OR try
 ```bash
+cd services
 npm run cli:dev -- watch ./test/fixtures --output ../library-manifest.json
 ```
 THEN
-
+```bash
+cd api
+npm run dev
+```
+OR
 ```bash
 npm run dev concurrently
 ```
