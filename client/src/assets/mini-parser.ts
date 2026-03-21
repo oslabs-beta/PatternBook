@@ -9,7 +9,7 @@ function getComponentName(filePath: string){
     const firstFunction = sourceFile.getFunctions().find(f=>f.isExported());
     // if we found it, return its name!
     if (firstFunction){
-        console.log('Found a component named:", firstFunction.getName());
+        console.log("Found a component named:", firstFunction?.getName());
         }else{
             console.log("I couldn't find a standard exported funstion in this file.");
         }
