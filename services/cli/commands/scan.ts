@@ -1,13 +1,8 @@
 import ora from 'ora';
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
-<<<<<<< HEAD
 import { ComponentScanner } from '../../core/scanner.js';
 import { parserFactory } from '../../core/parsers/index.js';
-=======
-import { ComponentScanner } from '../../core/scanner.ts';
-import { parserFactory } from '../../core/parsers/index.ts';
->>>>>>> origin/main
 
 interface ScanCommandOptions {
   framework?: 'react' | 'vue' | 'svelte' | 'auto';
@@ -21,11 +16,7 @@ interface ScanCommandOptions {
 
 export async function scanCommand(
   directory: string,
-<<<<<<< HEAD
   options: ScanCommandOptions,
-=======
-  options: ScanCommandOptions
->>>>>>> origin/main
 ): Promise<void> {
   const spinner = ora('Scanning for components...').start();
 
@@ -51,25 +42,12 @@ export async function scanCommand(
         extractDocs: true,
         extractHooks: true,
         extractProps: true,
-<<<<<<< HEAD
       },
     );
 
     const components = parseResults.filter(r => r.success).map(r => r.metadata);
 
     spinner.succeed(chalk.green(`✓ Scanned ${components.length} components`));
-=======
-      }
-    );
-
-    const components = parseResults
-      .filter(r => r.success)
-      .map(r => r.metadata);
-
-    spinner.succeed(
-      chalk.green(`✓ Scanned ${components.length} components`)
-    );
->>>>>>> origin/main
 
     // Step 3: Save results
     const outputPath = options.output || 'scan-results.json';
@@ -90,7 +68,6 @@ export async function scanCommand(
 
     writeFileSync(outputPath, JSON.stringify(output, null, 2));
     console.log(chalk.green(`💾 Results saved to ${outputPath}`));
-<<<<<<< HEAD
   } catch (error) {
     spinner.fail(chalk.red('Scan failed'));
     console.error(
@@ -99,12 +76,3 @@ export async function scanCommand(
     process.exit(1);
   }
 }
-=======
-
-  } catch (error) {
-    spinner.fail(chalk.red('Scan failed'));
-    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
-    process.exit(1);
-  }
-}
->>>>>>> origin/main
