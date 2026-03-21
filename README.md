@@ -9,9 +9,9 @@ Currently being developed...
 
 #### Quick usage guide for dev env
 
-i) do "npm install"
-ii) go to /api and setup your env vars
-iiI) start cli tool to generate manifest file
+- do "npm install"
+- go to /api and setup your env vars
+- start cli tool to generate manifest file
 
 e.g
 ```bash
