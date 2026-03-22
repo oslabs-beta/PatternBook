@@ -1,8 +1,8 @@
 import ora from 'ora';
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
-import { ComponentScanner } from '../../core/scanner.js';
-import { parserFactory } from '../../core/parsers/index.js';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
 
 interface ScanCommandOptions {
   framework?: 'react' | 'vue' | 'svelte' | 'auto';
