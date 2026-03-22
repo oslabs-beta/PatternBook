@@ -9,32 +9,35 @@ lerna-debug.log*
 
 node_modules
 */node_modules
+**/node_modules
 dist
 dist-ssr
 *.local
 .vite
 
+# Ignore all .env files in any directory
+**/.env
+
+# Ignore sub-level .gitignore files
+**/.gitignore
 
 
-# Editor directories and files
+# Ignore Editor directories and files
 */.vscode
+**/.vscode
 /.vscode/
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+**/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# service outputs
-/repomix-output.xml/
-*/repomix-output.xml
-repomix-output.xml
-
-library-manifest.json
-*/library-manifest.json
-
-*/dependency-graph.*
+# Ignore all backend-service outputs
+**/repomix-output.xml
+**/library-manifest.json
+**/dependency-graph.*
