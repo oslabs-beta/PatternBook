@@ -109,13 +109,14 @@ export class ReactParser implements Parser {
     properties.forEach(prop => {
       // get JSDoc for this prop
       const jsDocs = prop.getJsDocTags();
-      const description = jsDocs.find(tag => !tag.getName())?.getText();
+      const descriptionTag = jsDocs.find(tag => !tag.getName());
+      const description = descriptionTag ? descriptionTag.getText().map(p => p.text).join('') : undefined;
 
       props.push({
         name: prop.getName(),
         type: prop.getTypeAtLocation(firstParam).getText(),
         isOptional: prop.isOptional(),
-        description: description ? description.map(p => p.text).join('') : undefined,
+        description: description || undefined,
       });
     });
 
@@ -217,3 +218,7 @@ export class ReactParser implements Parser {
     });
   }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main

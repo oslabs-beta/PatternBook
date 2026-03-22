@@ -1,22 +1,29 @@
-# PatternBook
+### PatternBook
 
-PatternBook is a zero-config documentation engine that automatically generates a living design system from your React and TypeScript components.
+A lightweight user-friendly component mapping tool.
 
-## What it does
+Currently being developed...
 
-- **Static analysis** — PatternBook uses `ts-morph` to parse your component files and extract prop types, JSDoc descriptions, and examples.
-- **Manifest generation** — The analysis is compiled into a structured JSON manifest.
-- **Live viewer** — The PatternBook viewer reads the manifest and renders an interactive docs dashboard with live previews, editable examples, and prop tables.
 
-## Key concepts
+[patternbook.dev](https://www.patternbook.dev)
 
-| Concept                | Description                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| **Manifest**           | A JSON file describing all your components, their props, and examples             |
-| **Viewer**             | The PatternBook web app that reads the manifest and displays your design system   |
-| **Component Registry** | Maps component names in examples to the real imported components for live preview |
+#### Quick usage guide for dev env
 
-## Next steps
+i) go to /api and setup your env vars
+ii) start cli tool to generate manifest file
 
-- [Installation →](/docs/getting-started)
-- [Configuration →](/docs/configuration)
+e.g
+```bash
+npm run cli:dev -- generate ./test/fixtures --output ../library-manifest.json
+```
+OR try
+```bash
+npm run cli:dev -- watch ./test/fixtures --output ../library-manifest.json
+```
+THEN
+
+```bash
+npm run dev concurrently
+```
+
+Now you should be able to see terminal output. 
