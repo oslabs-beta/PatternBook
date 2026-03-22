@@ -12,7 +12,7 @@ Currently being developed...
 - do "npm install"
 - go to /api and setup your env vars
 - start cli tool to generate manifest file
-- then use runs these commands;
+- then use these commands;
 
 RUN services first
 ```bash
