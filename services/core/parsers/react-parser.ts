@@ -7,7 +7,7 @@ import type {
   ParseOptions,
   PropMetadata,
   ImportInfo,
-} from '../../types/parser.js';
+} from '../../types/parser.ts';
 
 // react-specific parser using ts-morph
 // refactored from jumbo-parser.ts with better structure
@@ -206,9 +206,7 @@ export class ReactParser implements Parser {
     return Promise.all(filePaths.map(path => this.parse(path, options)));
   }
 
-  /**
-   * Clear the project cache
-   */
+  /**   * Clear the project cache  */
   clearCache(): void {
     this.project = new Project({
       compilerOptions: {
@@ -218,7 +216,3 @@ export class ReactParser implements Parser {
     });
   }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main

@@ -4,7 +4,8 @@
   "workspaces": [
     "services",
     "api",
-    "client"
+    "client", 
+    "www"
   ],
   "keywords": [
     "components",

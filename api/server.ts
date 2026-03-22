@@ -25,23 +25,35 @@ app.use(express.json());
 let manifestCache: any = null;
 let dependencyGraphCache: any = null;
 
-/**
- * Load manifest from file system
- */
-function loadManifest(filePath: string): any | null {
+
+// Initialize caches and watchers
+const MANIFEST_PATH = process.env.MANIFEST_PATH || resolve(__dirname, '..', 'library-manifest.json');
+const DEPENDENCY_GRAPH_PATH = process.env.DEPENDENCY_GRAPH_PATH || resolve(__dirname, '..', 'dependency-graph.json');
+
+
+
+/** * Load manifest from file system  */
+function loadManifest(filePath: string): string | {} | void {
   try {
     if (!existsSync(filePath)) {
-      console.warn(chalk.yellow(`⚠️  Manifest file not found: ${filePath}`));
-      return null;
+      console.warn(chalk.yellow(`X Manifest file not found: ${filePath}`)); //404
+      return;
     }
+
     const content = readFileSync(filePath, 'utf-8');
     return JSON.parse(content);
+    
   } catch (error) {
-    console.error(chalk.red(`❌ Error loading manifest: ${error}`));
-    return null;
+    console.error(chalk.red(`!! Error !! loading manifest: ${error}`));
+    return;
   }
 }
 
+manifestCache = loadManifest(MANIFEST_PATH);
+dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
+
+console.log('manifestCache', manifestCache, MANIFEST_PATH)
+console.log ( 'dependency graph', dependencyGraphCache)
 /**
  * Watch manifest file for changes and update cache
  */
@@ -52,20 +64,20 @@ function watchManifestFile(
   if (!existsSync(filePath)) return;
 
   watchFile(filePath, { interval: 1000 }, () => {
-    console.log(chalk.blue(`🔄 Detected changes in ${filePath}`));
+    console.log(chalk.blue(`Detected changes in ${filePath}`));
     const data = loadManifest(filePath);
     if (data) {
       cacheSetter(data);
-      console.log(chalk.green('✓ Cache updated'));
+      console.log(chalk.green('Cache updated'));
     }
   });
 }
 
 // Initialize caches and watchers
-const MANIFEST_PATH = process.env.MANIFEST_PATH || resolve(__dirname, '..', 'library-manifest.json');
-const DEPENDENCY_GRAPH_PATH = process.env.DEPENDENCY_GRAPH_PATH || resolve(__dirname, '..', 'dependency-graph.json');
+// const MANIFEST_PATH = process.env.MANIFEST_PATH || resolve(__dirname, '..', 'library-manifest.json');
+// const DEPENDENCY_GRAPH_PATH = process.env.DEPENDENCY_GRAPH_PATH || resolve(__dirname, '..', 'dependency-graph.json');
 
-// ✅ DEBUG CODE
+// DEBUG CODE
 console.log('DEBUG: manifestCache =', manifestCache ? 'exists' : 'null');
 // if (manifestCache) {
 //   console.log('DEBUG: manifestCache.components =', manifestCache.components ? 'exists' : 'undefined');
@@ -75,8 +87,7 @@ console.log('DEBUG: manifestCache =', manifestCache ? 'exists' : 'null');
 // };
 // DEBUG CODE END
 
-manifestCache = loadManifest(MANIFEST_PATH);
-dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
+
 
 watchManifestFile(MANIFEST_PATH, (data) => {
   manifestCache = data;
@@ -353,9 +364,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // ============================================================================
 
 app.listen(PORT, () => {
-  console.log(chalk.green(`\n🚀 PatternBook API Server running!`));
+  console.log(chalk.green(`\nPatternBook API Server running!`));
   console.log(chalk.cyan(`   http://localhost:${PORT}`));
-  console.log(chalk.gray(`\n📊 Available endpoints:`));
+  console.log(chalk.gray(`\n Available endpoints:`));
   console.log(chalk.gray(`   GET  /api/health`));
   console.log(chalk.gray(`   GET  /api/manifest`));
   console.log(chalk.gray(`   GET  /api/components`));
@@ -368,12 +379,12 @@ app.listen(PORT, () => {
 
   if (manifestCache) {
     console.log(
-      chalk.green(`\n✓ Manifest loaded: ${manifestCache.components?.length || 0} components`),
+      chalk.green(`\n Manifest loaded: ${manifestCache.components?.length || 0} components`),
     );
   } else {
     console.log(
       chalk.yellow(
-        '\n⚠️  No manifest found. Run `patternbook generate` first.',
+        '\n No manifest found. Run `patternbook generate` first.',
       ),
     );
   }
@@ -381,12 +392,12 @@ app.listen(PORT, () => {
   if (dependencyGraphCache) {
     console.log(
       chalk.green(
-        `✓ Dependency graph loaded: ${dependencyGraphCache.metadata?.totalNodes || 0} nodes`,
+        `Dependency graph loaded: ${dependencyGraphCache.metadata?.totalNodes || 0} nodes`,
       ),
     );
   }
 
-  console.log(chalk.gray(`\n👀 Watching for file changes...\n`));
+  console.log(chalk.gray(`\n Watching for file changes...\n`));
 });
-
+//do we need emoji? 
 export default app;

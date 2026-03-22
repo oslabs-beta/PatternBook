@@ -69,7 +69,7 @@ services/
     "chalk": "^5.3.0",
     "ora": "^8.0.1"
   }
-}
+
 ```
 
 ### File scanning

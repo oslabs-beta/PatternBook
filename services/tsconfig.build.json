@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
     "moduleResolution": "node16",
     "module": "node16",
-    "noEmit": false,
+    "noEmit": true,
     "outDir": "./dist"
   },
   "exclude": ["node_modules", "dist", "**/*.test.ts", "scripts/**/*", "test/**/*"]

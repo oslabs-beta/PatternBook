@@ -1,10 +1,10 @@
 import ora from 'ora';
 import chalk from 'chalk';
 import { writeFileSync } from 'fs';
-import { ComponentScanner } from '../../core/scanner.js';
-import { parserFactory } from '../../core/parsers/index.js';
-import { DependencyGraphBuilder } from '../../core/dependency-graph.js';
-import type { DependencyGraph } from '../../types/graph.js';
+import { ComponentScanner } from '../../core/scanner.ts';
+import { parserFactory } from '../../core/parsers/index.ts';
+import { DependencyGraphBuilder } from '../../core/dependency-graph.ts';
+import type { DependencyGraph } from '../../types/graph.ts';
 
 interface AnalyzeOptions {
   target?: string;
