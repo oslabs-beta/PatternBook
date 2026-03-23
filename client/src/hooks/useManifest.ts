@@ -45,7 +45,7 @@ export function useManifest() {
         if (import.meta.env.DEV) {
           console.warn('⚠️ Falling back to mock data');
           try {
-            const fallbackResponse = await fetch("/mock-data/manifest.json");
+            const fallbackResponse = await fetch("../../../library-manifest.json");
             if (fallbackResponse.ok) {
               const fallbackData = await response.json() as ComponentManifest;
               setManifest(fallbackData);
