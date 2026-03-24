@@ -66,8 +66,8 @@ export async function serveCommand(
     registryCode += `export const COMPONENT_REGISTRY: Record<string, any> = {\n`;
     for (const comp of components) {
       if (comp.type === 'component') {
-        // Use standard ES import matching
-        registryCode += `  "${comp.name}": lazy(() => import('${comp.path}')),\n`;
+        // Updated to handle both named and default exports seamlessly for React.lazy
+        registryCode += `  "${comp.name}": lazy(() => import('${comp.path}').then(m => ({ default: m["${comp.name}"] || m.default }))),\n`;
       }
     }
     registryCode += `};\n`;
