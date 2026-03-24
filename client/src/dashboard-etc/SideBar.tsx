@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, X, BookOpen, ChevronDown, ChevronRight } from "lucide-react";
+import { Search, X, ChevronDown, ChevronRight } from "lucide-react";
 import "../main.css";
 import { useRegistryStore } from "../stores/registryStore";
 
@@ -49,8 +49,8 @@ function SideBar() {
     <aside className="flex flex-col w-64 min-w-64 h-screen bg-white border-r border-gray-200 overflow-hidden">
       {/* Logo / Brand */}
       <div className="flex items-center gap-2.5 px-5 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-600">
-          <BookOpen size={16} className="text-white" />
+        <div className="flex items-center justify-center w-8 h-8">
+          <img src="/patternbook.svg" alt="PatternBook Logo" className="w-full h-full object-contain" />
         </div>
         <span className="text-sm font-semibold text-gray-900 tracking-tight">
           PatternBook

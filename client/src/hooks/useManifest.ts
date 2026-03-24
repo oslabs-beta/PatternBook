@@ -47,7 +47,7 @@ export function useManifest() {
           try {
             const fallbackResponse = await fetch("/mock-data/manifest.json");
             if (fallbackResponse.ok) {
-              const fallbackData = await response.json() as ComponentManifest;
+              const fallbackData = await fallbackResponse.json() as ComponentManifest;
               setManifest(fallbackData);
               setError(null);
             }
@@ -81,9 +81,9 @@ function transformApiDataToManifest(apiData: any): ComponentManifest {
   
   // Extract unique tags for categories
   const allTags = [...new Set(components.flatMap((c: any) => c.tags || []))];
-  const categories = allTags.map(tag => ({
+  const categories = allTags.map((tag: any) => ({
     name: tag,
-    displayName: tag.charAt(0).toUpperCase() + tag.slice(1),
+    displayName: typeof tag === 'string' ? tag.charAt(0).toUpperCase() + tag.slice(1) : String(tag),
     description: `Components tagged with ${tag}`,
     componentCount: components.filter((c: any) => c.tags?.includes(tag)).length,
   }));

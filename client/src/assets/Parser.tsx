@@ -1,4 +1,4 @@
-import { Project, SyntaxKind } from "ts-morph";
+import { Project } from "ts-morph";
 
 /**
  * The structure of our extracted data

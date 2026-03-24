@@ -1,54 +1,94 @@
-# PatternBook  
-<img src="www/public/logo.svg" alt="Description" width="50" />  Welcome to PatternBook!  <img src="www/public/logo.svg" alt="Description" width="50" /> 
+# <img src="www/public/logo.svg" alt="Description" width="35" /> PatternBook <img src="www/public/logo.svg" alt="Description" width="35" />
 
-PatternBook is a lightweight zero-config component mapping tool you can type into your CLI and generate documentation in less than 30 seconds.
+Welcome to <b> PatternBook! </b>
 
-Currently there exist very few developer tools for quick and easy documentation.  Most of the options that are available take time to install and use. They are also typically more than most teams actually need.  
-PatternBook is a straightforward answer to this issue, providing clear documentation in under 30 seconds with zero-config. 
+PatternBook is a lightweight zero-config component mapping tool designed to run in the CLI and generate documentation in less than 30 seconds.
 
-
-<img src="www/public/logo.svg" alt="Description" width="35" /> [patternbook.dev](https://www.patternbook.dev) <img src="www/public/logo.svg" alt="Description" width="35" />
-
-## Setup 
+## <img src="www/public/logo.svg" alt="Description" width="35" /> Setup
 Initial install:
 
 Running the Tool
 
-Usage guidelines
+>   1. run `npx patternbook-cli`
+> >
+>   2. run `npm run generate-graph`
+> >
+
+<!--   
+  <p align="center">
+      <img src="./assets/office.gif"/>
+  </p> -->
+
+## Usage guidelines
 
 Links to other documentation that might help (react docs or stack overflow)
+
+[Demo ](http://www.youtube link)
 
 Pro Tip: 
  While not a requirement, another great feature is to add a link to a demo of your tool. Easiest way to do this is by publishing a demo on youtube and linking to that youtube video.
 
+## <img src="www/public/logo.svg" alt="Description" width="35" /> Contributing Instructions
+
+PatternBook is an Open Source product that happily welcomes contributions.  We invite anyone interested to contribute.  Please consider the following instructions when contributing.  There are planned features listed below and... of course you can suggest features too.
+
+### Running PatternBook in dev mode 
+- We reccommend forking a copy and creating a new branch.  
+- This branch should be clearly labeled with your name and it should indicate the feature or fix
+
+#### more detailed instructions: 
+
+1. <a href="https://github.com/oslabs-beta/PatternBook"> Clone </a> our Repo.
+2. Create  <a href =" how to branch link "> a new branch</a>.
+3. Do your thing! 
+4. Run our <a href=" test info"> tests</a>.
+5. Let us know by submitting a PR merging your branch into dev. <i> (We recieve automatic updates for PR requests, but if you like you can also contact us if you like.) </i>
 
 
-#### Quick usage guide for dev env
+## <img src="www/public/logo.svg" alt="Description" width="35" />List of planned/desired features
 
-- do "npm install"
-- go to /api and setup your env vars
-- start cli tool to generate manifest file
-- then use these commands;
+| Feature                                                                               | Status    |
+|---------------------------------------------------------------------------------------|-----------|
+| CLI to run                                                                            | ✅        |
+| Supports TypeScript                                                                   | ✅        |
+| Creates Manifest                                                                      | ✅        |
+| Creates Dependecy Graph                                                               | ✅        |
+| Component shortcodes                                                                  | ✅        |
+| SCSS and SASS                                                                         | ⏳        |
+| PostCSS config (ex. Tailwind)                                                         | ⏳        |
+| CSS imports via ESM (including CSS modules)                                           | ⏳        |
+| Shared state between any component shortcode                                          | 🙏🏻        |
+
+- ✅ = Ready to use
+- ⏳ = In progress
+- 🙏🏻 = Looking for contributors
 
 
-RUN services first
-```bash
-cd services
-npm run cli:dev -- generate ./test/fixtures --output ../library-manifest.json
-```
-OR try
-```bash
-cd services
-npm run cli:dev -- watch ./test/fixtures --output ../library-manifest.json
-```
-THEN run start api server
-```bash
-cd api
-npm run dev
-```
-OR
-```bash
-npm run dev concurrently
-```
+## <img src="www/public/logo.svg" alt="Description" width="35" />  Contributors:
 
-Now you should be able to see terminal output. 
+### Meet the OG Team
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Dylan Pangilinan - front end software engineer
+> 
+> <email@dylan>  
+> [github ](https://www.) | [website ](https://www.)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Ever Martinez - back end software engineer
+> 
+> <email@ever>  
+> [github ](https://www.) | [website ](https://www.)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Robyn Highsmith - back end software engineer
+> 
+> <email@robyn>  
+> [github ](https://www.) | [website ](https://www.)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Said Albayrak - back end software engineer
+> 
+> <email@said>  
+> [github ](https://www.) | [website ](https://www.)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Trish O’Meara- Gillespie - front end software engineer
+>
+> <trishedith@gmail.com>  
+>  [trish on github ](https://www.) | [trish on linkedIn ](https://www.)
+
