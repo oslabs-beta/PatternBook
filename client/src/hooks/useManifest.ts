@@ -103,7 +103,12 @@ function transformApiDataToManifest(apiData: any): ComponentManifest {
       defaultValue: p.defaultValue,
       description: p.description,
     })),
-    examples: [],  // TODO: Add examples generation in backend
+    examples: c.examples || [
+      {
+        title: "Basic Usage",
+        code: `<${c.name} />`
+      }
+    ], // Auto-generate an example wrapper so components render by default
     sourceCode: '', // TODO: Add source code in backend
     tags: c.tags || [],
     exports: [c.name],
