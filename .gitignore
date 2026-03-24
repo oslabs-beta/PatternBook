@@ -41,3 +41,10 @@ dist-ssr
 **/repomix-output.xml
 **/library-manifest.json
 **/dependency-graph.*
+
+# Ignore dynamically generated patternbook dev files
+**/.patternbook
+.patternbook
+
+# Ignore generated static dashboard bundle
+services/public

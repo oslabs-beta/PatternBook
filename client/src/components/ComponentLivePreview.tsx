@@ -1,23 +1,51 @@
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live";
+import { LiveProvider, LiveEditor, LiveError, LiveContext } from "react-live";
 import { themes } from "prism-react-renderer";
+import { useContext, useEffect, useRef } from "react";
 
 interface ComponentLivePreviewProps {
   /** The raw JSX string from the manifest example */
   code: string;
   /** Scope object: component(s) + React, from getScopeForComponent() */
   scope: Record<string, unknown>;
+  /** The name of the component to load in the iframe preview */
+  componentName: string;
+}
+
+function IframePreview({ componentName }: { componentName: string }) {
+  const context = useContext(LiveContext);
+  const code = context?.code || "";
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_CODE', code }, '*');
+    }
+  }, [code]);
+
+  return (
+    <div className="live-preview-frame">
+      <p className="live-preview-label">Preview</p>
+      <iframe
+        ref={iframeRef}
+        src={`/.patternbook/preview.html?component=${encodeURIComponent(componentName)}`}
+        style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '8px' }}
+        title="Component Preview"
+        onLoad={(e) => {
+          (e.target as HTMLIFrameElement).contentWindow?.postMessage({ type: 'UPDATE_CODE', code }, '*');
+        }}
+      />
+    </div>
+  );
 }
 
 /**
  * Renders a syntax-highlighted, *editable* code editor (via react-live's
- * LiveEditor) alongside a live preview of the rendered component.
- *
- * Both LiveEditor and LivePreview must share the same LiveProvider context,
- * so they are co-located here. Edits to the code update the preview in real time.
+ * LiveEditor) alongside a live preview iframe of the rendered component.
  */
 export function ComponentLivePreview({
   code,
   scope,
+  componentName,
 }: ComponentLivePreviewProps) {
   return (
     <LiveProvider
@@ -32,11 +60,8 @@ export function ComponentLivePreview({
         <LiveEditor className="live-editor" />
       </div>
 
-      {/* Live rendered preview */}
-      <div className="live-preview-frame">
-        <p className="live-preview-label">Preview</p>
-        <LivePreview />
-      </div>
+      {/* Live rendered preview via iframe */}
+      <IframePreview componentName={componentName} />
 
       {/* Compilation / runtime errors */}
       <LiveError className="live-preview-error" />
