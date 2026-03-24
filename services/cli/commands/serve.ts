@@ -148,7 +148,10 @@ root.render(<PreviewApp />);
 
   const vite = await createViteServer({
     root: targetDir,
-    server: { middlewareMode: true },
+    server: { 
+      middlewareMode: true,
+      hmr: { port: 0 } 
+    },
     appType: 'custom',
     plugins: [react()],
     resolve: {
@@ -165,12 +168,18 @@ root.render(<PreviewApp />);
   // API Routes
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
+  const addNoCacheHeaders = (res: Response) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  };
+
   app.get('/api/manifest', (req, res) => {
+    addNoCacheHeaders(res);
     if (!manifestCache) return res.status(404).json({ error: 'Manifest not found' });
     res.json(manifestCache);
   });
 
   app.get('/api/search', (req, res) => {
+    addNoCacheHeaders(res);
     if (!manifestCache || !manifestCache.components) return res.status(404).json({ error: 'No components' });
     const query = String(req.query.q || '').toLowerCase();
     const results = manifestCache.components.filter((c: any) => 
@@ -182,11 +191,13 @@ root.render(<PreviewApp />);
   });
 
   app.get('/api/graph', (req, res) => {
+    addNoCacheHeaders(res);
     if (!dependencyGraphCache) return res.status(404).json({ error: 'Graph not found' });
     res.json(dependencyGraphCache);
   });
   
   app.get('/api/stats', (req, res) => {
+    addNoCacheHeaders(res);
     if (!manifestCache) return res.status(404).json({ error: 'Manifest not found' });
     res.json({ totalComponents: manifestCache.components?.length || 0 });
   });
