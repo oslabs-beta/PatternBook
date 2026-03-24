@@ -4,11 +4,7 @@ import { useManifest } from "../hooks/useManifest";
 function SearchBar() {
 
   const manifest = useManifest();
-  const handleOnClick = (e:React.MouseEvent) => {
-    e.preventDefault();
-    console.log(manifest);
 
-  }
 
   return (
     <div>

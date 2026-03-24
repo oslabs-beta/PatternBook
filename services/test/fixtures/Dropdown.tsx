@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * A dropdown select component with customizable options
