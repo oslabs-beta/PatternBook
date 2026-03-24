@@ -11,7 +11,7 @@ description: Get PatternBook running in your project.
 ## Install
 
 ```bash
-npm install patternbook --save-dev
+npm install patternbook-cli 
 ```
 
 ## Quick start
