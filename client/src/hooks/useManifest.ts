@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { ComponentManifest } from "../types/manifest";
 import { useRegistryStore } from "../stores/registryStore";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 
 /**
  * Hook to load and manage the component manifest
