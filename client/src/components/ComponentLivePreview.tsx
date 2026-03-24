@@ -27,7 +27,7 @@ function IframePreview({ componentName }: { componentName: string }) {
       <p className="live-preview-label">Preview</p>
       <iframe
         ref={iframeRef}
-        src={`/.patternbook/preview.html?component=${encodeURIComponent(componentName)}`}
+        src={`/patternbook-preview/preview.html?component=${encodeURIComponent(componentName)}`}
         style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '8px' }}
         title="Component Preview"
         onLoad={(e) => {

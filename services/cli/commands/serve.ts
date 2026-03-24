@@ -54,7 +54,7 @@ export async function serveCommand(
   }
 
   // --- Vite Preview Integration ---
-  const pbDir = join(targetDir, '.patternbook');
+  const pbDir = join(targetDir, 'patternbook-preview');
   if (!existsSync(pbDir)) {
     mkdirSync(pbDir);
   }
@@ -124,7 +124,7 @@ root.render(<PreviewApp />);
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="/.patternbook/preview-entry.tsx"></script>
+  <script type="module" src="/patternbook-preview/preview-entry.tsx"></script>
 </body>
 </html>
 `;
@@ -205,7 +205,7 @@ root.render(<PreviewApp />);
   // Send all other requests to the dashboard index.html
   app.use((req, res, next) => {
     // Exclude vite internal paths or preview.html
-    if (req.path.startsWith('/.patternbook/') || req.path.startsWith('/@vite/')) {
+    if (req.path.startsWith('/patternbook-preview/') || req.path.startsWith('/@vite/')) {
       return next();
     }
     

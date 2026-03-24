@@ -12,9 +12,10 @@
 import React from "react";
 
 export function getScopeForComponent(
-  _componentName: string,
+  componentName: string,
 ): Record<string, unknown> {
   return {
     React,
+    [componentName]: () => null // Stub out the component so react-live doesn't crash the UI editor
   };
 }
