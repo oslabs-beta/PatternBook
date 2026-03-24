@@ -1,44 +1,38 @@
 import ignore from 'ignore';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-export class IgnoreHandler {
-  private ig: ReturnType<typeof ignore>;
+const ig = ignore();
 
-  constructor(baseDir: string, respectGitignore: boolean = true) {
-    this.ig = ignore();
+// Default patterns to always ignore
+ig.add([
+  'node_modules/**',
+  '.git/**',
+  'dist/**',
+  'build/**',
+  '.DS_Store',
+  '*.log',
+  'coverage/**'
+]);
 
-    if (respectGitignore) {
-      this.loadGitignore(baseDir);
+/**
+ * Utility to check if a file path should be ignored by the scanner
+ */
+export const shouldIgnore = (filePath: string, rootDir: string= process.cwd()): boolean => {
+  // 1. Calculate the relative path from the root (ignore needs relative paths)
+  const relativePath = path.relative(rootDir || process.cwd(), filePath);
+  
+  // 2. Check for a local .gitignore if it exists in the project root
+  const gitignorePath = path.join(rootDir || process.cwd(), '.gitignore');
+  if (fs.existsSync(gitignorePath)) {
+    try {
+      const content = fs.readFileSync(gitignorePath, 'utf8');
+      ig.add(content);
+    } catch (err) {
+      // If we can't read it, we just move on with the default ignores
     }
   }
 
-  private loadGitignore(baseDir: string): void {
-    const gitignorePath = join(baseDir, '.gitignore');
-
-    if (existsSync(gitignorePath)) {
-      try {
-        const gitignoreContent = readFileSync(gitignorePath, 'utf8');
-        this.ig.add(gitignoreContent);
-      } catch (error) {
-        // silently fail if .gitignore can't be read
-        console.warn(`Warning: Could not read .gitignore file`);
-      }
-    }
-  }
-
-  // add custom patterns to ignore
-  addPatterns(patterns: string[]): void {
-    this.ig.add(patterns);
-  }
-
-  // check if a path should be ignored
-  shouldIgnore(path: string): boolean {
-    return this.ig.ignores(path);
-  }
-
-  // filter an array of paths
-  filter(paths: string[]): string[] {
-    return paths.filter(path => !this.shouldIgnore(path));
-  }
-}
+  // 3. Return the verdict
+  return ig.ignores(relativePath);
+};

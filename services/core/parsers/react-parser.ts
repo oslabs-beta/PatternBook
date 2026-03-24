@@ -1,5 +1,4 @@
-import { Project, SourceFile, FunctionDeclaration } from 'ts-morph';
-import { resolve } from 'path';
+import { Project, SourceFile, FunctionDeclaration, SyntaxKind, VariableDeclaration } from 'ts-morph';
 import type {
   Parser,
   ParseResult,
@@ -9,105 +8,116 @@ import type {
   ImportInfo,
 } from '../../types/parser.js';
 
-// react-specific parser using ts-morph
-// refactored from jumbo-parser.ts with better structure
-
 export class ReactParser implements Parser {
   private project: Project;
 
   constructor() {
     this.project = new Project({
       compilerOptions: {
-        jsx: 1, // JSX preserve mode
-        target: 99, // ESNext
+        jsx: 1, 
+        target: 99, 
       },
     });
+  }
+
+  private extractApiCalls(sourceFile: SourceFile): { url: string; method: string }[] {
+    const apiCalls: { url: string; method: string }[] = [];
+    const calls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression);
+
+    calls.forEach(call => {
+      if (call.getExpression().getText() === 'fetch') {
+        const args = call.getArguments();
+        const url = args[0]?.getText().replace(/^['"`]|['"`]$/g, '') || 'unknown';
+        let method = 'GET'; 
+        if (args[1]?.isKind(SyntaxKind.ObjectLiteralExpression)) {
+          const methodProp = args[1].getProperty('method');
+          if (methodProp?.isKind(SyntaxKind.PropertyAssignment)) {
+            method = methodProp.getInitializer()?.getText().replace(/^['"`]|['"`]$/g, '') || 'GET';
+          }
+        }
+        apiCalls.push({ url, method });
+      }
+    });
+    return apiCalls;
   }
 
   canParse(filePath: string): boolean {
     return /\.(tsx|jsx|ts|js)$/.test(filePath);
   }
 
-  async parse(
-    filePath: string,
-    options: ParseOptions = {},
-  ): Promise<ParseResult> {
+  async parse(filePath: string, options: ParseOptions = {}): Promise<ParseResult> {
     try {
       const sourceFile = this.project.addSourceFileAtPath(filePath);
-      // find the main exported component/hook
-      const exportedFunction = this.findExportedFunction(sourceFile);
+      const exportedNode = this.findExportedFunction(sourceFile);
 
-      if (!exportedFunction) {
-        if (options.verbose)
-          console.log(`⚠️ No exported function in ${filePath}`);
-        return {
-          success: false,
-          error: 'No exported function found',
-        };
+      if (!exportedNode) {
+        if (options.verbose) console.log(`⚠️ No exported function in ${filePath}`);
+        return { success: false, error: 'No exported function found' };
       }
 
+      // Helper to get name from either FunctionDec or VariableDec
+      const name = (exportedNode as any).getName() || 'Anonymous';
+
       const metadata: ComponentMetadata = {
-        name: exportedFunction.getName() || 'Anonymous',
+        name: name,
         path: sourceFile.getFilePath(),
         relativePath: filePath,
-        type: exportedFunction.getName()?.startsWith('use')
-          ? 'hook'
-          : 'component',
-        exports: { named: [exportedFunction.getName()!] },
+        type: name.startsWith('use') ? 'hook' : 'component',
+        exports: { named: [name] },
+        apiCalls: this.extractApiCalls(sourceFile),
+        functionDefs: this.extractFunctionDefs(exportedNode),
         imports: this.extractImports(sourceFile),
       };
 
-      // extract props if requested
       if (options.extractProps !== false) {
-        metadata.props = this.extractProps(exportedFunction);
+        metadata.props = this.extractProps(exportedNode);
       }
 
-      // extract hooks if requested
       if (options.extractHooks !== false) {
-        metadata.hooks = this.extractHookUsage(exportedFunction);
+        metadata.hooks = this.extractHookUsage(exportedNode);
       }
 
-      // extract documentation if requested
       if (options.extractDocs) {
-        metadata.documentation = this.extractDocumentation(exportedFunction);
+        metadata.documentation = this.extractDocumentation(exportedNode);
       }
 
-      return {
-        success: true,
-        metadata,
-      };
+      return { success: true, metadata };
     } catch (error) {
-      return {
-        success: false,
-        error: String(error),
-      };
+      return { success: false, error: String(error) };
     }
   }
 
-  private findExportedFunction(
-    sourceFile: SourceFile,
-  ): FunctionDeclaration | undefined {
-    // try to find exported function decleration first
-    const functions = sourceFile.getFunctions();
-    const exportedFunc = functions.find(f => f.isExported());
-
+  private findExportedFunction(sourceFile: SourceFile): FunctionDeclaration | VariableDeclaration | undefined {
+    // 1. Standard function declaration
+    const exportedFunc = sourceFile.getFunctions().find(f => f.isExported());
     if (exportedFunc) return exportedFunc;
 
-    // todo: handle arrow function exports, class components, etc.
-    return undefined;
+    // 2. Arrow functions / Variable exports
+    const varDecl = sourceFile.getVariableDeclarations().find(v => {
+      const init = v.getInitializer();
+      return v.isExported() && (
+        init?.getKind() === SyntaxKind.ArrowFunction || 
+        init?.getKind() === SyntaxKind.FunctionExpression
+      );
+    });
+
+    return varDecl;
   }
 
-  private extractProps(fn: FunctionDeclaration): PropMetadata[] {
+  private extractProps(node: any): PropMetadata[] {
     const props: PropMetadata[] = [];
-    const firstParam = fn.getParameters()[0];
+    // Handle both FunctionDeclaration and VariableDeclaration
+    const fn = node.getKind() === SyntaxKind.VariableDeclaration ? node.getInitializer() : node;
+    
+    if (!fn || !fn.getParameters) return props;
 
+    const firstParam = fn.getParameters()[0];
     if (!firstParam) return props;
 
     const type = firstParam.getType();
     const properties = type.getProperties();
 
     properties.forEach(prop => {
-      // get JSDoc for this prop
       const jsDocs = prop.getJsDocTags();
       const descriptionTag = jsDocs.find(tag => !tag.getName());
       const description = descriptionTag ? descriptionTag.getText().map(p => p.text).join('') : undefined;
@@ -124,17 +134,11 @@ export class ReactParser implements Parser {
   }
 
   private extractImports(sourceFile: SourceFile): ImportInfo[] {
-    const imports = sourceFile.getImportDeclarations();
-
-    return imports.map(imp => {
+    return sourceFile.getImportDeclarations().map(imp => {
       const source = imp.getModuleSpecifierValue();
       const specifiers = imp.getNamedImports().map(ni => ni.getName());
-
-      // add default import if exists
       const defaultImport = imp.getDefaultImport();
-      if (defaultImport) {
-        specifiers.unshift(defaultImport.getText());
-      }
+      if (defaultImport) specifiers.unshift(defaultImport.getText());
 
       return {
         source,
@@ -144,77 +148,58 @@ export class ReactParser implements Parser {
     });
   }
 
-  private extractExports(sourceFile: SourceFile): {
-    default?: string;
-    named: string[];
-  } {
-    const exportedDeclarations = sourceFile.getExportedDeclarations();
-    const named: string[] = [];
-    let defaultExport: string | undefined;
-
-    exportedDeclarations.forEach((declarations, name) => {
-      if (name === 'default') {
-        // Handle default export
-        const decl = declarations[0];
-        if (decl) {
-          defaultExport = decl.getSymbol()?.getName() || 'default';
-        }
-      } else {
-        named.push(name);
-      }
-    });
-
-    return { default: defaultExport, named };
-  }
-
-  private extractHookUsage(
-    fn: FunctionDeclaration,
-  ): { name: string; source?: string }[] {
+  private extractHookUsage(node: any): { name: string; source?: string }[] {
     const hooks: { name: string; source?: string }[] = [];
-    const body = fn.getBody();
+    const fn = node.getKind() === SyntaxKind.VariableDeclaration ? node.getInitializer() : node;
+    const body = fn?.getBody();
 
     if (!body) return hooks;
 
-    // Find all identifiers that look like hooks (start with 'use')
-    body.getDescendantsOfKind(268).forEach(identifier => {
-      // 268 = Identifier
+    body.getDescendantsOfKind(SyntaxKind.Identifier).forEach(identifier => {
       const name = identifier.getText();
-      if (name.startsWith('use') && name[3] === name[3].toUpperCase()) {
-        // This looks like a hook call
+      if (name.startsWith('use') && /[A-Z]/.test(name[3] || '')) {
         hooks.push({ name });
       }
     });
 
-    // Remove duplicates
     return Array.from(new Map(hooks.map(h => [h.name, h])).values());
   }
 
-  private extractDocumentation(fn: FunctionDeclaration): string | undefined {
-    const jsDocs = fn.getJsDocs();
+  private extractDocumentation(node: any): string | undefined {
+    const jsDocs = node.getJsDocs?.() || [];
     if (jsDocs.length === 0) return undefined;
-
     return jsDocs[0].getDescription().trim();
   }
 
-  /**
-   * Batch parse multiple files
-   */
-  async parseMany(
-    filePaths: string[],
-    options?: ParseOptions,
-  ): Promise<ParseResult[]> {
+  // --- NEW: Internal Function Call Extraction ---
+  private extractFunctionDefs(node: any): any[] {
+    const functionDefs: any[] = [];
+    const fn = node.getKind() === SyntaxKind.VariableDeclaration ? node.getInitializer() : node;
+    const body = fn?.getBody();
+
+    if (!body) return functionDefs;
+
+    // Find internal function declarations (e.g., const handleUpdate = ...)
+    body.getDescendantsOfKind(SyntaxKind.FunctionDeclaration).forEach((f: any) => {
+      const name = f.getName();
+      if (name) {
+        const calls = f.getDescendantsOfKind(SyntaxKind.CallExpression)
+          .map((c: any) => ({ name: c.getExpression().getText() }));
+        functionDefs.push({ name, calls });
+      }
+    });
+
+    return functionDefs;
+  }
+
+  async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {
     return Promise.all(filePaths.map(path => this.parse(path, options)));
   }
 
-  /**
-   * Clear the project cache
-   */
   clearCache(): void {
     this.project = new Project({
-      compilerOptions: {
-        jsx: 1,
-        target: 99,
-      },
+      compilerOptions: { jsx: 1, target: 99 },
     });
   }
-}
+
+} 
