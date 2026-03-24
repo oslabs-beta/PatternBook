@@ -2,7 +2,7 @@ import chokidar, { FSWatcher } from 'chokidar';
 import { parserFactory } from './parsers/index.js';
 import type { ComponentMetadata, ParseOptions } from '../types/parser.js';
 import { DependencyGraphBuilder } from './dependency-graph.js';
-
+import { shouldIgnore } from '../utils/ignore.ts';
 export interface WatchOptions {
   directory: string;
   patterns?: string[];
@@ -85,6 +85,11 @@ export class ComponentWatcher {
 
     try {
       const result = await parserFactory.parseFile(filePath, this.parseOptions);
+
+      if (shouldIgnore(filePath, this.options.directory)) {
+    if (this.verbose) console.log(`🚫 Correctly ignored: ${path.basename(filePath)}`);
+    return;
+  }
 
       if (result.success && result.metadata) {
         this.components.set(filePath, result.metadata);
