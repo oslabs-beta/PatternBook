@@ -34,7 +34,7 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "concurrently \"npm run dev:client\" \"npm run dev:api\" \"npm run dev:services\"",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:api\" \"npm run dev:services-test\"",
     "dev:client": "npm run dev --workspace=client",
     "dev:api": "npm run dev --workspace=api",
     "dev:services": "npm run cli:dev --workspace=services",

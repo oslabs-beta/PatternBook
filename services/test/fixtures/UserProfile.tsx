@@ -14,7 +14,7 @@ const formatUserName = (name: string) => {
   return name.toUpperCase();
 };
 
-export const UserProfile = ({ userId }: { userId: string }) => {
+export function UserProfile({ userId }: { userId: string }) {
   const [user, setUser] = useState<User | null>(null);
   const { addNotification } = useAppStore();
   const { login } = useAuth();
