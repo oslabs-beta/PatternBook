@@ -1,5 +1,5 @@
 import type { ComponentMetadata } from '../types/parser.js';
-import type { GraphData, GraphNode, GraphEdge } from '../types/graph.js';
+import type { GraphNode, GraphEdge } from '../types/graph.js';
 
 // --- Constants ---
 const IGNORED_CALLS = new Set([

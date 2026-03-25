@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { ComponentScanner } from '../../core/scanner.js';
 import { parserFactory } from '../../core/parsers/index.js';
 
-import { ManifestGenerator } from '../../services/manifest-generator.js';
+import { ManifestGenerator } from '../../services/manifest-generator.ts';
 interface GenerateCommandOptions {
   output?: string;
   includeDocs?: boolean;

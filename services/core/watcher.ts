@@ -87,7 +87,7 @@ export class ComponentWatcher {
       const result = await parserFactory.parseFile(filePath, this.parseOptions);
 
       if (shouldIgnore(filePath, this.options.directory)) {
-    if (this.verbose) console.log(`🚫 Correctly ignored: ${path.basename(filePath)}`);
+    if (this.parseOptions.verbose) console.log(`🚫 Correctly ignored: ${path.basename(filePath)}`);
     return;
   }
 

@@ -9,10 +9,8 @@ Initial install:
 
 Running the Tool
 
->   1. run `npx patternbook-cli`
-> >
->   2. run `npm run generate-graph`
-> >
+1. run `npx patternbook-cli`
+2. run `npm run generate-graph`
 
 <!--   
   <p align="center">
@@ -23,10 +21,7 @@ Running the Tool
 
 Links to other documentation that might help (react docs or stack overflow)
 
-[Demo ](http://www.youtube link)
-
-Pro Tip: 
- While not a requirement, another great feature is to add a link to a demo of your tool. Easiest way to do this is by publishing a demo on youtube and linking to that youtube video.
+Watch the [Demo ](http://www.youtube)
 
 ## <img src="www/public/logo.svg" alt="Description" width="35" /> Contributing Instructions
 
@@ -49,12 +44,17 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 
 | Feature                                                                               | Status    |
 |---------------------------------------------------------------------------------------|-----------|
-| CLI to run                                                                            | ✅        |
-| Supports TypeScript                                                                   | ✅        |
+| Zero Config                                                                           |           |
+| NPM package for CLI                                                                   | ✅        |
+| Supports TypeScript components                                                        | ✅        |
 | Creates Manifest                                                                      | ✅        |
 | Creates Dependecy Graph                                                               | ✅        |
-| Component shortcodes                                                                  | ✅        |
-| SCSS and SASS                                                                         | ⏳        |
+| Scanner                                                                               | ✅        |
+| Parser                                                                                |           |
+| Sandbox                                                                               |           |
+| Token Bridge                                                                          |           |
+| Success Metric                                                                        |           |
+| Responsive UI                                                                         | ⏳        |
 | PostCSS config (ex. Tailwind)                                                         | ⏳        |
 | CSS imports via ESM (including CSS modules)                                           | ⏳        |
 | Shared state between any component shortcode                                          | 🙏🏻        |
@@ -69,26 +69,26 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 ### Meet the OG Team
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Dylan Pangilinan - front end software engineer
 > 
-> <email@dylan>  
-> [github ](https://www.) | [website ](https://www.)
+> <dylana.pangilinan@gmail.comn>  
+> [github](https://github.com/dylpang) | [LinkedIn](https://www.linkedin.com/in/dylan-pangilinan-0a2bb01b8/)
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Ever Martinez - back end software engineer
 > 
-> <email@ever>  
-> [github ](https://www.) | [website ](https://www.)
+> <guesooul@gmail.com>  
+> [github](https://github.com/GuesouL) | [LinkedIn](https://www.linkedin.com/in/ever-j-martinez/)
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Robyn Highsmith - back end software engineer
 > 
-> <email@robyn>  
-> [github ](https://www.) | [website ](https://www.)
+> <highsmithrg@gmail.com>  
+> [github](https://github.com/RobynBug) | [LinkedIn](https://www.linkedin.com/in/robynhighsmith/)
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Said Albayrak - back end software engineer
 > 
-> <email@said>  
-> [github ](https://www.) | [website ](https://www.)
+> <albayraksaid@gmail.com>  
+> [github](https://github.com/voiduserid) | [LinkedIn](https://www.linkedin.com/in/salbayrak/)
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Trish O’Meara- Gillespie - front end software engineer
 >
 > <trishedith@gmail.com>  
->  [trish on github ](https://www.) | [trish on linkedIn ](https://www.)
+>  [github](https://github.com/trishedith) | [LinkedIn](https://www.linkedin.com/in/trishomeara)
 

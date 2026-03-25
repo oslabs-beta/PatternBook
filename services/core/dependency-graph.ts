@@ -5,7 +5,6 @@ import type {
   GraphEdge,
   GraphMetadata,
   ImpactAnalysis,
-  GraphData,
 } from '../types/graph.js';
 
 /**

@@ -1,7 +1,6 @@
 import fg from 'fast-glob';
 import { statSync } from 'fs';
 import { resolve, relative, basename, dirname, extname } from 'path';
-import { IgnoreHandler } from '../utils/ignore.js';
 import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
 import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
 
