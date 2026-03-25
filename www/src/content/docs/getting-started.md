@@ -1,5 +1,5 @@
 ---
-title: Installation
+title: Installation Guide
 description: Get PatternBook running in your project.
 ---
 
@@ -16,17 +16,19 @@ npm install patternbook-cli
 
 ## Quick start
 
-### 1. Initialise
 
-Run the init command at your project root. This creates a `patternbook.config.json` file:
+#### 1. Initialise
+
+- Run the init command at your project root to create a `patternbook.config.json` file.
 
 ```bash
 npx patternbook init
 ```
 
-### 2. Point it at your components
 
-Edit `patternbook.config.json` to point at your components directory:
+#### 2. Point it at your components
+
+- Edit `patternbook.config.json` to point at your components directory:
 
 ```json
 {
@@ -35,7 +37,7 @@ Edit `patternbook.config.json` to point at your components directory:
 }
 ```
 
-### 3. Build the manifest
+#### 3. Build the manifest
 
 ```bash
 npx patternbook build
@@ -43,13 +45,15 @@ npx patternbook build
 
 This analyses your components and writes the manifest to `.patternbook/manifest.json`.
 
-### 4. Start the viewer
+#### 4. Start the viewer
 
 ```bash
 npx patternbook serve
 ```
 
 Open [http://localhost:3030](http://localhost:3030) to view your design system.
+
+***
 
 ## What gets analysed
 
