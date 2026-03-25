@@ -106,7 +106,16 @@ function transformApiDataToManifest(apiData: any): ComponentManifest {
     examples: c.examples || [
       {
         title: "Basic Usage",
-        code: `<${c.name} />`
+        code: (() => {
+          const name = c.name;
+          const hasChildren = c.props?.some((p: any) => p.name === 'children');
+          if (name.includes('Button')) return `<${name}>Click me</${name}>`;
+          if (name.includes('Badge') || name.includes('Label')) return `<${name}>New</${name}>`;
+          if (name.includes('Avatar')) return `<${name} fallback="AB" />`;
+          if (name.includes('Card')) return `<${name}>\n  <div>Card Content</div>\n</${name}>`;
+          if (hasChildren) return `<${name}>Example content</${name}>`;
+          return `<${name} />`;
+        })()
       }
     ], // Auto-generate an example wrapper so components render by default
     sourceCode: '', // TODO: Add source code in backend

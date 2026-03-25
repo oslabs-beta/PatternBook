@@ -16,8 +16,10 @@ function IframePreview({ componentName }: { componentName: string }) {
   const code = context?.code || "";
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Send live-edit updates to the iframe whenever code changes after initial load
+  const hasLoadedRef = useRef(false);
   useEffect(() => {
-    if (iframeRef.current?.contentWindow) {
+    if (hasLoadedRef.current && iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_CODE', code }, '*');
     }
   }, [code]);
@@ -27,12 +29,10 @@ function IframePreview({ componentName }: { componentName: string }) {
       <p className="live-preview-label">Preview</p>
       <iframe
         ref={iframeRef}
-        src={`/patternbook-preview/preview.html?component=${encodeURIComponent(componentName)}`}
+        src={`/patternbook-preview/preview.html?component=${encodeURIComponent(componentName)}&code=${encodeURIComponent(code)}`}
         style={{ width: '100%', height: '300px', border: '1px solid #eee', borderRadius: '8px' }}
         title="Component Preview"
-        onLoad={(e) => {
-          (e.target as HTMLIFrameElement).contentWindow?.postMessage({ type: 'UPDATE_CODE', code }, '*');
-        }}
+        onLoad={() => { hasLoadedRef.current = true; }}
       />
     </div>
   );

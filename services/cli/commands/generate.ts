@@ -3,8 +3,8 @@ import chalk from 'chalk';
 
 import { ComponentScanner } from '../../core/scanner.js';
 import { parserFactory } from '../../core/parsers/index.js';
-
 import { ManifestGenerator } from '../../services/manifest-generator.js';
+
 interface GenerateCommandOptions {
   output?: string;
   includeDocs?: boolean;
@@ -44,19 +44,17 @@ export async function generateCommand(
       .map(r => r.metadata!);
 
     // Build manifest
-spinner.text = 'Generating manifest and graph...';
-    
-    // 2. Use the new service instead of the big "const manifest" block
+    spinner.text = 'Generating manifest and graph...';
+
     const generator = new ManifestGenerator();
     const outputPath = options.output || 'library-manifest.json';
-    
-    // This one line replaces about 25 lines of your old code
+
+    // This one line replaces about 25 lines of the old code
     generator.generate(components, outputPath, options);
-    // --- NEW LOGIC ENDS HERE ---
 
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
-    
-    // Summary logging (Same as before)
+
+    // Summary logging
     console.log(chalk.cyan(`\n📊 Summary:`));
     console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
     console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
@@ -67,5 +65,3 @@ spinner.text = 'Generating manifest and graph...';
     process.exit(1);
   }
 }
-
- 

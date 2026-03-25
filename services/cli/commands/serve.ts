@@ -5,7 +5,6 @@ import { resolve, dirname, join } from 'path';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import react from '@vitejs/plugin-react';
 
 // ES Module fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -50,13 +49,28 @@ export async function serveCommand(
   dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
 
   if (!manifestCache) {
-    console.warn(chalk.yellow(`⚠️  No manifest found at ${MANIFEST_PATH}. Run 'patternbook generate' first.`));
+    console.log(chalk.yellow(`⚠️  No manifest found at ${MANIFEST_PATH}. Auto-generating...`));
+    // Dynamic import to avoid circular dependency issues at the top of file
+    const { generateCommand } = await import('./generate.js');
+    await generateCommand(targetDir, { output: MANIFEST_PATH, verbose: false });
+    manifestCache = loadManifest(MANIFEST_PATH);
+    dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
   }
 
   // --- Vite Preview Integration ---
   const pbDir = join(targetDir, 'patternbook-preview');
   if (!existsSync(pbDir)) {
     mkdirSync(pbDir);
+  }
+
+  // Auto-detect CSS files in the user's project for injection into preview.html
+  const cssPatterns = ['src/index.css', 'src/main.css', 'src/globals.css', 'src/global.css', 'src/app/globals.css', 'src/styles/globals.css', 'src/App.css'];
+  const cssImports: string[] = [];
+  for (const pattern of cssPatterns) {
+    const cssPath = join(targetDir, pattern);
+    if (existsSync(cssPath)) {
+      cssImports.push(pattern);
+    }
   }
 
   const generatePreviewApp = () => {
@@ -66,51 +80,56 @@ export async function serveCommand(
     registryCode += `export const COMPONENT_REGISTRY: Record<string, any> = {\n`;
     for (const comp of components) {
       if (comp.type === 'component') {
-        // Updated to handle both named and default exports seamlessly for React.lazy
         registryCode += `  "${comp.name}": lazy(() => import('${comp.path}').then(m => ({ default: m["${comp.name}"] || m.default }))),\n`;
       }
     }
     registryCode += `};\n`;
     writeFileSync(join(pbDir, 'virtualRegistry.tsx'), registryCode);
 
+    // Build CSS import lines for the preview entry
+    const cssImportLines = cssImports.map(p => `import '/${p}';`).join('\n');
+
     const previewEntryCode = `
 import React, { Suspense, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { COMPONENT_REGISTRY } from './virtualRegistry';
 import { LiveProvider, LivePreview, LiveError } from 'react-live';
-import { themes } from "prism-react-renderer";
+import { themes } from 'prism-react-renderer';
+${cssImportLines}
+
+const urlParams = new URLSearchParams(window.location.search);
+const componentName = urlParams.get('component');
+const initialCode = urlParams.get('code') || ('<' + componentName + ' />');
 
 function PreviewApp() {
-  const [code, setCode] = useState("");
-  const urlParams = new URLSearchParams(window.location.search);
-  const componentName = urlParams.get('component');
+  const [code, setCode] = useState(initialCode);
+  const Component = COMPONENT_REGISTRY[componentName];
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = (event) => {
       if (event.data?.type === 'UPDATE_CODE') setCode(event.data.code);
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  if (!componentName || !COMPONENT_REGISTRY[componentName]) {
-    return <div style={{padding: 20, fontFamily: 'sans-serif'}}>Component not found or not in registry</div>;
+  if (!componentName || !Component) {
+    return <div style={{padding:16,fontFamily:'sans-serif',color:'#c00'}}>{'Component not found: ' + componentName}</div>;
   }
 
-  const Component = COMPONENT_REGISTRY[componentName];
   const scope = { React, [componentName]: Component };
 
   return (
-    <Suspense fallback={<div style={{padding: 20}}>Loading compiler...</div>}>
+    <Suspense fallback={<div style={{padding:16}}>Loading...</div>}>
       <LiveProvider code={code} scope={scope} theme={themes.nightOwl}>
         <LivePreview />
-        <LiveError />
+        <LiveError style={{color:'red',fontSize:12,padding:8}} />
       </LiveProvider>
     </Suspense>
   );
 }
 
-const root = createRoot(document.getElementById('root')!);
+const root = createRoot(document.getElementById('root'));
 root.render(<PreviewApp />);
 `;
     writeFileSync(join(pbDir, 'preview-entry.tsx'), previewEntryCode);
@@ -143,27 +162,36 @@ root.render(<PreviewApp />);
     dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
   });
 
-  // CLI's node_modules directory to resolve react-live
-  const cliNodeModules = resolve(__dirname, '../../../node_modules');
-
-  const vite = await createViteServer({
-    root: targetDir,
-    server: { 
-      middlewareMode: true,
-      hmr: { port: 0 } 
-    },
-    appType: 'custom',
-    plugins: [react()],
-    resolve: {
-      alias: {
-        'react-live': resolve(cliNodeModules, 'react-live'),
-        'prism-react-renderer': resolve(cliNodeModules, 'prism-react-renderer'),
-      }
-    }
-  });
-
-  app.use(vite.middlewares);
-  // --------------------------------
+  // Try to attach Vite middleware for dynamic component bundling.
+  // Wrapped in try/catch so a port collision or misconfiguration never
+  // prevents the Express dashboard from starting.
+  try {
+    const vite = await createViteServer({
+      root: targetDir,
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
+      appType: 'custom',
+      // Use Vite 8's native OXC transformer for JSX — no plugin needed, no preamble issues.
+      plugins: [],
+      oxc: {
+        jsx: { runtime: 'automatic' },
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom', 'react-live', 'prism-react-renderer'],
+      },
+      resolve: {
+        dedupe: ['react', 'react-dom'],
+      },
+      logLevel: 'warn',
+    });
+    app.use(vite.middlewares);
+    console.log(chalk.green('✓ Vite component bundler attached.'));
+  } catch (err) {
+    console.warn(chalk.yellow('⚠️  Vite bundler failed to start — live component preview will be unavailable.'));
+    console.warn(chalk.gray(err instanceof Error ? err.message : String(err)));
+  }
 
   // API Routes
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
@@ -182,8 +210,8 @@ root.render(<PreviewApp />);
     addNoCacheHeaders(res);
     if (!manifestCache || !manifestCache.components) return res.status(404).json({ error: 'No components' });
     const query = String(req.query.q || '').toLowerCase();
-    const results = manifestCache.components.filter((c: any) => 
-      c.name.toLowerCase().includes(query) || 
+    const results = manifestCache.components.filter((c: any) =>
+      c.name.toLowerCase().includes(query) ||
       c.tags?.some((t: string) => t.toLowerCase().includes(query)) ||
       c.type.toLowerCase().includes(query)
     );
@@ -195,20 +223,33 @@ root.render(<PreviewApp />);
     if (!dependencyGraphCache) return res.status(404).json({ error: 'Graph not found' });
     res.json(dependencyGraphCache);
   });
-  
+
   app.get('/api/stats', (req, res) => {
     addNoCacheHeaders(res);
     if (!manifestCache) return res.status(404).json({ error: 'Manifest not found' });
     res.json({ totalComponents: manifestCache.components?.length || 0 });
   });
 
-  // Send all other requests to the dashboard index.html
-  app.use((req, res, next) => {
-    // Exclude vite internal paths or preview.html
-    if (req.path.startsWith('/patternbook-preview/') || req.path.startsWith('/@vite/')) {
+  // Serve preview.html explicitly — Vite handles all .tsx script requests from there
+  app.get('/patternbook-preview/preview.html', (req: Request, res: Response) => {
+    const previewHtmlPath = join(pbDir, 'preview.html');
+    if (existsSync(previewHtmlPath)) {
+      res.sendFile(previewHtmlPath);
+    } else {
+      res.status(404).send('Preview not generated yet. Is there a manifest?');
+    }
+  });
+
+  // Send all non-API, non-vite requests to the dashboard SPA index.html
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (
+      req.path.startsWith('/patternbook-preview/') ||
+      req.path.startsWith('/@vite/') ||
+      req.path.startsWith('/@fs/') ||
+      req.path.startsWith('/node_modules/')
+    ) {
       return next();
     }
-    
     if (existsSync(join(publicPath, 'index.html'))) {
       res.sendFile(join(publicPath, 'index.html'));
     } else {

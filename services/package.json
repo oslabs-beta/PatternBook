@@ -1,6 +1,6 @@
 {
   "name": "patternbook-cli",
-  "version": "0.3.6",
+  "version": "0.3.12",
   "description": "Backend core services and CLI for PatternBook",
   "main": "./dist/cli/index.js",
   "bin": {
