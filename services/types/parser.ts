@@ -5,6 +5,7 @@ export interface ComponentMetadata {
   path: string;
   relativePath: string;
   type: 'component' | 'hook' | 'utility' | 'other ';
+  description? :any ;
   tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];

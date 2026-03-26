@@ -40,17 +40,17 @@ graph TD;
     classDef leaf fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px;
     subgraph System ["System Components"]
     direction TB
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx["Button\n(Imp:0, API:0, Fn:0)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx["Card\n(Imp:0, API:0, Fn:0)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Dropdown_tsx["Dropdown\n(Imp:0, API:0, Fn:0)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Input_tsx["Input\n(Imp:0, API:0, Fn:0)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Modal_tsx["Modal\n(Imp:0, API:0, Fn:0)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_UserProfile_tsx["UserProfile\n(Imp:0, API:0, Fn:4)"]:::component
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Input_tsx
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Modal_tsx
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Card_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Dropdown_tsx
-    _Users_guesoul_codesmith_PatternBook_services_test_fixtures_UserProfile_tsx --> _Users_guesoul_codesmith_PatternBook_services_test_fixtures_Button_tsx
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Button_tsx["Button\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Card_tsx["Card\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Dropdown_tsx["Dropdown\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Input_tsx["Input\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Modal_tsx["Modal\n(Imp:0, API:0, Fn:0)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_UserProfile_tsx["UserProfile\n(Imp:0, API:0, Fn:4)"]:::component
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Card_tsx --> _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Button_tsx
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Card_tsx --> _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Input_tsx
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Card_tsx --> _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Modal_tsx
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Card_tsx --> _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Dropdown_tsx
+    _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_UserProfile_tsx --> _Users_trisleo_codesmith_assignmnets__senior_PatternBook_services_test_fixtures_Button_tsx
     end
 ```
 <!-- DEPENDENCY_GRAPH-END -->

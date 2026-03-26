@@ -1,37 +1,120 @@
-### PatternBook
+# <img src="www/public/logo.svg" alt="Description" width="35" /> PatternBook <img src="www/public/logo.svg" alt="Description" width="35" />
 
-A lightweight zero-config component mapping tool.
+Welcome to <b> PatternBook! </b>
 
-Currently being developed...
+PatternBook is an Open Source lightweight zero-config component mapping tool designed to run in the CLI and generate documentation in less than 30 seconds.
 
 
-[patternbook.dev](https://www.patternbook.dev)
+We currently support the following: 
+- <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+- <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+- <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite">
+- <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
 
-#### Quick usage guide for dev env
+## <img src="www/public/logo.svg" alt="Description" width="35" /> Setup
 
-- do "npm install"
-- go to /api and setup your env vars
-- start cli tool to generate manifest file
-- then use these commands;
+### Requirements
 
-RUN services first
-```bash
-cd services
-npm run cli:dev -- generate ./test/fixtures --output ../library-manifest.json
-```
-OR try
-```bash
-cd services
-npm run cli:dev -- watch ./test/fixtures --output ../library-manifest.json
-```
-THEN run start api server
-```bash
-cd api
-npm run dev
-```
-OR
-```bash
-npm run dev concurrently
-```
+- Node.js 18+
+- A React + TypeScript project
 
-Now you should be able to see terminal output. 
+
+
+Initial install:
+
+Running the Tool
+
+1. run `npm i patternbook-cli`
+2. run `npx patternbook serve`
+3. run `npx patternbook scan`
+
+<!--   
+  <p align="center">
+      <img src="./assets/office.gif"/>
+  </p> -->
+
+### Usage guidelines
+
+- Visit our [website](https://www.patternbook.dev).
+- Checkout our repo on [github](https://github.com/oslabs-beta/PatternBook)
+- Watch the [Demo ](http://www.youtube).
+- Connect with us on [LinkedIn](linkedin.com/company/PatternBook-cli).
+
+## <img src="www/public/logo.svg" alt="Description" width="35" /> Contributing Instructions
+
+PatternBook is an Open Source product that happily welcomes contributions.  We invite anyone interested to contribute.  Please consider the following instructions when contributing.  There are planned features listed below and... of course you can suggest features too.
+
+### Running PatternBook in dev mode 
+- We reccommend forking a copy and creating a new branch.  
+- This branch should be clearly labeled with your name and it should indicate the feature or fix
+
+#### more detailed instructions: 
+
+1.  <a href="https://github.com/oslabs-beta/PatternBook"> Clone </a> our Repo. 
+2. Create  <a href =" how to branch link "> a new branch</a>.
+3. Do your thing! 
+4. Run our <a href=" test info"> tests</a>.
+5. Let us know by submitting a PR merging your branch into dev. <i> (We recieve automatic updates for PR requests, but if you like you can also contact us if you like.) </i>
+
+
+## <img src="www/public/logo.svg" alt="Description" width="35" />List of planned/desired features
+
+| Feature                                                                               | Status    |
+|---------------------------------------------------------------------------------------|-----------|
+| Zero Config                                                                           |           |
+| NPM package for CLI                                                                   | ✅        |
+| Supports TypeScript components                                                        | ✅        |
+| Creates Manifest                                                                      | ✅        |
+| Creates Dependecy Graph                                                               | ✅        |
+| Scanner                                                                               | ✅        |
+| Parser                                                                                |           |
+| Sandbox                                                                               |           |
+| Token Bridge                                                                          |           |
+| Success Metric                                                                        |           |
+| Responsive UI                                                                         | ⏳        |
+| PostCSS config (ex. Tailwind)                                                         | ⏳        |
+| CSS imports via ESM (including CSS modules)                                           | ⏳        |
+| Shared state between any component shortcode                                          | 🙏🏻        |
+
+- ✅ = Ready to use
+- ⏳ = In progress
+- 🙏🏻 = Looking for contributors
+
+
+## <img src="www/public/logo.svg" alt="Description" width="35" />  Contributors:
+
+### Meet the OG Team
+
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Dylan Pangilinan - front end software engineer
+> 
+> <dylana.pangilinan@gmail.comn>  
+> [github](https://github.com/dylpang) | [LinkedIn](https://www.linkedin.com/in/dylan-pangilinan-0a2bb01b8/)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Ever Martinez - back end software engineer
+> 
+> <guesooul@gmail.com>  
+> [github](https://github.com/GuesouL) | [LinkedIn](https://www.linkedin.com/in/ever-j-martinez/)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Robyn Highsmith - back end software engineer
+> 
+> <highsmithrg@gmail.com>  
+> [github](https://github.com/RobynBug) | [LinkedIn](https://www.linkedin.com/in/robynhighsmith/)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Said Albayrak - back end software engineer
+> 
+> <albayraksaid@gmail.com>  
+> [github](https://github.com/voiduserid) | [LinkedIn](https://www.linkedin.com/in/salbayrak/)
+
+> <img src="www/public/logo.svg" alt="Description" width="25" /> Trish O’Meara- Gillespie - front end software engineer
+>
+> <trishedith@gmail.com>  
+>  [github](https://github.com/trishedith) | [LinkedIn](https://www.linkedin.com/in/trishomeara)
+
+
+
+
+https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white "github")
+
+![license](https://img.shields.io/badge/MIT-green?style=for-the-badge) 
+PatternBook uses an MI license.  More info can be found [here](./LICENSE).
