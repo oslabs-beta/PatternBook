@@ -2,7 +2,8 @@ import chokidar, { FSWatcher } from 'chokidar';
 import { parserFactory } from './parsers/index.js';
 import type { ComponentMetadata, ParseOptions } from '../types/parser.js';
 import { DependencyGraphBuilder } from './dependency-graph.js';
-import { shouldIgnore } from '../utils/ignore.ts';
+import { shouldIgnore } from '../utils/ignore.js';
+import * as path from 'node:path';
 export interface WatchOptions {
   directory: string;
   patterns?: string[];

@@ -1,4 +1,4 @@
-import { Project, SourceFile, FunctionDeclaration, SyntaxKind, VariableDeclaration } from 'ts-morph';
+import { Project, SourceFile, FunctionDeclaration, SyntaxKind, VariableDeclaration, Node ,JSDocTag, Identifier ,Symbol,JSDocTagInfo} from 'ts-morph';
 import type {
   Parser,
   ParseResult,
@@ -118,10 +118,10 @@ export class ReactParser implements Parser {
     const type = firstParam.getType();
     const properties = type.getProperties();
 
-    properties.forEach(prop => {
+    properties.forEach((prop: Symbol) => {
       const jsDocs = prop.getJsDocTags();
-      const descriptionTag = jsDocs.find(tag => !tag.getName());
-      const description = descriptionTag ? descriptionTag.getText().map(p => p.text).join('') : undefined;
+      const descriptionTag = jsDocs.find((tag: JSDocTagInfo) => !tag.getName());
+      const description = descriptionTag ? descriptionTag.getText().map((p: { text: string }) => p.text).join('') : undefined;
 
       props.push({
         name: prop.getName(),
@@ -156,7 +156,7 @@ export class ReactParser implements Parser {
 
     if (!body) return hooks;
 
-    body.getDescendantsOfKind(SyntaxKind.Identifier).forEach(identifier => {
+    body.getDescendantsOfKind(SyntaxKind.Identifier).forEach((identifier: Identifier) => {
       const name = identifier.getText();
       if (name.startsWith('use') && /[A-Z]/.test(name[3] || '')) {
         hooks.push({ name });
