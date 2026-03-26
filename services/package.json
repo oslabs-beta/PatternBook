@@ -1,60 +1,20 @@
 {
   "name": "patternbook-cli",
-  "version": "0.1.0",
-  "description": "Lightweight component scanner and dependency analyzer for React, Vue, and Svelte projects",
-  "keywords": [
-    "components",
-    "storybook",
-    "design-system",
-    "cli",
-    "react",
-    "vue",
-    "svelte"
-  ],
-  "homepage": "https://github.com/oslabs-beta/PatternBook#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/oslabs-beta/PatternBook.git",
-    "directory": "services"
-  },
-  "license": "MIT",
-  "type": "module",
+  "version": "0.3.12",
+  "description": "Backend core services and CLI for PatternBook",
+  "main": "./dist/cli/index.js",
   "bin": {
     "patternbook": "./dist/cli/index.js"
   },
-  "main": "./dist/cli/index.js",
   "files": [
     "dist",
+    "public",
     "README.md"
   ],
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "chalk": "^5.6.2",
-    "chokidar": "^5.0.0",
-    "commander": "^14.0.2",
-    "enquirer": "^2.4.1",
-    "fast-glob": "^3.3.3",
-    "ignore": "^7.0.5",
-    "ora": "^9.1.0",
-    "path": "^0.12.7",
-    "prettier": "3.8.1",
-    "repomix": "^1.11.1",
-    "ts-morph": "^27.0.2"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@mermaid-js/mermaid-cli": "^11.4.2",
-    "@types/node": "^24.12.0",
-    "eslint": "^10.0.2",
-    "globals": "^17.3.0",
-    "husky": "^9.1.7",
-    "tsx": "^4.19.2",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1",
-    "vitest": "^4.0.18"
-  },
+  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
@@ -64,7 +24,43 @@
     "watch:graph": "tsx scripts/test-run.ts --watch",
     "prepare": "husky",
     "pack-repo": "repomix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "cli": "tsx cli/index.ts",
+    "cli:dev": "tsx cli/index.ts"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "commander": "^14.0.2",
+    "cors": "^2.8.6",
+    "enquirer": "^2.4.1",
+    "express": "^5.2.1",
+    "fast-glob": "^3.3.3",
+    "ignore": "^7.0.5",
+    "ora": "^9.1.0",
+    "path": "^0.12.7",
+    "prettier": "3.8.1",
+    "react-live": "^4.1.7",
+    "repomix": "^1.11.1",
+    "ts-morph": "^27.0.2",
+    "vite": "^8.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@mermaid-js/mermaid-cli": "^11.4.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.12.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^10.0.2",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=20.0.0"

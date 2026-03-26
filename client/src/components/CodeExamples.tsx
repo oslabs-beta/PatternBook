@@ -82,11 +82,7 @@ export function CodeExamples({ examples, componentName }: CodeExamplesProps) {
             </h3>
           )}
 
-          {/*
-            ComponentLivePreview now renders both the highlighted/editable
-            LiveEditor and the LivePreview inside a shared LiveProvider.
-          */}
-          <ComponentLivePreview code={example.code} scope={scope} />
+          <ComponentLivePreview code={example.code} scope={scope} componentName={componentName || ""} />
         </div>
       ))}
     </div>

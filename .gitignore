@@ -8,24 +8,44 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+*/node_modules
+**/node_modules
 dist
 dist-ssr
 *.local
 .vite
 
-# Editor directories and files
+# Ignore all .env files in any directory
+**/.env
+
+# Ignore sub-level .gitignore files
+**/.gitignore
+
+
+# Ignore Editor directories and files
 */.vscode
+**/.vscode
 /.vscode/
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+**/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-/repomix-output.xml/
-*/repomix-output.xml
-repomix-output.xml
 
+# Ignore all backend-service outputs
+**/repomix-output.xml
+**/library-manifest.json
+**/dependency-graph.*
+
+# Ignore dynamically generated patternbook dev files
+**/.patternbook
+.patternbook
+patternbook-preview/
+
+# Ignore generated static dashboard bundle
+services/public

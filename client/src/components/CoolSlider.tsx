@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * A highly customizable slider component for selecting ranges.

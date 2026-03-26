@@ -16,6 +16,11 @@ export default defineConfig({
           label: "GitHub",
           href: "https://github.com/oslabs-beta/PatternBook",
         },
+        {
+          icon: "linkedin",
+          label: "LinkedIn",
+          href:"https://www.linkedin.com/company/PatternBook-cli"
+        }
       ],
       customCss: ["./src/styles/global.css"],
       sidebar: [
@@ -25,6 +30,7 @@ export default defineConfig({
             { label: "Overview", slug: "overview" },
             { label: "Installation", slug: "getting-started" },
             { label: "Configuration", slug: "configuration" },
+            { label: "Contribute", slug: "contributing" },
           ],
         },
       ],

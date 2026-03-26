@@ -1,9 +1,9 @@
 import ora from 'ora';
 import chalk from 'chalk';
-import { writeFileSync } from 'fs';
+
 import { ComponentScanner } from '../../core/scanner.js';
 import { parserFactory } from '../../core/parsers/index.js';
-import { DependencyGraphBuilder } from '../../core/dependency-graph.js';
+import { ManifestGenerator } from '../../services/manifest-generator.js';
 
 interface GenerateCommandOptions {
   output?: string;
@@ -44,46 +44,24 @@ export async function generateCommand(
       .map(r => r.metadata!);
 
     // Build manifest
-    const manifest: any = {
-      version: '1.0.0',
-      generated: new Date().toISOString(),
-      components: components.map(c => ({
-        name: c.name,
-        path: c.relativePath,
-        type: c.type,
-        tags: c.tags || [],
-        ...(options.includeProps !== false && { props: c.props }),
-        ...(options.includeHooks !== false && { hooks: c.hooks }),
-        ...(options.includeDocs !== false && {
-          documentation: c.documentation,
-        }),
-      })),
-    };
+    spinner.text = 'Generating manifest and graph...';
 
-    // Add dependency graph if requested
-    if (options.includeGraph !== false) {
-      spinner.text = 'Building dependency graph...';
-      const builder = new DependencyGraphBuilder();
-      manifest.graph = builder.buildGraph(components);
-    }
-
-    // Save
+    const generator = new ManifestGenerator();
     const outputPath = options.output || 'library-manifest.json';
-    writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
+
+    // This one line replaces about 25 lines of the old code
+    generator.generate(components, outputPath, options);
 
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
+
+    // Summary logging
     console.log(chalk.cyan(`\n📊 Summary:`));
-    console.log(
-      `   Components: ${components.filter(c => c.type === 'component').length}`,
-    );
-    console.log(
-      `   Hooks: ${components.filter(c => c.type === 'hook').length}`,
-    );
+    console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
+    console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
+
   } catch (error) {
     spinner.fail(chalk.red('Generation failed'));
-    console.error(
-      chalk.red(error instanceof Error ? error.message : 'Unknown error'),
-    );
+    console.error(chalk.red(error instanceof Error ? error.message : 'Unknown error'));
     process.exit(1);
   }
 }

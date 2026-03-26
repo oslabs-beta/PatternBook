@@ -5,6 +5,7 @@ import { scanCommand } from './commands/scan.js';
 import { watchCommand } from './commands/watch.js';
 import { analyzeCommand } from './commands/analyze.js';
 import { generateCommand } from './commands/generate.js';
+import { serveCommand } from './commands/serve.js';
 
 const program = new Command();
 
@@ -80,5 +81,14 @@ program
   .option('--include-graph', 'Include dependency graph', true)
   .option('-v, --verbose', 'Verbose output', false)
   .action(generateCommand);
+
+// Serve command - Host the visual dashboard
+program
+  .command('serve')
+  .description('Launch the PatternBook visual dashboard')
+  .argument('[directory]', 'Target directory with generated JSON data', '.')
+  .option('-p, --port <port>', 'Port to host dashboard on', '3000')
+  .option('-h, --host <host>', 'Host address', 'localhost')
+  .action(serveCommand);
 
 program.parse();
