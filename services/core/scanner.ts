@@ -3,7 +3,9 @@ import { statSync } from 'fs';
 import { resolve, relative, basename, dirname, extname } from 'path';
 import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
 import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
-
+import { Project } from 'ts-morph';
+import { isActuallyReactComponent } from '../utils/ast-helpers.js';
+import { shouldIgnore } from '../utils/ignore.js';
 export class ComponentScanner {
   private options: Required<ScanOptions>;
 
@@ -27,10 +29,7 @@ export class ComponentScanner {
 
   async scan(): Promise<ScanResult> {
     const startTime = Date.now();
-    const ignoreHandler = new IgnoreHandler(
-      this.options.directory,
-      this.options.respectGitignore,
-    );
+    
 
     // build exclude patterns
     const excludePatterns = [...this.options.exclude];
@@ -54,8 +53,33 @@ export class ComponentScanner {
 
     // filter using gitignore if enabled
     const filteredFiles = this.options.respectGitignore
-      ? ignoreHandler.filter(foundFiles)
-      : foundFiles;
+  ? foundFiles.filter(file => !shouldIgnore(resolve(this.options.directory, file), this.options.directory))
+  : foundFiles;
+      const project = new Project();
+      const verifiedComponentFiles: string[] = [];
+      let astIgnoredCount = 0;
+
+      if(this.options.verbose){
+        console.log('Verifying components with AST analysis...');
+      }
+      for (const file of filteredFiles){
+        const absolutePath = resolve(this.options.directory, file);
+
+        try{
+          const sourceFile = project.addSourceFileAtPath(absolutePath);
+          //test if actaully returns jsx element
+          if (isActuallyReactComponent(sourceFile)){
+            verifiedComponentFiles.push(file);
+          }else{
+            astIgnoredCount++;
+          }
+          project.removeSourceFile(sourceFile);
+        }catch (err) {
+          if (this.options.verbose) console.warn(`Skipping unparsable file: ${file}`);
+          astIgnoredCount++;
+        }
+        
+      }
 
     // convert to ComponentFile objects
     const componentFiles: ComponentFile[] = filteredFiles.map((file: string) => {

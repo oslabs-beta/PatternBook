@@ -5,6 +5,7 @@ import { resolve, dirname, join } from 'path';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
+import { createRequire } from 'module';
 
 // ES Module fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -166,11 +167,16 @@ root.render(<PreviewApp />);
   // Wrapped in try/catch so a port collision or misconfiguration never
   // prevents the Express dashboard from starting.
   try {
+    const require = createRequire(import.meta.url);//require function scoped to this file to resolve CLI dependencies
     const vite = await createViteServer({
       root: targetDir,
       server: {
         middlewareMode: true,
         hmr: false,
+        fs: {
+          // 2. Give Vite permission to read files from both the user's project AND PatternBook's root
+          allow: [targetDir, resolve(__dirname, '../../')]
+        }
       },
       appType: 'custom',
       // Use Vite 8's native OXC transformer for JSX — no plugin needed, no preamble issues.
@@ -182,6 +188,10 @@ root.render(<PreviewApp />);
         include: ['react', 'react-dom', 'react-live', 'prism-react-renderer'],
       },
       resolve: {
+        alias: {
+        'react-live': require.resolve('react-live'),
+          'prism-react-renderer': require.resolve('prism-react-renderer')
+        },
         dedupe: ['react', 'react-dom'],
       },
       logLevel: 'warn',
@@ -246,7 +256,8 @@ root.render(<PreviewApp />);
       req.path.startsWith('/patternbook-preview/') ||
       req.path.startsWith('/@vite/') ||
       req.path.startsWith('/@fs/') ||
-      req.path.startsWith('/node_modules/')
+      req.path.startsWith('/node_modules/') ||
+      req.path.match(/\.[a-zA-Z0-9]+$/)
     ) {
       return next();
     }
