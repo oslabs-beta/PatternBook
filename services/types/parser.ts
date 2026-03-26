@@ -5,12 +5,16 @@ export interface ComponentMetadata {
   path: string;
   relativePath: string;
   type: 'component' | 'hook' | 'utility' | 'other ';
+  description? :any ;
   tags?: string[];
   exports: ExportInfo;
   imports: ImportInfo[];
   props?: PropMetadata[];
   hooks?: { name: string; source?: string }[];
   documentation?: string;
+  apiCalls?: { url: string; method: string }[];
+  functionDefs?: { name: string; calls: { name: string; args: string[] }[] }[];
+  examples?: string[];
 }
 
 export interface ExportInfo {

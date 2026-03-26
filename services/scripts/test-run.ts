@@ -3,12 +3,13 @@ import { CodeParser } from '../core/parser.ts';
 import {
   generateMermaid,
   generateCallGraph,
-  convertParsedFilesToGraph,
 } from './visualizer.ts';
 import { Exporter } from '../core/exporter.ts';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { DependencyGraphBuilder } from '../core/dependency-graph.js';
+import { ComponentMetadata } from '../types/parser.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,42 +52,42 @@ const watcher = new ComponentWatcher({
   onError: err => console.error('Watcher error:', err),
 });
 
+const graphBuilder = new DependencyGraphBuilder();
 async function updateVisuals() {
   try {
-    // 1. Get files from Watcher
-    const components = watcher.getComponents();
+    // 1. Get components from watcher
+    const components: ComponentMetadata[] = watcher.getComponents();
 
-    // 2. Parse with CodeParser (which extracts API calls and function calls)
-    // Note: This is redundant parsing but necessary until Watcher uses CodeParser or equivalent
-    const parsedFiles = components.map(c => codeParser.parseFile(c.path));
+    // 2. Generate Dependency Graph
+    const dependencyGraph = graphBuilder.buildGraph(components);
+    const mermaidGraph = generateMermaid(dependencyGraph);
 
-    // 3. Generate GraphData using visualizer's converter
-    const graphData = convertParsedFilesToGraph(parsedFiles);
+    // 3. Generate Call Graph (Placeholder until we sync the logic)
+    const callGraph = generateCallGraph(components);
 
-    // 4. Generate Mermaid for Dependency Graph
-    const mermaidGraph = generateMermaid(graphData);
-
-    // 5. Generate Call Graph
-    const callGraph = generateCallGraph(parsedFiles);
-
-    // 6. Update README using Exporter
-    // Exporter handles finding README.md inside the directory if needed
+    // 4. Update README
     Exporter.updateReadme(readmePath, [
       {
         name: 'DEPENDENCY_GRAPH',
         title: 'Dependency Graph',
         content: mermaidGraph,
       },
-      { name: 'CALL_GRAPH', title: 'Call Graph', content: callGraph },
+      { 
+        name: 'CALL_GRAPH', 
+        title: 'Call Graph', 
+        content: callGraph 
+      },
     ]);
+   
 
-    // 7. Always save .mmd files for mmdc (image generation) and external tools
+    // 5. Save .mmd files for the Mermaid CLI
     const depGraphPath = path.resolve(process.cwd(), 'dependency-graph.mmd');
     const callGraphPath = path.resolve(process.cwd(), 'call-graph.mmd');
 
     fs.writeFileSync(depGraphPath, mermaidGraph);
-    fs.writeFileSync(callGraphPath, callGraph);
-    console.log(`Saved graphs to ${depGraphPath} and ${callGraphPath}`);
+    fs.writeFileSync(callGraphPath, callGraph); // This was likely the line causing the error
+    
+    console.log(`✅ Saved graphs to ${depGraphPath} and ${callGraphPath}`);
   } catch (error) {
     console.error('Error updating visuals:', error);
   }

@@ -53,3 +53,10 @@ Add examples with a `@example` JSDoc tag (coming soon):
  * <Button variant="primary">Click me</Button>
  */
 ```
+<!-- ## Next steps
+
+
+-  -->
+-  
+- [Installation →](/docs/getting-started)
+- [Features →](/docs/features)

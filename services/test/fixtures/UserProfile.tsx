@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './Button';
 import { useAuth } from './useAuth';
 import { useAppStore } from './store';
@@ -14,7 +14,7 @@ const formatUserName = (name: string) => {
   return name.toUpperCase();
 };
 
-export const UserProfile = ({ userId }: { userId: string }) => {
+export function UserProfile({ userId }: { userId: string }) {
   const [user, setUser] = useState<User | null>(null);
   const { addNotification } = useAppStore();
   const { login } = useAuth();

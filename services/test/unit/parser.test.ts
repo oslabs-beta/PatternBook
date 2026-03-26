@@ -1,16 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { CodeParser } from '../../core/parser';
+import { ReactParser } from '../...core/parsers/react-parser';
 import * as path from 'path';
 
-describe('CodeParser', () => {
-  const parser = new CodeParser();
-  const fixturesPath = path.resolve(__dirname, '../fixtures');
+describe('ReactParser Refactor', () => {
+  const parser = new ReactParser();
+  const fixturesPath = path.resolve(__dirname, '../fixtures/UserProfile.tsx');
 
-  it('should extract imports', () => {
-    const filePath = path.join(fixturesPath, 'UserProfile.tsx');
-    const result = parser.parseFile(filePath);
+  it('should extract both props AND api calls in one pass',async  () => {
+    //const filePath = path.join(fixturesPath, 'UserProfile.tsx');
+   // const result = parser.parseFile(filePath);
+   const result = await parser.parse(fixturePath);
 
-    expect(result.imports).toContain('./Button');
+   expect(result.sucess).toBe(true);
+   const metadata= result.metadata!;
+
+   expect(metadata.name).toBe('UserProfile');
+   expect(metadata.props?.some(p => p.name === 'userId')).toBe(true);
+    
+  });expect(metadata.apiCalls).toHaveLength(2);
+    expect(metadata.apiCalls![0].url).toContain('/api/users/${userId}');
+    expect(metadata.apiCalls![1].method).toBe('POST');
   });
 
   it('should extract API calls (fetch)', () => {
@@ -29,4 +38,4 @@ describe('CodeParser', () => {
     expect(postCall).toBeDefined();
     expect(postCall?.url).toBe('/api/users');
   });
-});
+
