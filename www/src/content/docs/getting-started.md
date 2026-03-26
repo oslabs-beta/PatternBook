@@ -19,10 +19,10 @@ npm install patternbook-cli
 
 #### 1. Initialise
 
-- Run the init command at your project root to create a `patternbook.config.json` file.
-
 ```bash
-npx patternbook init
+npm i patternbook-cli
+npx patternbook serve
+npx patternbook scan
 ```
 
 

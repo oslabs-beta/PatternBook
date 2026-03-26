@@ -24,8 +24,9 @@ Initial install:
 
 Running the Tool
 
-1. run `npx patternbook-cli`
-2. run `npm run generate-graph`
+1. run `npm i patternbook-cli`
+2. run `npx patternbook serve`
+3. run `npx patternbook scan`
 
 <!--   
   <p align="center">
