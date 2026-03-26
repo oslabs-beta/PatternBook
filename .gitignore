@@ -45,6 +45,7 @@ dist-ssr
 # Ignore dynamically generated patternbook dev files
 **/.patternbook
 .patternbook
+patternbook-preview/
 
 # Ignore generated static dashboard bundle
 services/public
