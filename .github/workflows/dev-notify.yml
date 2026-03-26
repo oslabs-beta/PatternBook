@@ -1,0 +1,56 @@
+name: Dev PR Workflow Notifications
+
+on:
+  pull_request:
+    types: [opened, closed]
+    branches:
+      - dev
+
+jobs:
+  notify_review_needed:
+    name: Notify PR Needs Review
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      # --- DISCORD ---
+      - name: Discord - PR Opened
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "👀 New PR Needs Approval"
+          description: "**${{ github.actor }}** opened PR #${{ github.event.pull_request.number }}. Please review!\n\n${{ github.event.pull_request.html_url }}"
+          color: 0xFEE75C # Yellow to indicate pending
+          nodetail: true # Keeps the notification visually clean
+
+      # --- SLACK ---
+      - name: Slack - PR Opened
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_TITLE: "New PR Needs Approval"
+          SLACK_MESSAGE: "${{ github.actor }} opened PR #${{ github.event.pull_request.number }}. Review it here: ${{ github.event.pull_request.html_url }}"
+          SLACK_COLOR: "warning" # Yellow border in Slack
+
+  notify_merged_update:
+    name: Notify PR Merged & Pull Required
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      # --- DISCORD ---
+      - name: Discord - PR Merged
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "🚀 Dev Branch Updated"
+          description: "PR #${{ github.event.pull_request.number }} was approved and merged.\n\n**Action:** Please run `git checkout dev && git pull` on your local machines."
+          color: 0x57F287 # Green for success
+          nodetail: true
+
+      # --- SLACK ---
+      - name: Slack - PR Merged
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_TITLE: "Dev Branch Updated"
+          SLACK_MESSAGE: "PR #${{ github.event.pull_request.number }} was approved and merged.\n*Action:* Please run `git checkout dev && git pull` on your local machines."
+          SLACK_COLOR: "good" # Green border in Slack
