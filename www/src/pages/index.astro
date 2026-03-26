@@ -10,9 +10,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PatternBook — Living Design System Documentation</title>
   <meta name="description" content="PatternBook auto-generates a living design system from your React & TypeScript components. Zero config. Instant live previews." />
-  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
 
@@ -23,15 +20,14 @@
     <div class="nav-inner">
       <a href="/" class="nav-brand">
         <img src="/logo.svg" alt="PatternBook logo" class="nav-logo" />
-        <span class="nav-title">PatternBook</span>
+        <span class="nav-title">P a t t e r n B o o k</span>
       </a>
-      <div class="nav-links">
-        <a href="/overview" class="nav-link">Docs</a>
+      <div class="nav-links">        
         <a href="/getting-started" class="nav-link">Getting Started</a>
+        <a href="/overview" class="nav-link">Docs</a>
         <a href="/contributing" class="nav-link">Join Us!</a>
-        <a href="linkedin.com/company/PatternBook-cli" class="nav-link" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://www.linkedin.com/company/PatternBook-cli" class="nav-link" target="_blank" rel="noopener">LinkedIn ↗</a>
         <a href="https://github.com/oslabs-beta/PatternBook" class="nav-link" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="/getting-started" class="btn btn-primary btn-sm">Get Started</a>
       </div>
     </div>
   </nav>
@@ -40,42 +36,64 @@
   <section class="hero">
     <!-- Background glow orbs -->
     <div class="glow glow-1"></div>
-    <div class="glow glow-2"></div>
     <div class="glow glow-3"></div>
 
     <div class="hero-inner">
       <!-- Badge -->
       <div class="hero-badge glass-subtle">
         <span class="badge-dot"></span>
-        Open Source · Zero Config
+        O p e n - S o u r c e 
+        <span class="badge-dot"></span>
       </div>
 
       <!-- Headline -->
-      <h1 class="hero-headline">
-        Your components,<br />
-        <span class="gradient-text">documented automatically</span>
-      </h1>
-
+      <h2 class="hero-headline">
+      <span class="gradient-text">Your components </span>
+      <br>   documented <span class="gradient-text">automatically</span>
+      </h2>
       <!-- Subtitle -->
       <p class="hero-sub">
-        PatternBook statically analyses your React &amp; TypeScript components
-        and generates a living design system — with live previews, prop tables,
-        and source code — no configuration required.
+        PatternBook statically analyses your React &amp; TypeScript components to generate a living design system with live previews, prop tables, and source code, with no configuration required.
       </p>
+
+  </section>
 
       <!-- CTAs -->
       <div class="hero-ctas">
-        <a href="/getting-started" class="btn btn-primary btn-lg">
+        <a href="/getting-started" class="btn btn-primary btn-md">
           Get Started
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="https://github.com/oslabs-beta/PatternBook" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        <a href="https://github.com/oslabs-beta/PatternBook" class="btn btn-primary btn-md" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
           View on GitHub
         </a>
       </div>
 
-      <!-- Hero visual: glass card mockup -->
+
+  <!-- ── FEATURES ───────────────────────────────────────────────────── -->
+  <section class="section features">
+    <div class="container">
+      <div class="section-label">Why PatternBook?</div>
+      <h2 class="section-title">
+      PatternBook is everything your design system needs.</h2>
+      <p>
+       PatternBook reads your code and automatically generates Documentation.</p>
+      
+      <div class="features-grid">
+
+
+        <div class="feature-card glass">
+          <h3 class="feature-title">Zero Config</h3>
+          <p class="feature-desc">Point PatternBook at your components folder and it handles the rest. No YAML, no decorators, no annotations.</p>
+        </div>
+        <div class="feature-card glass">
+          <h3 class="feature-title">Live Previews</h3>
+          <p class="feature-desc">Every example is rendered live in the browser. Edit the code inline and watch the preview update in real time.</p>
+
+          <!-- Hero visual: glass card mockup -->
       <div class="hero-card glass">
         <div class="mockup-topbar">
           <span class="dot dot-red"></span>
@@ -112,43 +130,22 @@
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- ── FEATURES ───────────────────────────────────────────────────── -->
-  <section class="section features">
-    <div class="container">
-      <div class="section-label">Why PatternBook</div>
-      <h2 class="section-title">Everything your design system needs</h2>
-      <p class="section-sub">Stop writing docs by hand. PatternBook reads your code and generates a living reference automatically.</p>
-
-      <div class="features-grid">
+          
+     
         <div class="feature-card glass">
-          <div class="feature-icon">⚡</div>
-          <h3 class="feature-title">Zero Config</h3>
-          <p class="feature-desc">Point PatternBook at your components folder and it handles the rest. No YAML, no decorators, no annotations.</p>
-        </div>
-        <div class="feature-card glass">
-          <div class="feature-icon">🎨</div>
-          <h3 class="feature-title">Live Previews</h3>
-          <p class="feature-desc">Every example is rendered live in the browser. Edit the code inline and watch the preview update in real time.</p>
-        </div>
-        <div class="feature-card glass">
-          <div class="feature-icon">📋</div>
           <h3 class="feature-title">Auto Prop Tables</h3>
           <p class="feature-desc">TypeScript types and JSDoc comments are extracted automatically into a searchable, filterable prop reference.</p>
         </div>
         <div class="feature-card glass">
-          <div class="feature-icon">🔍</div>
           <h3 class="feature-title">Smart Search</h3>
           <p class="feature-desc">Find any component instantly by name, description, or tag. Categories keep everything organised as your library grows.</p>
         </div>
         <div class="feature-card glass">
-          <div class="feature-icon">🔄</div>
           <h3 class="feature-title">Always Up-to-Date</h3>
           <p class="feature-desc">PatternBook watches your files and regenerates the manifest on every save. Your docs can never fall out of sync.</p>
         </div>
         <div class="feature-card glass">
-          <div class="feature-icon">📦</div>
           <h3 class="feature-title">Source Code Viewer</h3>
           <p class="feature-desc">View the full source of any component with syntax highlighting, right alongside the rendered preview.</p>
         </div>
@@ -207,8 +204,13 @@
         <h2 class="cta-title">Ready to ship your design system?</h2>
         <p class="cta-sub">Get PatternBook running in your project in under five minutes.</p>
         <div class="cta-actions">
-          <a href="/getting-started" class="btn btn-primary btn-lg">Get Started</a>
-          <a href="/overview" class="btn btn-outline btn-lg">Read the Docs</a>
+          <a href="/getting-started" class="btn btn-primary btn-md">Get Started</a>
+          <a href="/overview" class="btn btn-primary btn-md">Read the Docs</a>
+                  <a href="https://github.com/oslabs-beta/PatternBook" class="btn btn-primary btn-md" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          View on GitHub
+        </a>
         </div>
       </div>
     </div>
@@ -219,12 +221,19 @@
     <div class="container footer-inner">
       <div class="footer-brand">
         <img src="/logo.svg" alt="PatternBook" class="footer-logo" />
-        <span class="footer-name">PatternBook</span>
+        <span class="footer-name">P a t t e r n B o o k</span>
       </div>
-      <p class="footer-copy">© 2026 PatternBook. Open source under the MIT license.</p>
+      <p class="footer-copy">© 2026 PatternBook. Open Source under the MIT license.</p>
       <div class="footer-links">
         <a href="/overview" class="footer-link">Docs</a>
         <a href="https://github.com/oslabs-beta/PatternBook" class="footer-link" target="_blank" rel="noopener">GitHub</a>
+        <a href="/getting-started" class="footer-link" target="_blank" rel="noopener">Getting Started</a>
+        <a href="/overview"  class="footer-link" target="_blank" rel="noopener"> Docs</a>
+        <a href="/contributing"  class="footer-link" target="_blank" rel="noopener">Join Us!</a>
+        <a href="https://www.linkedin.com/company/PatternBook-cli"  class="footer-link" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a href="https://github.com/oslabs-beta/PatternBook"  class="footer-link" target="_blank" rel="noopener">GitHub ↗</a>
+  
+  
       </div>
     </div>
   </footer>
@@ -281,11 +290,12 @@
     font-weight: 500;
     border-radius: 0.6rem;
     cursor: pointer;
+    padding: .5rem;
     transition: all 0.2s ease;
     border: none;
   }
   .btn-primary {
-    background: #2563eb;
+    background: #0f2556;
     color: #fff;
     box-shadow: 0 0 0 1px #1d4ed8, 0 4px 20px rgba(37,99,235,0.35);
   }
@@ -343,7 +353,7 @@
     gap: 0.6rem;
     font-weight: 600;
     font-size: 1rem;
-    color: #f1f5f9;
+    color: #bcd6f1;
     letter-spacing: -0.01em;
   }
   .nav-logo { width: 40px; height: 40px; }
@@ -353,12 +363,12 @@
     color: #94a3b8;
     transition: color 0.15s;
   }
-  .nav-link:hover { color: #f1f5f9; }
+  .nav-link:hover { color: #b3d1f0; }
 
   /* ── HERO ────────────────────────────────────────────────────────── */
   .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 50vh;
     display: flex;
     align-items: center;
     padding: 8rem 1.5rem 5rem;
@@ -380,13 +390,13 @@
   }
   .glow-2 {
     width: 500px; height: 500px;
-    background: radial-gradient(circle, #7c3aed, transparent 70%);
+    background: radial-gradient(circle, #6d35ce, transparent 70%);
     top: 20%; right: -200px;
     opacity: 0.25;
   }
   .glow-3 {
     width: 400px; height: 400px;
-    background: radial-gradient(circle, #0ea5e9, transparent 70%);
+    background: radial-gradient(circle, #95b1be, transparent 70%);
     bottom: 0; left: 40%;
     opacity: 0.2;
   }
@@ -396,7 +406,7 @@
     z-index: 1;
     max-width: 1140px;
     margin: 0 auto;
-    width: 100%;
+    width: 90%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -408,33 +418,33 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.35rem 1rem;
-    font-size: 0.78rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
     color: #93c5fd;
-    font-weight: 500;
+    font-weight: 200;
   }
   .badge-dot {
     width: 6px; height: 6px;
-    border-radius: 50%;
+    border-radius: 60%;
     background: #22c55e;
-    box-shadow: 0 0 6px #22c55e;
+    box-shadow: 0 0 10px #22c55e;
   }
 
   .hero-headline {
     font-size: clamp(2.5rem, 6vw, 4.25rem);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    color: #f8fafc;
-    max-width: 780px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #8bbdef;
+    max-width: 900px;
   }
 
   .hero-sub {
     font-size: 1.15rem;
-    color: #94a3b8;
-    max-width: 580px;
+    color: #8bbdef;
+    max-width: 700px;
     line-height: 1.7;
-    font-weight: 400;
+    font-weight: 300;
   }
 
   .hero-ctas {
@@ -554,8 +564,8 @@
   }
 
   .section-label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 1.2rem;
+    font-weight: 550;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #3b82f6;
@@ -563,12 +573,12 @@
     text-align: center;
   }
   .section-title {
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 700;
     letter-spacing: -0.025em;
-    color: #f1f5f9;
+    color: #7bb4ec;
     text-align: center;
-    max-width: 640px;
+    max-width: 900px;
     margin: 0 auto 1rem;
     line-height: 1.2;
   }
@@ -576,7 +586,7 @@
     font-size: 1rem;
     color: #64748b;
     text-align: center;
-    max-width: 560px;
+    max-width: 700px;
     margin: 0 auto 3.5rem;
     line-height: 1.7;
   }

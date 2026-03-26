@@ -2,9 +2,24 @@
 
 Welcome to <b> PatternBook! </b>
 
-PatternBook is a lightweight zero-config component mapping tool designed to run in the CLI and generate documentation in less than 30 seconds.
+PatternBook is an Open Source lightweight zero-config component mapping tool designed to run in the CLI and generate documentation in less than 30 seconds.
+
+
+We currently support the following: 
+- <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+- <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+- <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite">
+- <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
 
 ## <img src="www/public/logo.svg" alt="Description" width="35" /> Setup
+
+### Requirements
+
+- Node.js 18+
+- A React + TypeScript project
+
+
+
 Initial install:
 
 Running the Tool
@@ -17,11 +32,12 @@ Running the Tool
       <img src="./assets/office.gif"/>
   </p> -->
 
-## Usage guidelines
+### Usage guidelines
 
-Links to other documentation that might help (react docs or stack overflow)
-
-Watch the [Demo ](http://www.youtube)
+- Visit our [website](https://www.patternbook.dev).
+- Checkout our repo on [github](https://github.com/oslabs-beta/PatternBook)
+- Watch the [Demo ](http://www.youtube).
+- Connect with us on [LinkedIn](linkedin.com/company/PatternBook-cli).
 
 ## <img src="www/public/logo.svg" alt="Description" width="35" /> Contributing Instructions
 
@@ -33,7 +49,7 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 
 #### more detailed instructions: 
 
-1. <a href="https://github.com/oslabs-beta/PatternBook"> Clone </a> our Repo.
+1.  <a href="https://github.com/oslabs-beta/PatternBook"> Clone </a> our Repo. 
 2. Create  <a href =" how to branch link "> a new branch</a>.
 3. Do your thing! 
 4. Run our <a href=" test info"> tests</a>.
@@ -67,6 +83,8 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 ## <img src="www/public/logo.svg" alt="Description" width="35" />  Contributors:
 
 ### Meet the OG Team
+
+
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Dylan Pangilinan - front end software engineer
 > 
 > <dylana.pangilinan@gmail.comn>  
@@ -92,3 +110,10 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 > <trishedith@gmail.com>  
 >  [github](https://github.com/trishedith) | [LinkedIn](https://www.linkedin.com/in/trishomeara)
 
+
+
+
+https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white "github")
+
+![license](https://img.shields.io/badge/MIT-green?style=for-the-badge) 
+PatternBook uses an MI license.  More info can be found [here](./LICENSE).
