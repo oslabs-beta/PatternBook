@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { ComponentManifest } from "../types/manifest";
 import { useRegistryStore } from "../stores/registryStore";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 
 /**
  * Hook to load and manage the component manifest
@@ -103,7 +103,21 @@ function transformApiDataToManifest(apiData: any): ComponentManifest {
       defaultValue: p.defaultValue,
       description: p.description,
     })),
-    examples: [],  // TODO: Add examples generation in backend
+    examples: c.examples || [
+      {
+        title: "Basic Usage",
+        code: (() => {
+          const name = c.name;
+          const hasChildren = c.props?.some((p: any) => p.name === 'children');
+          if (name.includes('Button')) return `<${name}>Click me</${name}>`;
+          if (name.includes('Badge') || name.includes('Label')) return `<${name}>New</${name}>`;
+          if (name.includes('Avatar')) return `<${name} fallback="AB" />`;
+          if (name.includes('Card')) return `<${name}>\n  <div>Card Content</div>\n</${name}>`;
+          if (hasChildren) return `<${name}>Example content</${name}>`;
+          return `<${name} />`;
+        })()
+      }
+    ], // Auto-generate an example wrapper so components render by default
     sourceCode: '', // TODO: Add source code in backend
     tags: c.tags || [],
     exports: [c.name],

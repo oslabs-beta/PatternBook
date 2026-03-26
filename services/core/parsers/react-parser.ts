@@ -79,6 +79,7 @@ export class ReactParser implements Parser {
 
       if (options.extractDocs) {
         metadata.documentation = this.extractDocumentation(exportedNode);
+        metadata.examples = this.extractExamples(exportedNode);
       }
 
       return { success: true, metadata };
@@ -190,6 +191,23 @@ export class ReactParser implements Parser {
     });
 
     return functionDefs;
+  }
+
+  private extractExamples(node: any): string[] | undefined {
+    const jsDocs = node.getJsDocs?.();
+    if (!jsDocs || jsDocs.length === 0) return undefined;
+
+    const examples: string[] = [];
+    jsDocs.forEach((doc: any) => {
+      doc.getTags().forEach((tag: any) => {
+        if (tag.getTagName() === 'example') {
+          const exampleText = tag.getText().replace(/^@example\s*/g, '').trim();
+          if (exampleText) examples.push(exampleText);
+        }
+      });
+    });
+
+    return examples.length > 0 ? examples : undefined;
   }
 
   async parseMany(filePaths: string[], options?: ParseOptions): Promise<ParseResult[]> {

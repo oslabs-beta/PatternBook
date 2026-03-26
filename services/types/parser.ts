@@ -11,8 +11,9 @@ export interface ComponentMetadata {
   props?: PropMetadata[];
   hooks?: { name: string; source?: string }[];
   documentation?: string;
-  apiCalls?: { url : string; method: string }[];
-  functionDefs?: { name: string; calls: { name: string; args: string []}[]}[];
+  apiCalls?: { url: string; method: string }[];
+  functionDefs?: { name: string; calls: { name: string; args: string[] }[] }[];
+  examples?: string[];
 }
 
 export interface ExportInfo {
