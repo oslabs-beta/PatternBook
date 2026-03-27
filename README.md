@@ -88,7 +88,7 @@ PatternBook is an Open Source product that happily welcomes contributions.  We i
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Dylan Pangilinan - front end software engineer
 > 
-> <dylana.pangilinan@gmail.comn>  
+> <dylana.pangilinan@gmail.com>  
 > [github](https://github.com/dylpang) | [LinkedIn](https://www.linkedin.com/in/dylan-pangilinan-0a2bb01b8/)
 
 > <img src="www/public/logo.svg" alt="Description" width="25" /> Ever Martinez - back end software engineer
