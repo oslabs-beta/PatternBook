@@ -3,31 +3,54 @@ title: Configuration
 description: Configure PatternBook for your project.
 ---
 
-PatternBook is designed to work with zero config, but you can customise its behaviour through `patternbook.config.json`.
+PatternBook works out of the box with zero configuration — just point it at your project directory and run `npx patternbook serve .`.
 
-## Config file
+## CLI Options
 
-```json
-{
-  "componentsDir": "src/components",
-  "outputDir": ".patternbook",
-  "include": ["**/*.tsx", "**/*.ts"],
-  "exclude": ["**/*.test.tsx", "**/*.stories.tsx"],
-  "projectName": "My Design System"
-}
+All commands accept these common flags:
+
+| Flag                      | Description                                      |
+| ------------------------- | ------------------------------------------------ |
+| `-o, --output <file>`     | Output file path for the manifest or graph       |
+| `-v, --verbose`           | Enable verbose logging                           |
+| `-p, --port <port>`       | Port for the dashboard server (default: `3000`)  |
+| `-f, --framework <name>`  | Target framework: `react`, `vue`, `svelte`, `auto` |
+
+## Serve options
+
+```bash
+npx patternbook serve [directory] [options]
+
+Options:
+  -p, --port <port>   Port to host dashboard on (default: 3000)
+  -h, --host <host>   Host address (default: localhost)
 ```
 
-## Options
+## Generate options
 
-| Option          | Type       | Default            | Description                             |
-| --------------- | ---------- | ------------------ | --------------------------------------- |
-| `componentsDir` | `string`   | `"src/components"` | Directory to scan for components        |
-| `outputDir`     | `string`   | `".patternbook"`   | Where to write the manifest and viewer  |
-| `include`       | `string[]` | `["**/*.tsx"]`     | Glob patterns to include                |
-| `exclude`       | `string[]` | `[]`               | Glob patterns to exclude                |
-| `projectName`   | `string`   | Directory name     | Name shown in the viewer header         |
-| `port`          | `number`   | `3030`             | Port for `patternbook serve`            |
-| `watch`         | `boolean`  | `true`             | Re-analyse on file changes when serving |
+```bash
+npx patternbook generate [directory] [options]
+
+Options:
+  -o, --output <file>   Output manifest file (default: library-manifest.json)
+  --include-docs        Include JSDoc documentation (default: true)
+  --include-props       Include prop definitions (default: true)
+  --include-hooks       Include hook usage (default: true)
+  --include-graph       Include dependency graph (default: true)
+```
+
+## Scan options
+
+```bash
+npx patternbook scan [directory] [options]
+
+Options:
+  -f, --framework <name>   Target framework (default: auto)
+  -p, --pattern <glob>     File pattern to match
+  -e, --exclude <glob>     Pattern to exclude
+  --include-node-modules   Include node_modules in scan
+  -o, --output <file>      Output file (default: scan-results.json)
+```
 
 ## Categories
 
@@ -45,18 +68,17 @@ export function Button({ children }: ButtonProps) {
 
 ## Examples
 
-Add examples with a `@example` JSDoc tag (coming soon):
+Add live preview examples with a `@example` JSDoc tag:
 
 ```tsx
 /**
  * @example
  * <Button variant="primary">Click me</Button>
  */
+export function Button({ variant, children }: ButtonProps) {
+  // ...
+}
 ```
-<!-- ## Next steps
 
-
--  -->
--  
-- [Installation →](/docs/getting-started)
-- [Features →](/docs/features)
+- [Installation →](/getting-started)
+- [Contributing →](/contributing)
