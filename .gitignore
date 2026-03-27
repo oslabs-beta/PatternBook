@@ -23,6 +23,7 @@ dist-ssr
 
 
 # Ignore Editor directories and files
+.vscode
 */.vscode
 **/.vscode
 /.vscode/
@@ -38,9 +39,13 @@ dist-ssr
 *.sw?
 
 # Ignore all backend-service outputs
+repomix-output.xml
+*/repomix-output.xml
 **/repomix-output.xml
 **/library-manifest.json
 **/dependency-graph.*
+call-graph.mmd
+**/call-graph.mmd
 
 # Ignore dynamically generated patternbook dev files
 **/.patternbook
