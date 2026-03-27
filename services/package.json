@@ -1,6 +1,6 @@
 {
   "name": "patternbook-cli",
-  "version": "0.3.12",
+  "version": "0.3.14",
   "description": "Backend core services and CLI for PatternBook",
   "main": "./dist/cli/index.js",
   "bin": {
@@ -39,10 +39,8 @@
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "ora": "^9.1.0",
-    "path": "^0.12.7",
     "prettier": "3.8.1",
     "react-live": "^4.1.7",
-    "repomix": "^1.11.1",
     "ts-morph": "^27.0.2",
     "vite": "^8.0.2"
   },
@@ -57,6 +55,7 @@
     "eslint": "^10.0.2",
     "globals": "^17.3.0",
     "husky": "^9.1.7",
+    "repomix": "^1.11.1",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1",

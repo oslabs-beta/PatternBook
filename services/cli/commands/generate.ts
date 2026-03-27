@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 import { ComponentScanner } from '../../core/scanner.js';
 import { parserFactory } from '../../core/parsers/index.js';
-import { ManifestGenerator } from '../../services/manifest-generator.js';
+import { ManifestGenerator } from '../../core/manifest-generator.js';
 
 interface GenerateCommandOptions {
   output?: string;
@@ -50,7 +50,7 @@ export async function generateCommand(
     const outputPath = options.output || 'library-manifest.json';
 
     // This one line replaces about 25 lines of the old code
-    generator.generate(components, outputPath, options);
+    generator.generate(components, outputPath);
 
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
 

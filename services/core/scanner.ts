@@ -1,8 +1,11 @@
 import fg from 'fast-glob';
 import { statSync } from 'fs';
-import { resolve, relative, basename, dirname, extname } from 'path';
-import { getFrameworkPatterns, DEFAULT_EXCLUDE_PATTERNS } from './patterns.js';
+import { resolve, basename, dirname, extname } from 'path';
+import { getFrameworkPatterns } from './patterns.js';
 import type { ScanOptions, ScanResult, ComponentFile } from '../types/index.js';
+import { Project } from 'ts-morph';
+import { isActuallyReactComponent } from '../utils/ast-helpers.js';
+import { shouldIgnore } from '../utils/ignore.js';
 
 export class ComponentScanner {
   private options: Required<ScanOptions>;
@@ -27,12 +30,8 @@ export class ComponentScanner {
 
   async scan(): Promise<ScanResult> {
     const startTime = Date.now();
-    const ignoreHandler = new IgnoreHandler(
-      this.options.directory,
-      this.options.respectGitignore,
-    );
 
-    // build exclude patterns
+    // Build exclude patterns
     const excludePatterns = [...this.options.exclude];
     if (!this.options.includeNodeModules) {
       excludePatterns.push('**/node_modules/**');
@@ -43,7 +42,7 @@ export class ComponentScanner {
       console.log('Excluding:', excludePatterns);
     }
 
-    // scan for files using fast-glob
+    // Scan for files using fast-glob
     const foundFiles = await fg(this.options.pattern, {
       cwd: this.options.directory,
       ignore: excludePatterns,
@@ -52,13 +51,42 @@ export class ComponentScanner {
       followSymbolicLinks: false,
     });
 
-    // filter using gitignore if enabled
+    // Filter using gitignore if enabled
     const filteredFiles = this.options.respectGitignore
-      ? ignoreHandler.filter(foundFiles)
+      ? foundFiles.filter(file => !shouldIgnore(resolve(this.options.directory, file), this.options.directory))
       : foundFiles;
 
-    // convert to ComponentFile objects
-    const componentFiles: ComponentFile[] = filteredFiles.map((file: string) => {
+    // AST verification: only keep files that actually export a React component
+    const project = new Project();
+    const verifiedComponentFiles: string[] = [];
+    let astIgnoredCount = 0;
+
+    if (this.options.verbose) {
+      console.log('Verifying components with AST analysis...');
+    }
+
+    for (const file of filteredFiles) {
+      const absolutePath = resolve(this.options.directory, file);
+      try {
+        const sourceFile = project.addSourceFileAtPath(absolutePath);
+        if (isActuallyReactComponent(sourceFile)) {
+          verifiedComponentFiles.push(file);
+        } else {
+          astIgnoredCount++;
+        }
+        project.removeSourceFile(sourceFile);
+      } catch (err) {
+        if (this.options.verbose) console.warn(`Skipping unparsable file: ${file}`);
+        astIgnoredCount++;
+      }
+    }
+
+    if (this.options.verbose) {
+      console.log(`AST verification: ${verifiedComponentFiles.length} components found, ${astIgnoredCount} files skipped.`);
+    }
+
+    // Convert verified files to ComponentFile objects
+    const componentFiles: ComponentFile[] = verifiedComponentFiles.map((file: string) => {
       const absolutePath = resolve(this.options.directory, file);
       const stats = statSync(absolutePath);
 
@@ -80,15 +108,15 @@ export class ComponentScanner {
         totalFiles: componentFiles.length,
         totalDirectories: new Set(componentFiles.map(f => f.directory)).size,
         scanDuration,
-        filesScanned: componentFiles.length,
-        filesIgnored: foundFiles.length - filteredFiles.length,
+        filesScanned: foundFiles.length,
+        filesIgnored: foundFiles.length - verifiedComponentFiles.length,
       },
       config: this.options,
     };
   }
 }
 
-// convenience function for quick scanning
+// Convenience function for quick scanning
 export async function scanForComponents(
   options: ScanOptions,
 ): Promise<ScanResult> {
