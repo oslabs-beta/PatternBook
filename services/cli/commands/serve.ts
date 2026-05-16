@@ -27,7 +27,7 @@ export async function serveCommand(
   if (existsSync(publicPath)) {
     app.use(express.static(publicPath));
   } else {
-    console.warn(chalk.yellow(`⚠️  Dashboard frontend not found inside ${publicPath}. Did you build the client?`));
+    console.warn(chalk.yellow(`Dashboard frontend not found inside ${publicPath}. Did you build the client?`));
   }
 
   let manifestCache: any = null;
@@ -49,7 +49,7 @@ export async function serveCommand(
   dependencyGraphCache = loadManifest(DEPENDENCY_GRAPH_PATH);
 
   if (!manifestCache) {
-    console.log(chalk.yellow(`⚠️  No manifest found at ${MANIFEST_PATH}. Auto-generating...`));
+    console.log(chalk.yellow(`No manifest found at ${MANIFEST_PATH}. Auto-generating...`));
     // Dynamic import to avoid circular dependency issues at the top of file
     const { generateCommand } = await import('./generate.js');
     await generateCommand(targetDir, { output: MANIFEST_PATH, verbose: false });
@@ -155,7 +155,7 @@ root.render(<PreviewApp />);
   watchFile(MANIFEST_PATH, { interval: 1000 }, () => {
     manifestCache = loadManifest(MANIFEST_PATH);
     generatePreviewApp(); // regenerate virtual registry when manifest updates
-    console.log(chalk.blue(`🔄 Reloaded manifest.json and virtual registry`));
+    console.log(chalk.blue(`Reloaded manifest.json and virtual registry`));
   });
 
   watchFile(DEPENDENCY_GRAPH_PATH, { interval: 1000 }, () => {
@@ -187,9 +187,9 @@ root.render(<PreviewApp />);
       logLevel: 'warn',
     });
     app.use(vite.middlewares);
-    console.log(chalk.green('✓ Vite component bundler attached.'));
+    console.log(chalk.green('Vite component bundler attached.'));
   } catch (err) {
-    console.warn(chalk.yellow('⚠️  Vite bundler failed to start — live component preview will be unavailable.'));
+    console.warn(chalk.yellow('Vite bundler failed to start — live component preview will be unavailable.'));
     console.warn(chalk.gray(err instanceof Error ? err.message : String(err)));
   }
 
@@ -258,7 +258,7 @@ root.render(<PreviewApp />);
   });
 
   app.listen(PORT, HOST, () => {
-    console.log(chalk.green(`\n🚀 PatternBook Dashboard & Dynamic Bundler running!`));
+    console.log(chalk.green(`PatternBook Dashboard & Dynamic Bundler running!`));
     console.log(chalk.cyan(`   http://${HOST}:${PORT}`));
     console.log(chalk.gray(`   Serving project: ${targetDir}\n`));
   });

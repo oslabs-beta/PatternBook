@@ -51,7 +51,7 @@ export class ReactParser implements Parser {
       const exportedNode = this.findExportedFunction(sourceFile);
 
       if (!exportedNode) {
-        if (options.verbose) console.log(`⚠️ No exported function in ${filePath}`);
+        if (options.verbose) console.log(`No exported function in ${filePath}`);
         return { success: false, error: 'No exported function found' };
       }
 

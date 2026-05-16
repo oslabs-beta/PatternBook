@@ -55,7 +55,7 @@ export async function generateCommand(
     spinner.succeed(chalk.green(`✓ Generated manifest: ${outputPath}`));
 
     // Summary logging
-    console.log(chalk.cyan(`\n📊 Summary:`));
+    console.log(chalk.cyan(`Summary:`));
     console.log(`   Components: ${components.filter(c => c.type === 'component').length}`);
     console.log(`   Hooks: ${components.filter(c => c.type === 'hook').length}`);
 

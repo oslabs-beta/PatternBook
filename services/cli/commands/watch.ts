@@ -13,7 +13,7 @@ export async function watchCommand(
   directory: string,
   options: WatchCommandOptions,
 ): Promise<void> {
-  console.log(chalk.blue.bold('🚀 Starting PatternBook Watcher...\n'));
+  console.log(chalk.blue.bold('Starting PatternBook Watcher...\n'));
   console.log(chalk.gray(`Directory: ${directory}`));
   console.log(chalk.gray(`Framework: ${options.framework || 'auto'}`));
   console.log(
@@ -57,7 +57,7 @@ export async function watchCommand(
 
       onReady: () => {
         console.log(
-          chalk.green('✅ Watcher ready. Monitoring for changes...\n'),
+          chalk.green('Watcher ready. Monitoring for changes...\n'),
         );
       },
     });
@@ -66,7 +66,7 @@ export async function watchCommand(
     process.on('SIGINT', async () => {
       console.log(chalk.yellow('\n\n⏹  Stopping watcher...'));
       await watcher.stop();
-      console.log(chalk.green('✓ Watcher stopped'));
+      console.log(chalk.green('Watcher stopped'));
       process.exit(0);
     });
   } catch (error) {
@@ -79,10 +79,10 @@ function getPatternsByFramework(framework: string): string[] {
   switch (framework) {
     case 'react':
       return ['**/*.{tsx,jsx}'];
-    case 'vue':
-      return ['**/*.vue'];
-    case 'svelte':
-      return ['**/*.svelte'];
+    // case 'vue':
+    //   return ['**/*.vue'];
+    // case 'svelte':
+    //   return ['**/*.svelte'];
     default:
       return ['**/*.{tsx,jsx,vue,svelte}'];
   }

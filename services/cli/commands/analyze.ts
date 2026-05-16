@@ -55,14 +55,14 @@ export async function analyzeCommand(
     );
 
     // Display statistics
-    console.log(chalk.cyan('\n📊 Project Statistics:'));
+    console.log(chalk.cyan('Project Statistics:'));
     console.log(`   Components: ${graph.metadata.componentsCount}`);
     console.log(`   Hooks: ${graph.metadata.hooksCount}`);
     console.log(`   Dependencies: ${graph.metadata.totalEdges}`);
 
     // Step 4: Impact analysis (if target specified)
     if (options.target) {
-      console.log(chalk.yellow(`\n⚠️  Impact Analysis for: ${options.target}`));
+      console.log(chalk.yellow(`Impact Analysis for: ${options.target}`));
 
       const targetNode = graph.nodes.find(
         n => n.filePath.includes(options.target!) || n.name === options.target,
@@ -80,17 +80,17 @@ export async function analyzeCommand(
         );
 
         if (impact.affectedComponents.length > 0) {
-          console.log(`\n   Affected Components:`);
+          console.log(`   Affected Components:`);
           impact.affectedComponents.forEach(comp => {
             console.log(`   - ${comp}`);
           });
         } else {
           console.log(
-            `   ✓ No components depend on this file (safe to modify)`,
+            `   No components depend on this file (safe to modify)`,
           );
         }
       } else {
-        console.log(chalk.red(`   ✗ Target not found in project`));
+        console.log(chalk.red(`   Target not found in project`));
       }
     }
 
@@ -102,19 +102,19 @@ export async function analyzeCommand(
       writeFileSync(outputPath.replace('.json', '.mmd'), mermaid);
       console.log(
         chalk.green(
-          `\n💾 Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`,
+          `Mermaid diagram saved to: ${outputPath.replace('.json', '.mmd')}`,
         ),
       );
     } else {
       writeFileSync(outputPath, graphBuilder.toJSON());
-      console.log(chalk.green(`\n💾 Dependency graph saved to: ${outputPath}`));
+      console.log(chalk.green(`Dependency graph saved to: ${outputPath}`));
     }
 
     // Step 6: Warnings
     if (graph.metadata.circularDependencies.length > 0) {
       console.log(
         chalk.red(
-          `\n⚠️  Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`,
+          `Warning: ${graph.metadata.circularDependencies.length} circular dependencies detected!`,
         ),
       );
     }
